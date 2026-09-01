@@ -502,29 +502,128 @@
             if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
         }
 
-        function playPaper(kind) {
-            if (!audioCtx) return;
-            const t = audioCtx.currentTime;
-            const dur = kind === 'open' ? 0.28 : 0.16;
-            const bufferSize = audioCtx.sampleRate * dur;
-            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        function fillNoise(buffer, fn) {
             const data = buffer.getChannelData(0);
-            for (let i = 0; i < bufferSize; i++) {
-                const env = Math.pow(1 - i / bufferSize, 2.2);
-                data[i] = (Math.random() * 2 - 1) * env * (kind === 'open' ? 0.22 : 0.16);
+            let brown = 0;
+            for (let i = 0; i < data.length; i++) {
+                const white = Math.random() * 2 - 1;
+                brown = (brown + 0.02 * white) / 1.02;
+                data[i] = fn(i / data.length, white, brown);
             }
-            const noise = audioCtx.createBufferSource();
-            noise.buffer = buffer;
+            return buffer;
+        }
+
+        function startNoise(buffer, filterType, freq, q, gainValue, when) {
+            const src = audioCtx.createBufferSource();
+            src.buffer = buffer;
             const filter = audioCtx.createBiquadFilter();
-            filter.type = 'bandpass';
-            filter.frequency.value = kind === 'open' ? 680 : 1400;
-            filter.Q.value = 0.7;
+            filter.type = filterType;
+            filter.frequency.value = freq;
+            filter.Q.value = q;
             const gain = audioCtx.createGain();
-            gain.gain.value = 0.55;
-            noise.connect(filter);
+            gain.gain.value = gainValue;
+            src.connect(filter);
             filter.connect(gain);
             gain.connect(audioCtx.destination);
-            noise.start();
+            src.start(when);
+            return { src, filter, gain };
+        }
+
+        function playPaper() {
+            if (!audioCtx) return;
+            const t = audioCtx.currentTime;
+            const sr = audioCtx.sampleRate;
+            const dur = 0.36;
+            const buffer = fillNoise(audioCtx.createBuffer(1, Math.floor(sr * dur), sr), (x, white, brown) => {
+                const peel = Math.sin(Math.PI * Math.min(1, x / 0.32));
+                const lay = x < 0.28 ? 0 : Math.sin(Math.PI * Math.min(1, (x - 0.28) / 0.72));
+                const env = (peel * 0.4 + lay * 0.85) * Math.pow(1 - x, 0.4);
+                return (brown * 6 + white * 0.08) * env;
+            });
+            const src = audioCtx.createBufferSource();
+            src.buffer = buffer;
+            const band = audioCtx.createBiquadFilter();
+            band.type = 'bandpass';
+            band.frequency.setValueAtTime(780, t);
+            band.frequency.exponentialRampToValueAtTime(420, t + dur);
+            band.Q.value = 0.45;
+            const air = audioCtx.createBiquadFilter();
+            air.type = 'lowpass';
+            air.frequency.value = 1800;
+            air.Q.value = 0.35;
+            const gain = audioCtx.createGain();
+            gain.gain.setValueAtTime(0.0001, t);
+            gain.gain.exponentialRampToValueAtTime(0.16, t + 0.05);
+            gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+            src.connect(band);
+            band.connect(air);
+            air.connect(gain);
+            gain.connect(audioCtx.destination);
+            src.start(t);
+        }
+
+        function playBookFromShelf() {
+            if (!audioCtx) return;
+            const t = audioCtx.currentTime;
+            const sr = audioCtx.sampleRate;
+
+            const scrape = fillNoise(audioCtx.createBuffer(1, Math.floor(sr * 0.48), sr), (x, white, brown) => {
+                const slide = Math.sin(Math.PI * Math.min(1, x * 1.08));
+                const env = Math.pow(slide, 1.15) * Math.pow(1 - x, 0.45);
+                return (brown * 4.2 + white * 0.18) * env;
+            });
+            const scrapeVoice = startNoise(scrape, 'bandpass', 240, 1.35, 0.72, t);
+            scrapeVoice.filter.frequency.setValueAtTime(320, t);
+            scrapeVoice.filter.frequency.exponentialRampToValueAtTime(110, t + 0.46);
+
+            const thud = audioCtx.createOscillator();
+            thud.type = 'triangle';
+            thud.frequency.setValueAtTime(92, t + 0.05);
+            thud.frequency.exponentialRampToValueAtTime(42, t + 0.28);
+            const thudGain = audioCtx.createGain();
+            thudGain.gain.setValueAtTime(0.0001, t + 0.05);
+            thudGain.gain.exponentialRampToValueAtTime(0.42, t + 0.068);
+            thudGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.36);
+            const thudTone = audioCtx.createBiquadFilter();
+            thudTone.type = 'lowpass';
+            thudTone.frequency.value = 220;
+            thud.connect(thudTone);
+            thudTone.connect(thudGain);
+            thudGain.connect(audioCtx.destination);
+            thud.start(t + 0.05);
+            thud.stop(t + 0.38);
+
+            const cover = fillNoise(audioCtx.createBuffer(1, Math.floor(sr * 0.09), sr), (x, white, brown) => {
+                return (brown * 3 + white * 0.4) * Math.pow(1 - x, 7);
+            });
+            startNoise(cover, 'lowpass', 480, 0.9, 0.32, t + 0.07);
+
+            const rustle = fillNoise(audioCtx.createBuffer(1, Math.floor(sr * 0.26), sr), (x, white) => {
+                return white * Math.pow(1 - x, 1.7) * 0.28;
+            });
+            startNoise(rustle, 'bandpass', 2100, 0.85, 0.1, t + 0.12);
+        }
+
+        function playBookToShelf() {
+            if (!audioCtx) return;
+            const t = audioCtx.currentTime;
+            const sr = audioCtx.sampleRate;
+            const slide = fillNoise(audioCtx.createBuffer(1, Math.floor(sr * 0.22), sr), (x, white, brown) => {
+                return (brown * 3.5 + white * 0.2) * Math.pow(1 - x, 1.2);
+            });
+            startNoise(slide, 'bandpass', 180, 1.2, 0.4, t);
+            const settle = audioCtx.createOscillator();
+            settle.type = 'sine';
+            settle.frequency.setValueAtTime(70, t + 0.12);
+            settle.frequency.exponentialRampToValueAtTime(38, t + 0.28);
+            const settleGain = audioCtx.createGain();
+            settleGain.gain.setValueAtTime(0.0001, t + 0.12);
+            settleGain.gain.exponentialRampToValueAtTime(0.28, t + 0.135);
+            settleGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.34);
+            settle.connect(settleGain);
+            settleGain.connect(audioCtx.destination);
+            settle.start(t + 0.12);
+            settle.stop(t + 0.36);
         }
 
         function chunkText(text, limit) {
@@ -692,7 +791,7 @@
             const max = spreadCount() - 1;
             if (nextIndex < 0 || nextIndex > max || nextIndex === spreadIndex) return;
             flipping = true;
-            playPaper('flip');
+            playPaper();
             runFlip(direction);
             setTimeout(() => {
                 spreadIndex = nextIndex;
@@ -705,7 +804,7 @@
             const idx = pages.findIndex((p) => p.type === 'body' && p.entryIndex === entryIndex && !p.continued);
             if (idx < 0) return;
             spreadIndex = Math.floor(idx / 2);
-            playPaper('flip');
+            playPaper();
             renderSpread();
         }
 
@@ -715,7 +814,7 @@
                 return;
             }
             unlockAudio();
-            playPaper('open');
+            playBookFromShelf();
             const tome = document.querySelector(`.leather-book[data-key="${bookKey}"]`);
             document.querySelectorAll('.leather-book').forEach((el) => el.classList.remove('is-pulling'));
             if (tome) tome.classList.add('is-pulling');
@@ -733,7 +832,7 @@
             document.body.classList.remove('is-reading');
             document.getElementById('open-book-layer').setAttribute('aria-hidden', 'true');
             document.querySelectorAll('.leather-book').forEach((el) => el.classList.remove('is-pulling'));
-            playPaper('open');
+            playBookToShelf();
             history.replaceState(null, '', location.pathname);
         }
 
