@@ -59,7 +59,71 @@
     <script src="parlor-config.js"></script>
     <script src="parlor-auth.js"></script>
     <script>
-        const TILTS = ['-2.4deg', '1.6deg', '-0.8deg', '2.1deg', '-1.5deg', '0.9deg'];
+        const HEART_STORE = 'talon-parlor-hearts';
+
+        function loadHearts() {
+            try {
+                const parsed = JSON.parse(localStorage.getItem(HEART_STORE) || '{}');
+                return {
+                    liked: parsed.liked && typeof parsed.liked === 'object' ? parsed.liked : {},
+                    counts: parsed.counts && typeof parsed.counts === 'object' ? parsed.counts : {}
+                };
+            } catch (err) {
+                return { liked: {}, counts: {} };
+            }
+        }
+
+        function saveHearts(store) {
+            localStorage.setItem(HEART_STORE, JSON.stringify(store));
+        }
+
+        function noteHeartKey(recordId, author, message, created) {
+            if (recordId) return String(recordId);
+            return 'local:' + String(author || '') + '|' + String(message || '').slice(0, 80) + '|' + String(created || '');
+        }
+
+        function paintHeartButton(button, liked, count) {
+            button.classList.toggle('is-liked', liked);
+            button.setAttribute('aria-pressed', liked ? 'true' : 'false');
+            button.setAttribute('aria-label', liked ? 'Unlike this note, ' + count + ' likes' : 'Like this note, ' + count + ' likes');
+            const tally = button.querySelector('.pin-like-count');
+            if (tally) tally.textContent = String(count);
+        }
+
+        function createHeartButton(recordId, author, message, created) {
+            const key = noteHeartKey(recordId, author, message, created);
+            const store = loadHearts();
+            const liked = Boolean(store.liked[key]);
+            const count = Number(store.counts[key] || 0) || 0;
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'pin-like';
+            button.dataset.heartKey = key;
+            button.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7.2-4.35-9.3-8.22C1.2 8.9 2.4 5.6 5.5 4.7c1.85-.54 3.7.18 4.7 1.7 1-1.52 2.85-2.24 4.7-1.7 3.1.9 4.3 4.2 2.8 7.08C19.2 15.65 12 20 12 20z"/></svg><span class="pin-like-count">0</span>';
+            paintHeartButton(button, liked, count);
+            return button;
+        }
+
+        function toggleHeart(button) {
+            const key = button.dataset.heartKey;
+            if (!key) return;
+            const store = loadHearts();
+            const liked = Boolean(store.liked[key]);
+            let count = Number(store.counts[key] || 0) || 0;
+            if (liked) {
+                delete store.liked[key];
+                count = Math.max(0, count - 1);
+            } else {
+                store.liked[key] = true;
+                count += 1;
+                button.classList.remove('is-pop');
+                void button.offsetWidth;
+                button.classList.add('is-pop');
+            }
+            store.counts[key] = count;
+            saveHearts(store);
+            paintHeartButton(button, !liked, count);
+        }
         let currentUser = null;
         let client = null;
         let isAdmin = false;
@@ -119,7 +183,11 @@
             when.className = 'pin-date';
             when.textContent = formatDate(created);
 
-            article.append(pin, by, body, when);
+            const foot = document.createElement('div');
+            foot.className = 'pin-foot';
+            foot.append(when, createHeartButton(recordId, author, message, created));
+
+            article.append(pin, by, body, foot);
 
             if (isAdmin && recordId) {
                 const remove = document.createElement('button');
@@ -394,7 +462,18 @@
             }
         });
 
+        corkboard.addEventListener('animationend', function (event) {
+            const like = event.target.closest('.pin-like');
+            if (like) like.classList.remove('is-pop');
+        });
+
         corkboard.addEventListener('click', async function (event) {
+            const like = event.target.closest('.pin-like');
+            if (like) {
+                event.preventDefault();
+                toggleHeart(like);
+                return;
+            }
             const button = event.target.closest('.pin-delete');
             if (!button || !isAdmin) return;
             const noteEl = button.closest('.pin-note');

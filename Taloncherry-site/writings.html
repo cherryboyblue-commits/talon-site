@@ -317,14 +317,116 @@
             border-radius: 0.5rem;
             padding: 0.55rem 0.95rem;
             transition: background 0.2s ease, color 0.2s ease;
+            min-height: 2.5rem;
         }
         .ctrl-btn:hover:not(:disabled) { background: rgba(245, 158, 11, 0.22); color: #fde68a; }
         .ctrl-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+        .reader-bar {
+            width: 100%;
+            max-width: 64rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            padding: 0 0.25rem;
+        }
+        .reader-controls {
+            margin-top: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
 
         @media (max-width: 768px) {
-            .folio { flex-direction: column; height: min(58vh, 620px); transform: none; }
-            .folio-gutter { display: none; }
-            .folio-page.left, .folio-page.right { cursor: pointer; min-height: 46%; }
+            header.relative {
+                flex-wrap: wrap;
+                gap: 0.75rem;
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+            header nav {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.65rem 1rem;
+                width: 100%;
+            }
+            .open-book-layer {
+                padding: 0.75rem 0.65rem 1rem;
+                justify-content: flex-start;
+            }
+            body.is-reading {
+                overflow: hidden;
+            }
+            .folio {
+                flex-direction: column;
+                width: 100%;
+                height: min(68dvh, 620px);
+                transform: none;
+                filter: drop-shadow(0 16px 28px rgba(0,0,0,0.65));
+                touch-action: pan-y;
+            }
+            .folio-gutter,
+            .folio-page.right {
+                display: none;
+            }
+            .folio-page.left {
+                cursor: pointer;
+                min-height: 0;
+                flex: 1 1 auto;
+                height: 100%;
+            }
+            .folio-cover-edge {
+                inset: -6px -8px -10px -8px;
+            }
+            .page-inner {
+                padding: 1.15rem 1.05rem 0.35rem 1.1rem;
+            }
+            .page-title { font-size: 1.2rem; margin-bottom: 0.55rem; }
+            .print-prose .print-p { font-size: 0.98rem; line-height: 1.58; }
+            .print-prose .print-p.is-lead::first-letter { font-size: 2.4em; }
+            .print-verse { font-size: 0.98rem; line-height: 1.5; }
+            .contents-link { padding: 0.45rem 0; font-size: 1.02rem; }
+            .ctrl-btn {
+                font-size: 10px;
+                letter-spacing: 0.12em;
+                padding: 0.7rem 0.85rem;
+                min-height: 2.75rem;
+            }
+            .reader-bar {
+                flex-wrap: wrap;
+                margin-bottom: 0.65rem;
+            }
+            .reader-controls { gap: 0.55rem; margin-top: 0.85rem; }
+            .leather-book {
+                width: 16%;
+            }
+            .leather-book[data-key="cultural"] { left: 13.8%; }
+            .leather-book[data-key="poetry"] { left: 32.6%; }
+            .leather-book[data-key="lyrics"] { left: 50.4%; }
+            .leather-book[data-key="stories"] { left: 69.8%; }
+            .flip-sheet {
+                width: 100%;
+            }
+            .flip-sheet.next,
+            .flip-sheet.prev {
+                left: 0;
+                right: 0;
+                transform-origin: center center;
+                animation-duration: 0.28s;
+            }
+            @keyframes flip-next {
+                0% { opacity: 1; transform: translateX(0); }
+                100% { opacity: 0; transform: translateX(-18%); }
+            }
+            @keyframes flip-prev {
+                0% { opacity: 1; transform: translateX(0); }
+                100% { opacity: 0; transform: translateX(18%); }
+            }
+            #page-measure {
+                padding: 1.15rem 1.05rem 0.35rem 1.1rem;
+            }
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -379,11 +481,11 @@
                 </div>
             </div>
         </div>
-        <p class="text-center text-[11px] font-mono text-zinc-500 mt-6 tracking-widest">Hover a volume • Click to open • ← → to turn pages</p>
+        <p class="text-center text-[11px] font-mono text-zinc-500 mt-6 tracking-widest">Hover a volume • Click to open • Swipe or ← → to turn pages</p>
     </main>
 
     <div class="open-book-layer" id="open-book-layer" aria-hidden="true">
-        <div class="w-full max-w-5xl flex justify-between items-center mb-4 px-1">
+        <div class="reader-bar">
             <button type="button" id="return-shelf" class="ctrl-btn">← Return to Shelf</button>
             <p id="volume-label" class="font-serif-custom text-amber-200/90 text-lg md:text-xl">Volume</p>
             <span class="text-[10px] font-mono text-zinc-500 tracking-widest hidden sm:inline">ESC closes</span>
@@ -396,7 +498,7 @@
             <article class="folio-page right" id="page-right" title="Next page"></article>
         </div>
 
-        <div class="mt-5 flex items-center justify-center gap-4">
+        <div class="reader-controls">
             <button type="button" id="prev-page" class="ctrl-btn">← Previous</button>
             <span id="page-indicator" class="font-serif-custom text-amber-400/90 min-w-[9rem] text-center text-sm">1–2</span>
             <button type="button" id="next-page" class="ctrl-btn">Next →</button>
@@ -435,7 +537,11 @@
 
     <script>
         const rainContainer = document.getElementById('rain-container');
-        for (let i = 0; i < 30; i++) {
+        const rainLite = window.matchMedia('(max-width: 768px)').matches || window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const rainDeep = rainLite ? 10 : 30;
+        const rainMid = rainLite ? 8 : 25;
+        const rainFg = rainLite ? 5 : 15;
+        for (let i = 0; i < rainDeep; i++) {
             const drop = document.createElement('div');
             drop.classList.add('rain-deep-bg');
             drop.style.left = Math.random() * 100 + 'vw';
@@ -444,7 +550,7 @@
             drop.style.animationDelay = (Math.random() * 2) + 's';
             rainContainer.appendChild(drop);
         }
-        for (let i = 0; i < 25; i++) {
+        for (let i = 0; i < rainMid; i++) {
             const drop = document.createElement('div');
             drop.classList.add('rain-mid');
             drop.style.left = Math.random() * 100 + 'vw';
@@ -453,7 +559,7 @@
             drop.style.animationDelay = (Math.random() * 2) + 's';
             rainContainer.appendChild(drop);
         }
-        for (let i = 0; i < 15; i++) {
+        for (let i = 0; i < rainFg; i++) {
             const drop = document.createElement('div');
             drop.classList.add('rain-fg');
             drop.style.left = Math.random() * 100 + 'vw';
@@ -462,31 +568,43 @@
             drop.style.animationDelay = (Math.random() * 2) + 's';
             rainContainer.appendChild(drop);
         }
-        setInterval(() => {
-            const ripple = document.createElement('div');
-            ripple.classList.add('perspective-ripple');
-            ripple.style.left = (Math.random() * 100) + 'vw';
-            const topPosition = 50 + (Math.random() * 50);
-            ripple.style.top = topPosition + 'vh';
-            const normalizedDepth = (topPosition - 50) / 50;
-            const width = 8 + (normalizedDepth * 50);
-            const heightFactor = 2.2 + (normalizedDepth * 1.8);
-            ripple.style.width = width + 'px';
-            ripple.style.height = (width / heightFactor) + 'px';
-            ripple.style.opacity = topPosition < 62 ? '0.5' : '0.85';
-            rainContainer.appendChild(ripple);
-            setTimeout(() => ripple.remove(), 650);
-        }, 80);
+        const rippleMs = rainLite ? 280 : 80;
+        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            setInterval(() => {
+                const ripple = document.createElement('div');
+                ripple.classList.add('perspective-ripple');
+                ripple.style.left = (Math.random() * 100) + 'vw';
+                const topPosition = 50 + (Math.random() * 50);
+                ripple.style.top = topPosition + 'vh';
+                const normalizedDepth = (topPosition - 50) / 50;
+                const width = 8 + (normalizedDepth * 50);
+                const heightFactor = 2.2 + (normalizedDepth * 1.8);
+                ripple.style.width = width + 'px';
+                ripple.style.height = (width / heightFactor) + 'px';
+                ripple.style.opacity = topPosition < 62 ? '0.5' : '0.85';
+                rainContainer.appendChild(ripple);
+                setTimeout(() => ripple.remove(), 650);
+            }, rippleMs);
+        }
     </script>
 
     <script src="library_data.js"></script>
     <script>
         const CHARS_PER_PAGE = 980;
         let pages = [];
-        let spreadIndex = 0;
+        let pageCursor = 0;
         let flipping = false;
         let audioCtx = null;
         let currentBookKey = null;
+        const phoneQuery = window.matchMedia('(max-width: 768px)');
+
+        function isPhoneReader() {
+            return phoneQuery.matches;
+        }
+
+        function pageStep() {
+            return isPhoneReader() ? 1 : 2;
+        }
 
         function escapeHtml(value) {
             return String(value ?? '')
@@ -980,47 +1098,68 @@
         }
 
         function spreadCount() {
-            return Math.ceil(pages.length / 2);
+            return Math.ceil(pages.length / pageStep());
+        }
+
+        function viewIndex() {
+            if (isPhoneReader()) return pageCursor;
+            return pageCursor - (pageCursor % 2);
         }
 
         function renderSpread() {
-            const leftN = spreadIndex * 2;
+            const leftN = viewIndex();
+            pageCursor = leftN;
             const rightN = leftN + 1;
             renderPage(document.getElementById('page-left'), pages[leftN], leftN + 1);
-            renderPage(document.getElementById('page-right'), pages[rightN], rightN + 1);
-            const last = Math.min(rightN + 1, pages.length);
-            document.getElementById('page-indicator').textContent = `${leftN + 1}–${last} / ${pages.length}`;
-            document.getElementById('prev-page').disabled = spreadIndex <= 0;
-            document.getElementById('next-page').disabled = spreadIndex >= spreadCount() - 1;
+            const rightEl = document.getElementById('page-right');
+            if (isPhoneReader()) {
+                rightEl.innerHTML = '';
+                document.getElementById('page-indicator').textContent = `${leftN + 1} / ${pages.length}`;
+            } else {
+                renderPage(rightEl, pages[rightN], rightN + 1);
+                const last = Math.min(rightN + 1, pages.length);
+                document.getElementById('page-indicator').textContent = `${leftN + 1}–${last} / ${pages.length}`;
+            }
+            document.getElementById('prev-page').disabled = leftN <= 0;
+            document.getElementById('next-page').disabled = leftN + pageStep() >= pages.length;
         }
 
         function runFlip(direction) {
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
             const folio = document.getElementById('folio');
             const sheet = document.createElement('div');
             sheet.className = 'flip-sheet ' + (direction === 'next' ? 'next' : 'prev');
             sheet.innerHTML = '<div class="flip-face"></div>';
             folio.appendChild(sheet);
-            setTimeout(() => sheet.remove(), 620);
+            setTimeout(() => sheet.remove(), isPhoneReader() ? 280 : 620);
         }
 
-        function goSpread(nextIndex, direction) {
+        function goSpread(nextCursor, direction) {
             if (flipping) return;
-            const max = spreadCount() - 1;
-            if (nextIndex < 0 || nextIndex > max || nextIndex === spreadIndex) return;
+            let next = nextCursor;
+            if (!isPhoneReader()) next = next - (next % 2);
+            if (next < 0 || next >= pages.length || next === viewIndex()) return;
             flipping = true;
             playPaper();
             runFlip(direction);
+            const wait = isPhoneReader() ? 140 : 280;
             setTimeout(() => {
-                spreadIndex = nextIndex;
+                pageCursor = next;
                 renderSpread();
                 flipping = false;
-            }, 280);
+            }, wait);
+        }
+
+        function turn(direction) {
+            const step = pageStep();
+            const next = viewIndex() + (direction === 'next' ? step : -step);
+            goSpread(next, direction);
         }
 
         function jumpToEntry(entryIndex) {
             const idx = pages.findIndex((p) => p.type === 'body' && p.entryIndex === entryIndex && !p.continued);
             if (idx < 0) return;
-            spreadIndex = Math.floor(idx / 2);
+            pageCursor = idx;
             playPaper();
             renderSpread();
         }
@@ -1037,7 +1176,7 @@
             if (tome) tome.classList.add('is-pulling');
 
             currentBookKey = bookKey;
-            spreadIndex = 0;
+            pageCursor = 0;
             document.getElementById('volume-label').textContent = libraryData[bookKey].title;
             document.body.classList.add('is-reading');
             document.getElementById('open-book-layer').setAttribute('aria-hidden', 'false');
@@ -1062,41 +1201,68 @@
         window.openLibraryVolume = openVolume;
 
         document.getElementById('return-shelf').addEventListener('click', closeVolume);
-        document.getElementById('prev-page').addEventListener('click', () => goSpread(spreadIndex - 1, 'prev'));
-        document.getElementById('next-page').addEventListener('click', () => goSpread(spreadIndex + 1, 'next'));
+        document.getElementById('prev-page').addEventListener('click', () => turn('prev'));
+        document.getElementById('next-page').addEventListener('click', () => turn('next'));
         document.getElementById('page-left').addEventListener('click', (e) => {
+            if (isPhoneReader()) return;
             if (e.target.closest('[data-entry]')) return;
-            goSpread(spreadIndex - 1, 'prev');
+            turn('prev');
         });
         document.getElementById('page-right').addEventListener('click', (e) => {
+            if (isPhoneReader()) return;
             if (e.target.closest('[data-entry]')) return;
-            goSpread(spreadIndex + 1, 'next');
+            turn('next');
         });
+
+        (function bindSwipe() {
+            const folio = document.getElementById('folio');
+            let startX = 0;
+            let startY = 0;
+            folio.addEventListener('touchstart', (e) => {
+                if (!e.changedTouches[0]) return;
+                startX = e.changedTouches[0].clientX;
+                startY = e.changedTouches[0].clientY;
+            }, { passive: true });
+            folio.addEventListener('touchend', (e) => {
+                if (!document.body.classList.contains('is-reading')) return;
+                const touch = e.changedTouches[0];
+                if (!touch) return;
+                const dx = touch.clientX - startX;
+                const dy = touch.clientY - startY;
+                if (Math.abs(dx) < 48 || Math.abs(dx) < Math.abs(dy)) return;
+                if (dx < 0) turn('next');
+                else turn('prev');
+            }, { passive: true });
+        })();
 
         window.addEventListener('keydown', (e) => {
             if (!document.body.classList.contains('is-reading')) return;
-            if (e.key === 'ArrowRight') { e.preventDefault(); goSpread(spreadIndex + 1, 'next'); }
-            if (e.key === 'ArrowLeft') { e.preventDefault(); goSpread(spreadIndex - 1, 'prev'); }
+            if (e.key === 'ArrowRight') { e.preventDefault(); turn('next'); }
+            if (e.key === 'ArrowLeft') { e.preventDefault(); turn('prev'); }
             if (e.key === 'Escape') { e.preventDefault(); closeVolume(); }
         });
 
         let reflowTimer = null;
-        window.addEventListener('resize', () => {
+        function reflowReader() {
             if (!currentBookKey || !document.body.classList.contains('is-reading')) return;
+            const here = pages[viewIndex()];
+            const entryIndex = here && here.type === 'body' ? here.entryIndex : null;
+            pages = buildPages(currentBookKey);
+            if (entryIndex != null) {
+                const idx = pages.findIndex((p) => p.type === 'body' && p.entryIndex === entryIndex && !p.continued);
+                pageCursor = idx >= 0 ? idx : 0;
+            } else {
+                pageCursor = Math.min(pageCursor, Math.max(0, pages.length - 1));
+            }
+            renderSpread();
+        }
+        window.addEventListener('resize', () => {
             clearTimeout(reflowTimer);
-            reflowTimer = setTimeout(() => {
-                const here = pages[spreadIndex * 2];
-                const entryIndex = here && here.type === 'body' ? here.entryIndex : null;
-                pages = buildPages(currentBookKey);
-                if (entryIndex != null) {
-                    const idx = pages.findIndex((p) => p.type === 'body' && p.entryIndex === entryIndex && !p.continued);
-                    spreadIndex = idx >= 0 ? Math.floor(idx / 2) : 0;
-                } else {
-                    spreadIndex = Math.min(spreadIndex, Math.max(0, spreadCount() - 1));
-                }
-                renderSpread();
-            }, 200);
+            reflowTimer = setTimeout(reflowReader, 200);
         });
+        if (phoneQuery.addEventListener) {
+            phoneQuery.addEventListener('change', reflowReader);
+        }
 
         const initial = location.hash.replace('#', '');
         if (initial && typeof libraryData !== 'undefined' && libraryData[initial]) {

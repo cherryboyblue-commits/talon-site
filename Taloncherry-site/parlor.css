@@ -156,12 +156,91 @@ body[data-parlor-mode="signin"] #parlor-username-wrap {
     white-space: pre-wrap;
 }
 .pin-date {
-    display: block;
-    margin-top: 0.75rem;
+    margin: 0;
     font-family: 'Instrument Serif', Georgia, serif;
     font-size: 0.75rem;
     font-style: italic;
     color: #6b4a28;
+}
+.pin-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+.pin-like {
+    appearance: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.28rem;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    padding: 0.2rem 0.45rem;
+    margin: 0;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    background: transparent;
+    color: #6b4a28;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+.pin-like svg {
+    width: 1.15rem;
+    height: 1.15rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linejoin: round;
+    pointer-events: none;
+    transform-origin: center;
+}
+.pin-like-count {
+    font-family: ui-monospace, monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    min-width: 0.7rem;
+    pointer-events: none;
+}
+.pin-like:hover,
+.pin-like:focus-visible {
+    color: #9f1239;
+    background: rgba(127, 29, 29, 0.08);
+    outline: none;
+}
+.pin-like.is-liked {
+    color: #9f1239;
+}
+.pin-like.is-liked svg {
+    fill: #9f1239;
+    stroke: #9f1239;
+}
+.pin-like.is-pop svg {
+    animation: heart-pop 0.34s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes heart-pop {
+    0% { transform: scale(1); }
+    35% { transform: scale(1.32); }
+    100% { transform: scale(1); }
+}
+@media (max-width: 768px) {
+    .corkboard {
+        grid-template-columns: 1fr;
+        padding: 1rem;
+        gap: 1rem;
+    }
+    .pin-like {
+        min-width: 3rem;
+        min-height: 3rem;
+    }
+    .pin-like svg {
+        width: 1.3rem;
+        height: 1.3rem;
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .pin-like.is-pop svg { animation: none; }
 }
 .cork-empty {
     grid-column: 1 / -1;
