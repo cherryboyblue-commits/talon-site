@@ -200,6 +200,124 @@
     background: rgba(176, 141, 87, 0.32);
 }
 
+.cookie-aside {
+    display: block;
+    max-width: 36rem;
+    margin: 0.85rem auto 0;
+    padding: 0 1.5rem;
+    text-align: center;
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-style: italic;
+    font-size: 0.95rem;
+    line-height: 1.45;
+    color: #a8a29e;
+}
+
+#CybotCookiebotDialog,
+#CybotCookiebotDialog.CybotCookiebotDialogActive,
+#CookiebotWidget {
+    background: #140c08 !important;
+    color: #d6d3d1 !important;
+    border: 1px solid #3f3f46 !important;
+    border-radius: 16px !important;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55) !important;
+    font-family: 'Plus Jakarta Sans', 'Instrument Serif', sans-serif !important;
+    overflow: hidden !important;
+}
+#CybotCookiebotDialogBodyUnderlay {
+    background: rgba(9, 9, 11, 0.62) !important;
+    backdrop-filter: blur(6px);
+}
+#CybotCookiebotDialog *,
+#CookiebotWidget * {
+    font-family: inherit !important;
+}
+#CybotCookiebotDialogHeader,
+#CybotCookiebotDialogBody,
+#CybotCookiebotDialogFooter,
+#CybotCookiebotDialogNav,
+#CybotCookiebotDialogTabContent,
+#CybotCookiebotDialogBodyContent,
+#CybotCookiebotDialogBodyEdgeContainer,
+.CybotCookiebotDialogBodyBottomWrapper,
+.CybotCookiebotDialogBodyTopWrapper {
+    background: transparent !important;
+    color: #d6d3d1 !important;
+    border-color: #27272a !important;
+}
+#CybotCookiebotDialogBodyContentTitle,
+#CybotCookiebotDialogTabContent h2,
+#CybotCookiebotDialogDetailFooter {
+    color: #fafaf9 !important;
+    font-family: 'Instrument Serif', Georgia, serif !important;
+    font-weight: 500 !important;
+}
+#CybotCookiebotDialogBodyContentText,
+#CybotCookiebotDialogBodyContent a,
+#CybotCookiebotDialogDetailBodyContentText,
+.CybotCookiebotDialogBodyLevelButtonDescription {
+    color: #a8a29e !important;
+    line-height: 1.5 !important;
+}
+#CybotCookiebotDialog a,
+#CookiebotWidget a {
+    color: #d9ab55 !important;
+}
+#CybotCookiebotDialog a:hover,
+#CookiebotWidget a:hover {
+    color: #fde68a !important;
+}
+#CybotCookiebotDialogBodyButtonAccept,
+#CybotCookiebotDialogBodyLevelButtonAccept,
+#CybotCookiebotDialogBodyLevelButtonLevelOptinAllowAll,
+#CybotCookiebotDialogBodyButtonAcceptCTA,
+#CookiebotWidget .CookiebotWidget-logo + button,
+#CybotCookiebotDialog button[id*="AllowAll"],
+#CybotCookiebotDialog button[id*="Accept"],
+#CybotCookiebotDialog a[id*="AllowAll"] {
+    background: #eab308 !important;
+    color: #18181b !important;
+    border: 0 !important;
+    border-radius: 999px !important;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.28) !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.02em !important;
+}
+#CybotCookiebotDialogBodyButtonDecline,
+#CybotCookiebotDialogBodyLevelButtonLevelOptinDeclineAll,
+#CybotCookiebotDialog button[id*="Decline"] {
+    background: transparent !important;
+    color: #a1a1aa !important;
+    border: 1px solid #3f3f46 !important;
+    border-radius: 999px !important;
+    box-shadow: none !important;
+}
+#CybotCookiebotDialogBodyLevelDetailsButton,
+#CybotCookiebotDialogNav .CybotCookiebotDialogNavItemLink {
+    background: #1c1917 !important;
+    color: #d6d3d1 !important;
+    border: 1px solid #3f3f46 !important;
+    border-radius: 999px !important;
+}
+#CybotCookiebotDialog input:checked + .CybotCookiebotDialogBodyLevelButtonSlider {
+    background-color: #eab308 !important;
+}
+#CybotCookiebotDialog .CybotCookiebotDialogBodyLevelButtonSlider {
+    background-color: #3f3f46 !important;
+    border-radius: 999px !important;
+}
+#CybotCookiebotDialog .CybotCookiebotDialogBodyLevelButtonSlider:before {
+    background-color: #fafaf9 !important;
+}
+.cookiebot-aside-note {
+    margin: 0.35rem 0 0.85rem !important;
+    color: #d9ab55 !important;
+    font-family: 'Instrument Serif', Georgia, serif !important;
+    font-style: italic !important;
+    font-size: 1rem !important;
+    line-height: 1.45 !important;
+}
+
 @media (max-width: 640px) {
     .author-tip-jar {
         flex-direction: column;

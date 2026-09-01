@@ -130,6 +130,8 @@
         .folio-page {
             position: relative;
             flex: 1;
+            min-width: 0;
+            min-height: 0;
             overflow: hidden;
             background-color: #f0e2c4;
             background-image:
@@ -156,9 +158,23 @@
             flex: 0 0 18px;
         }
         .page-inner {
-            flex: 1;
+            flex: 1 1 0%;
+            min-height: 0;
             overflow: hidden;
             padding: 1.85rem 1.75rem 0.45rem 1.85rem;
+        }
+        #page-measure {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            pointer-events: none;
+            z-index: -1;
+            overflow: hidden;
+            box-sizing: border-box;
+            padding: 1.85rem 1.75rem 0.45rem 1.85rem;
+            background: #f0e2c4;
+            color: #2a1c12;
         }
         .page-num {
             font-family: 'EB Garamond', Georgia, serif;
@@ -217,6 +233,7 @@
             line-height: 1.62;
             text-align: left;
             white-space: pre-line;
+            overflow-wrap: break-word;
             color: #2a1c12;
         }
         .title-plate {
@@ -413,6 +430,7 @@
             </a>
             <p class="text-zinc-500">Built local. Hosted free via GitHub Pages.</p>
         </div>
+        <p class="cookie-aside">We use Google Analytics just to see if anyone is reading this, or if I'm shouting into the void.</p>
     </footer>
 
     <script>
@@ -468,6 +486,7 @@
         let spreadIndex = 0;
         let flipping = false;
         let audioCtx = null;
+        let currentBookKey = null;
 
         function escapeHtml(value) {
             return String(value ?? '')
@@ -626,6 +645,196 @@
             settle.stop(t + 0.36);
         }
 
+        let measureReady = false;
+
+        function prepareMeasure() {
+            const sample = document.getElementById('page-left');
+            const rect = sample.getBoundingClientRect();
+            const width = Math.round(rect.width || sample.clientWidth || 460);
+            const height = Math.round(rect.height || sample.clientHeight || 520);
+            const innerH = Math.max(220, height - 40);
+            let el = document.getElementById('page-measure');
+            if (!el) {
+                el = document.createElement('div');
+                el.id = 'page-measure';
+                el.setAttribute('aria-hidden', 'true');
+                document.body.appendChild(el);
+            }
+            el.style.width = width + 'px';
+            el.style.height = innerH + 'px';
+            measureReady = innerH > 160 && width > 180;
+            return measureReady;
+        }
+
+        function pageInnerHtml(page) {
+            if (!page || page.type === 'blank') return '';
+            if (page.type === 'title') {
+                return `<div class="title-plate"><p class="page-kicker">${escapeHtml(page.kicker)}</p><h2 class="font-serif-custom text-4xl md:text-5xl text-amber-900 mt-3 mb-4">${escapeHtml(page.title)}</h2><p class="font-print italic text-center text-[#3a2718] leading-relaxed">${escapeHtml(page.text)}</p></div>`;
+            }
+            if (page.type === 'contents') {
+                const links = (page.items || []).map((item) =>
+                    `<span class="contents-link">${escapeHtml(item.title)}</span>`
+                ).join('');
+                return `<p class="page-kicker">${escapeHtml(page.kicker)}</p><h3 class="page-title">In this volume</h3><div>${links}</div>`;
+            }
+            const verse = page.layout === 'verse';
+            const body = verse
+                ? formatVerseHtml(page.text)
+                : `<div class="print-prose">${formatProseHtml(page.text, !page.continued)}</div>`;
+            return `<p class="page-kicker">${escapeHtml(page.kicker)}</p><h3 class="page-title">${escapeHtml(page.title)}</h3>${body}`;
+        }
+
+        function pageContentFits(page) {
+            const el = document.getElementById('page-measure');
+            const text = page && page.text ? String(page.text) : '';
+            const lines = text.split('\n').length;
+            if (!el || !measureReady || el.clientHeight < 120) {
+                if (page && page.type === 'contents') return (page.items || []).length <= 12;
+                if (page && page.layout === 'verse') return lines <= 15;
+                return text.length <= 860;
+            }
+            el.innerHTML = pageInnerHtml(page);
+            return el.scrollHeight <= el.clientHeight;
+        }
+
+        function textUnits(text, layout) {
+            const raw = String(text || '').replace(/\r\n/g, '\n').replace(/^\s+|\s+$/g, '');
+            if (layout === 'verse') return raw.split('\n');
+            const paras = raw.split(/\n\s*\n/).map((p) => p.replace(/[ \t]+/g, ' ').trim()).filter(Boolean);
+            return paras.length ? paras : (raw ? [raw] : []);
+        }
+
+        function joinUnits(units, layout) {
+            return layout === 'verse' ? units.join('\n') : units.join('\n\n');
+        }
+
+        function splitLongUnit(unit, layout, make) {
+            const words = String(unit).split(/\s+/).filter(Boolean);
+            if (words.length < 8) return [unit];
+            const parts = [];
+            let start = 0;
+            while (start < words.length) {
+                let lo = 1;
+                let hi = words.length - start;
+                let best = 1;
+                while (lo <= hi) {
+                    const mid = Math.floor((lo + hi) / 2);
+                    const trial = words.slice(start, start + mid).join(' ');
+                    if (pageContentFits(make(trial))) {
+                        best = mid;
+                        lo = mid + 1;
+                    } else {
+                        hi = mid - 1;
+                    }
+                }
+                if (best < 12 && words.length - start > 12) {
+                    best = Math.min(120, words.length - start);
+                }
+                parts.push(words.slice(start, start + best).join(' '));
+                start += best;
+            }
+            return parts;
+        }
+
+        function paginateText(text, layout, meta) {
+            const units = textUnits(text, layout);
+            const out = [];
+            const make = (chunk, cont) => ({
+                type: 'body',
+                layout,
+                kicker: meta.kicker,
+                title: cont ? meta.baseTitle + ' (cont.)' : meta.baseTitle,
+                text: chunk,
+                date: meta.date,
+                entryIndex: meta.entryIndex,
+                continued: cont
+            });
+            if (!units.length) {
+                out.push(make('', false));
+                return out;
+            }
+
+            let i = 0;
+            let continued = false;
+            while (i < units.length) {
+                let lo = 1;
+                let hi = units.length - i;
+                let best = 1;
+                while (lo <= hi) {
+                    const mid = Math.floor((lo + hi) / 2);
+                    const trial = joinUnits(units.slice(i, i + mid), layout);
+                    if (pageContentFits(make(trial, continued))) {
+                        best = mid;
+                        lo = mid + 1;
+                    } else {
+                        hi = mid - 1;
+                    }
+                }
+                if (best === 1 && !pageContentFits(make(units[i], continued))) {
+                    if (layout === 'verse' && units.length - i > 1) {
+                        best = Math.min(15, units.length - i);
+                        out.push(make(joinUnits(units.slice(i, i + best), layout), continued));
+                        i += best;
+                        continued = true;
+                        continue;
+                    }
+                    if (String(units[i]).length > 220) {
+                        const pieces = splitLongUnit(units[i], layout, (chunk) => make(chunk, continued));
+                        pieces.forEach((piece, n) => {
+                            out.push(make(piece, continued || n > 0));
+                        });
+                        i += 1;
+                        continued = true;
+                        continue;
+                    }
+                }
+                out.push(make(joinUnits(units.slice(i, i + best), layout), continued));
+                i += best;
+                continued = true;
+            }
+            return out;
+        }
+
+        function paginateContents(data) {
+            const items = data.entries.map((entry, i) => ({ i, title: entry.title }));
+            const chunks = [];
+            let start = 0;
+            while (start < items.length) {
+                let lo = 1;
+                let hi = items.length - start;
+                let best = 1;
+                while (lo <= hi) {
+                    const mid = Math.floor((lo + hi) / 2);
+                    const page = {
+                        type: 'contents',
+                        kicker: start === 0 ? 'Contents' : 'Contents (cont.)',
+                        title: data.title,
+                        items: items.slice(start, start + mid),
+                        date: ''
+                    };
+                    if (pageContentFits(page)) {
+                        best = mid;
+                        lo = mid + 1;
+                    } else {
+                        hi = mid - 1;
+                    }
+                }
+                if (best === 1 && items.length - start > 1) {
+                    const one = {
+                        type: 'contents',
+                        kicker: start === 0 ? 'Contents' : 'Contents (cont.)',
+                        title: data.title,
+                        items: items.slice(start, start + 1),
+                        date: ''
+                    };
+                    if (!pageContentFits(one)) best = Math.min(12, items.length - start);
+                }
+                chunks.push(items.slice(start, start + best));
+                start += best;
+            }
+            return chunks;
+        }
+
         function chunkText(text, limit) {
             const cleaned = (text || '').replace(/\n{3,}/g, '\n\n').trim();
             if (cleaned.length <= limit) return [cleaned];
@@ -670,16 +879,22 @@
                 date: ''
             });
 
-            const tocChunks = [];
-            let tocBuf = [];
-            data.entries.forEach((entry, i) => {
-                tocBuf.push({ i, title: entry.title });
-                if (tocBuf.length >= 14) {
-                    tocChunks.push(tocBuf);
-                    tocBuf = [];
-                }
-            });
-            if (tocBuf.length) tocChunks.push(tocBuf);
+            const canMeasure = prepareMeasure();
+            const tocChunks = canMeasure
+                ? paginateContents(data)
+                : (function () {
+                    const chunks = [];
+                    let tocBuf = [];
+                    data.entries.forEach((entry, i) => {
+                        tocBuf.push({ i, title: entry.title });
+                        if (tocBuf.length >= 14) {
+                            chunks.push(tocBuf);
+                            tocBuf = [];
+                        }
+                    });
+                    if (tocBuf.length) chunks.push(tocBuf);
+                    return chunks;
+                }());
             tocChunks.forEach((chunk, n) => {
                 built.push({
                     type: 'contents',
@@ -691,19 +906,21 @@
             });
 
             data.entries.forEach((entry, entryIndex) => {
-                const chunks = chunkText(entry.text, CHARS_PER_PAGE);
-                chunks.forEach((chunk, n) => {
-                    built.push({
+                const kicker = entry.date && entry.date !== 'Archive' ? entry.date : data.title;
+                const meta = { kicker, baseTitle: entry.title, date: entry.date, entryIndex };
+                const pieces = canMeasure
+                    ? paginateText(entry.text, layout, meta)
+                    : chunkText(entry.text, layout === 'verse' ? 720 : 980).map((chunk, n) => ({
                         type: 'body',
                         layout,
-                        kicker: entry.date && entry.date !== 'Archive' ? entry.date : data.title,
+                        kicker,
                         title: n === 0 ? entry.title : entry.title + ' (cont.)',
                         text: chunk,
                         date: entry.date,
                         entryIndex,
                         continued: n > 0
-                    });
-                });
+                    }));
+                built.push.apply(built, pieces);
             });
 
             if (built.length % 2 === 1) {
@@ -808,7 +1025,7 @@
             renderSpread();
         }
 
-        function openVolume(bookKey) {
+        async function openVolume(bookKey) {
             if (typeof libraryData === 'undefined' || !libraryData[bookKey]) {
                 alert('Library data is missing. Keep library_data.js next to this page.');
                 return;
@@ -819,16 +1036,22 @@
             document.querySelectorAll('.leather-book').forEach((el) => el.classList.remove('is-pulling'));
             if (tome) tome.classList.add('is-pulling');
 
-            pages = buildPages(bookKey);
+            currentBookKey = bookKey;
             spreadIndex = 0;
             document.getElementById('volume-label').textContent = libraryData[bookKey].title;
-            renderSpread();
             document.body.classList.add('is-reading');
             document.getElementById('open-book-layer').setAttribute('aria-hidden', 'false');
             history.replaceState(null, '', '#' + bookKey);
+            if (document.fonts && document.fonts.ready) {
+                try { await document.fonts.ready; } catch (err) {}
+            }
+            await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+            pages = buildPages(bookKey);
+            renderSpread();
         }
 
         function closeVolume() {
+            currentBookKey = null;
             document.body.classList.remove('is-reading');
             document.getElementById('open-book-layer').setAttribute('aria-hidden', 'true');
             document.querySelectorAll('.leather-book').forEach((el) => el.classList.remove('is-pulling'));
@@ -855,6 +1078,24 @@
             if (e.key === 'ArrowRight') { e.preventDefault(); goSpread(spreadIndex + 1, 'next'); }
             if (e.key === 'ArrowLeft') { e.preventDefault(); goSpread(spreadIndex - 1, 'prev'); }
             if (e.key === 'Escape') { e.preventDefault(); closeVolume(); }
+        });
+
+        let reflowTimer = null;
+        window.addEventListener('resize', () => {
+            if (!currentBookKey || !document.body.classList.contains('is-reading')) return;
+            clearTimeout(reflowTimer);
+            reflowTimer = setTimeout(() => {
+                const here = pages[spreadIndex * 2];
+                const entryIndex = here && here.type === 'body' ? here.entryIndex : null;
+                pages = buildPages(currentBookKey);
+                if (entryIndex != null) {
+                    const idx = pages.findIndex((p) => p.type === 'body' && p.entryIndex === entryIndex && !p.continued);
+                    spreadIndex = idx >= 0 ? Math.floor(idx / 2) : 0;
+                } else {
+                    spreadIndex = Math.min(spreadIndex, Math.max(0, spreadCount() - 1));
+                }
+                renderSpread();
+            }, 200);
         });
 
         const initial = location.hash.replace('#', '');
