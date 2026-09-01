@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music & Radio | Talon T. Cherry</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="site-widgets.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap');
+        .font-serif-custom { font-family: 'Instrument Serif', serif; }
+        .font-sans-custom { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        .lake-background {
+            background-image: url('Images/lake.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .engraved-text {
+            color: #4a3022;
+            text-shadow: 0 1px 1px rgba(255, 255, 255, 0.15), 0 -1px 1px rgba(0, 0, 0, 0.8);
+        }
+
+        /* Rain & Ripple Engine */
+        .rain-deep-bg { position: fixed; background: linear-gradient(transparent, rgba(255, 255, 255, 0.15)); width: 0.75px; height: 15px; filter: blur(1.5px); pointer-events: none; z-index: 1; animation: fall-deep-bg linear infinite; }
+        .rain-mid { position: fixed; background: linear-gradient(transparent, rgba(255, 255, 255, 0.35)); width: 1px; height: 25px; filter: blur(0.5px); pointer-events: none; z-index: 1; animation: fall-mid linear infinite; }
+        .rain-fg { position: fixed; background: linear-gradient(transparent, rgba(255, 255, 255, 0.75)); width: 2px; height: 45px; filter: blur(0px); pointer-events: none; z-index: 1; animation: fall-fg linear infinite; }
+
+        @keyframes fall-deep-bg { 0% { transform: translateY(-30px) skewX(-6deg); } 100% { transform: translateY(105vh) skewX(-6deg); } }
+        @keyframes fall-mid { 0% { transform: translateY(-40px) skewX(-5deg); } 100% { transform: translateY(105vh) skewX(-5deg); } }
+        @keyframes fall-fg { 0% { transform: translateY(-50px) skewX(-4deg); } 100% { transform: translateY(105vh) skewX(-4deg); } }
+
+        .perspective-ripple { position: fixed; border-radius: 50%; pointer-events: none; z-index: 1; border: 1px solid rgba(255, 255, 255, 0.55); box-shadow: 0 0 5px rgba(255, 255, 255, 0.3); transform: scale(0.1) rotateX(60deg); animation: perspective-ripple-effect 0.65s cubic-bezier(0.1, 0.8, 0.3, 1) forwards; }
+        @keyframes perspective-ripple-effect { 0% { transform: scale(0.1) rotateX(65deg); opacity: 0.9; } 50% { opacity: 0.5; } 100% { transform: scale(2.6) rotateX(45deg); opacity: 0; } }
+
+        /* Rotatable Analog Knob Styling */
+        .radio-knob {
+            width: 72px;
+            height: 72px;
+            background: radial-gradient(circle, #3d2417 0%, #1c100a 80%, #0d0704 100%);
+            border: 3px solid #573723;
+            border-radius: 50%;
+            position: relative;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.8), inset 0 2px 5px rgba(255,255,255,0.15);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .radio-knob::after {
+            content: '';
+            position: absolute;
+            top: 6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 18px;
+            background: #fbbf24;
+            border-radius: 2px;
+            box-shadow: 0 0 8px rgba(251, 191, 36, 0.8);
+        }
+
+        /* Journal Paper Style */
+        .journal-paper {
+            background: #140d0a;
+            background-image: radial-gradient(rgba(245, 158, 11, 0.03) 1px, transparent 0);
+            background-size: 24px 24px;
+        }
+    </style>
+</head>
+<body class="bg-zinc-950 text-zinc-300 font-sans-custom antialiased selection:bg-amber-500 selection:text-zinc-950 overflow-x-hidden">
+
+    <!-- Atmospheric Background Scene -->
+    <div class="fixed inset-0 z-0 lake-background filter brightness-[0.5] contrast-125"></div>
+    <div id="rain-container" class="fixed inset-0 z-1 pointer-events-none overflow-hidden h-full w-full"></div>
+    <div class="fixed inset-0 z-0 pointer-events-none bg-gradient-to-b from-zinc-950/70 via-zinc-950/40 to-zinc-950/90"></div>
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[30rem] bg-amber-600/15 blur-[150px] pointer-events-none rounded-full"></div>
+
+    <!-- Navigation -->
+    <header class="relative z-10 max-w-5xl mx-auto px-6 py-8 flex justify-between items-center border-b border-zinc-900/50">
+        <a href="index.html" class="text-xl font-serif-custom tracking-wider text-zinc-100 hover:text-amber-400 transition">TALON T. CHERRY</a>
+        <nav class="space-x-6 text-sm font-medium text-zinc-400">
+            <a href="index.html" class="hover:text-amber-400 transition">Home</a>
+            <a href="music.html" class="text-amber-400 transition">Music & Radio</a>
+            <a href="writings.html" class="hover:text-amber-400 transition">Writings</a>
+            <a href="life.html" class="hover:text-amber-400 transition">The Life</a>
+            <a href="forum.html" class="hover:text-amber-400 transition">The Parlor</a>
+            <a href="https://www.youtube.com/@TalonCherry" target="_blank" class="hover:text-amber-400 transition">YouTube ↗</a>
+        </nav>
+    </header>
+
+    <!-- Main Campfire Radio Room -->
+    <main class="relative z-10 max-w-5xl mx-auto px-6 py-10">
+        
+        <!-- Header Banner -->
+        <div class="text-center mb-10">
+            <span class="inline-block text-xs uppercase tracking-widest text-amber-500 font-semibold mb-3 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20 tracking-widest">
+                FM 19.86 • Midnight Porch Broadcast
+            </span>
+            <h1 class="text-4xl md:text-6xl font-serif-custom text-zinc-100 tracking-tight mb-2">
+                The Campfire Radio Session
+            </h1>
+            <p class="text-zinc-400 text-sm max-w-md mx-auto font-light">
+                Click or turn the analog dial below to switch stations. Full curated audio broadcasts from the pines to the plains.
+            </p>
+        </div>
+
+        <!-- Vintage Radio Console + Journal Split Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-20">
+            
+            <!-- Left: The Radio Receiver Console (7 Cols) -->
+            <div class="lg:col-span-7">
+                <div class="p-6 bg-[#160d09]/95 border-[6px] border-[#2b1910] rounded-2xl shadow-[0_30px_70px_rgba(0,0,0,0.95)] backdrop-blur-md relative">
+                    <div class="absolute inset-0 border-2 border-[#090503] rounded-xl pointer-events-none z-30"></div>
+
+                    <!-- Analog Radio Tuner Panel -->
+                    <div class="mb-5 pb-4 border-b border-[#2d1b12] flex flex-col sm:flex-row justify-between items-center gap-4 px-2">
+                        <div>
+                            <span class="font-serif-custom text-xs tracking-[0.25em] text-[#9c7456] uppercase engraved-text font-medium block">Station Frequency</span>
+                            <span id="frequency-display" class="text-xs text-amber-400 font-mono tracking-widest">FREQ: 88.5 MHz [ORIGINALS]</span>
+                        </div>
+                        
+                        <!-- Interactive Turn Knob & Clickable Scale -->
+                        <div class="flex items-center space-x-4">
+                            <div class="text-right hidden sm:block">
+                                <span class="text-[10px] font-mono text-zinc-500 block uppercase">Turn Dial</span>
+                                <span class="text-[10px] text-amber-500 font-mono">3 Stations</span>
+                            </div>
+                            <!-- Rotatable Physical Knob -->
+                            <div id="tuner-knob" class="radio-knob" onclick="rotateKnob()" title="Click to turn dial"></div>
+                        </div>
+                    </div>
+
+                    <!-- YouTube Embed Frame -->
+                    <div class="relative w-full aspect-video rounded-lg overflow-hidden border-2 border-[#382216] shadow-inner bg-zinc-900">
+                        <iframe id="radio-iframe" class="absolute inset-0 w-full h-full" src="https://www.youtube-nocookie.com/embed/videoseries?list=PLBdtLFHJumFRVJ8E4Ho45ta27in43jgOT" title="Talon Cherry Radio" referrerpolicy="strict-origin-when-cross-origin" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+
+                    <!-- Broadcast Status Indicator -->
+                    <div class="mt-4 flex justify-between items-center px-2 text-xs font-mono text-zinc-500">
+                        <span class="flex items-center space-x-2">
+                            <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                            <span id="broadcast-status">Live Signal Locked</span>
+                        </span>
+                        <a href="https://www.youtube.com/@TalonCherry" target="_blank" class="hover:text-amber-400 transition">Talon Cherry Channel ↗</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: The Journal & Archive parchment (5 Cols) -->
+            <div class="lg:col-span-5">
+                <div class="journal-paper p-6 md:p-8 border-2 border-[#2b1910] rounded-2xl shadow-xl relative min-h-[420px] flex flex-col justify-between backdrop-blur-sm">
+                    <!-- Corner decorative framing -->
+                    <div class="absolute top-2 left-2 w-2 h-2 border-t border-l border-amber-500/30"></div>
+                    <div class="absolute top-2 right-2 w-2 h-2 border-t border-r border-amber-500/30"></div>
+                    <div class="absolute bottom-2 left-2 w-2 h-2 border-b border-l border-amber-500/30"></div>
+                    <div class="absolute bottom-2 right-2 w-2 h-2 border-b border-r border-amber-500/30"></div>
+
+                    <div>
+                        <div class="flex justify-between items-center mb-4 pb-3 border-b border-zinc-800/80">
+                            <span class="font-serif-custom text-xs uppercase tracking-[0.2em] text-amber-500/90 font-semibold">Station Log & Notes</span>
+                            <span id="journal-date" class="text-[10px] font-mono text-zinc-500">ARCHIVE 01</span>
+                        </div>
+
+                        <h3 id="journal-title" class="font-serif-custom text-2xl text-zinc-100 mb-3 tracking-wide">
+                            Original Studio & Acoustic Sessions
+                        </h3>
+
+                        <div id="journal-text" class="text-xs text-zinc-400 leading-relaxed font-light space-y-3 font-serif-custom text-base italic">
+                            "Original songwriting capturing the transition from the crisp mountain pines of Oregon down into the wide-open skies of West Texas. Recorded live with an honest heart."
+                        </div>
+                    </div>
+
+                    <div class="mt-8 pt-4 border-t border-zinc-900 text-center">
+                        <p class="text-[11px] text-zinc-600 font-mono tracking-wider">
+                            Broadcasted from the desk by the window. Click knob to tune.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <section class="max-w-5xl mx-auto px-6 pb-16" aria-label="Author tip jar">
+            <a class="author-tip-jar" href="https://venmo.com/Talon-Cherry" target="_blank" rel="noopener noreferrer">
+                <span class="tip-jar-wood" aria-hidden="true">
+                    <span class="tip-jar-brass">Author's Tip Jar</span>
+                    <span class="tip-jar-slot"></span>
+                    <span class="tip-jar-coin"></span>
+                </span>
+                <span class="tip-jar-copy">
+                    <span class="tip-jar-kicker">A coin for the road</span>
+                    <span class="tip-jar-line">If these words found a home in you, drop a coin in the jar.</span>
+                </span>
+            </a>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-zinc-900/80 py-12 bg-zinc-950/40 backdrop-blur-md relative z-10">
+        <div class="max-w-5xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center text-xs text-zinc-600 space-y-4 md:space-y-0 gap-4">
+            <p>Copyright © 2026 Talon T. Cherry. All Rights Reserved.</p>
+            <a href="https://venmo.com/Talon-Cherry" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 font-serif-custom text-sm tracking-[0.2em] uppercase text-[#d9ab55] hover:text-amber-300 transition" aria-label="Tip jar — Venmo Talon Cherry (opens in a new tab)">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 36" class="w-5 h-6" fill="none" aria-hidden="true">
+                    <path d="M8 7h12" stroke="#c4a35a" stroke-width="1.6" stroke-linecap="round"/>
+                    <path d="M9.5 7c0-1.6 2-2.6 4.5-2.6S18.5 5.4 18.5 7" stroke="#c4a35a" stroke-width="1.4"/>
+                    <rect x="7" y="7" width="14" height="3.2" rx="0.6" fill="#b08d57" stroke="#6e5a32" stroke-width="0.6"/>
+                    <path d="M8.2 10.4h11.6l1.4 18.2c.1 1.4-1 2.6-2.4 2.6H9.2c-1.4 0-2.5-1.2-2.4-2.6L8.2 10.4Z" fill="#3a2418" stroke="#c4a35a" stroke-width="1.2"/>
+                    <path d="M10 16h8M10 21h8M10 26h6" stroke="#d9ab55" stroke-width="0.9" stroke-linecap="round" opacity="0.7"/>
+                </svg>
+                Tip Jar
+            </a>
+            <p class="text-zinc-500">Built local. Hosted free via GitHub Pages.</p>
+        </div>
+    </footer>
+
+    <!-- Rain & Ripple Script -->
+    <script>
+        const rainContainer = document.getElementById('rain-container');
+        for (let i = 0; i < 30; i++) {
+            const drop = document.createElement('div');
+            drop.classList.add('rain-deep-bg');
+            drop.style.left = Math.random() * 100 + 'vw';
+            drop.style.top = '-30px';
+            drop.style.animationDuration = (0.8 + Math.random() * 0.7) + 's';
+            drop.style.animationDelay = (Math.random() * 2) + 's';
+            rainContainer.appendChild(drop);
+        }
+        for (let i = 0; i < 25; i++) {
+            const drop = document.createElement('div');
+            drop.classList.add('rain-mid');
+            drop.style.left = Math.random() * 100 + 'vw';
+            drop.style.top = '-40px';
+            drop.style.animationDuration = (0.5 + Math.random() * 0.4) + 's';
+            drop.style.animationDelay = (Math.random() * 2) + 's';
+            rainContainer.appendChild(drop);
+        }
+        for (let i = 0; i < 15; i++) {
+            const drop = document.createElement('div');
+            drop.classList.add('rain-fg');
+            drop.style.left = Math.random() * 100 + 'vw';
+            drop.style.top = '-50px';
+            drop.style.animationDuration = (0.28 + Math.random() * 0.25) + 's';
+            drop.style.animationDelay = (Math.random() * 2) + 's';
+            rainContainer.appendChild(drop);
+        }
+        setInterval(() => {
+            const ripple = document.createElement('div');
+            ripple.classList.add('perspective-ripple');
+            ripple.style.left = (Math.random() * 100) + 'vw';
+            const topPosition = 50 + (Math.random() * 50); 
+            ripple.style.top = topPosition + 'vh';
+            const normalizedDepth = (topPosition - 50) / 50; 
+            const width = 8 + (normalizedDepth * 50); 
+            const heightFactor = 2.2 + (normalizedDepth * 1.8); 
+            ripple.style.width = width + 'px';
+            ripple.style.height = (width / heightFactor) + 'px';
+            if (topPosition < 62) {
+                ripple.style.opacity = '0.5';
+                ripple.style.filter = 'blur(0.4px)';
+            } else {
+                ripple.style.opacity = '0.85';
+                ripple.style.filter = 'none';
+            }
+            rainContainer.appendChild(ripple);
+            setTimeout(() => { ripple.remove(); }, 650);
+        }, 80);
+    </script>
+
+    <!-- Interactive Analog Knob & Radio Tuner Engine -->
+    <script>
+        const stations = [
+            {
+                freq: '88.5 MHz [ORIGINALS]',
+                title: 'Original Studio & Acoustic Sessions',
+                embedUrl: 'https://www.youtube-nocookie.com/embed/videoseries?list=PLBdtLFHJumFRVJ8E4Ho45ta27in43jgOT',
+                date: 'PRIMARY COLLECTION',
+                notes: '"Original songwriting capturing the transition from the crisp mountain pines of Oregon down into the wide-open skies of West Texas. Recorded live with an honest heart."'
+            },
+            {
+                freq: '94.3 MHz [ACOUSTIC COVERS]',
+                title: 'Live Acoustic Covers Archive',
+                embedUrl: 'https://www.youtube-nocookie.com/embed/videoseries?list=PLBdtLFHJumFT7clrjH-dQZIrex0Ha87fd',
+                date: 'LIVE SESSIONS',
+                notes: '"Raw, stripped-down interpretations of timeless tracks. Just a mahogany acoustic guitar, live vocal stems, and an open window."'
+            },
+            {
+                freq: '101.9 MHz [CHRISTMAS ALBUM]',
+                title: 'Holiday & Seasonal Sessions',
+                embedUrl: 'https://www.youtube-nocookie.com/embed/videoseries?list=PLBdtLFHJumFTS0oKkRWQmKB1CrXDMV4nx',
+                date: 'SPECIAL RELEASE',
+                notes: '"Warm acoustic renditions of classic holiday songs recorded for the winter season. Cozy fireside guitar arrangements and quiet reflections."'
+            }
+        ];
+
+        let currentStationIndex = 0;
+        const knobRotations = [0, 120, 240];
+
+        function rotateKnob() {
+            currentStationIndex = (currentStationIndex + 1) % stations.length;
+            const station = stations[currentStationIndex];
+            const rotationDegree = knobRotations[currentStationIndex];
+
+            const knob = document.getElementById('tuner-knob');
+            knob.style.transform = `rotate(${rotationDegree}deg)`;
+
+            document.getElementById('broadcast-status').innerText = 'Tuning Frequency...';
+            document.getElementById('radio-iframe').src = station.embedUrl;
+            document.getElementById('frequency-display').innerText = `FREQ: ${station.freq}`;
+            document.getElementById('journal-title').innerText = station.title;
+            document.getElementById('journal-text').innerText = station.notes;
+            document.getElementById('journal-date').innerText = station.date;
+
+            setTimeout(() => {
+                document.getElementById('broadcast-status').innerText = 'Live Signal Locked';
+            }, 600);
+        }
+    </script>
+</body>
+</html>

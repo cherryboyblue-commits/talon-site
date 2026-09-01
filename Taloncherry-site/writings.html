@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Gilded Library | Talon T. Cherry</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="site-widgets.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap');
+        .font-serif-custom { font-family: 'Instrument Serif', 'EB Garamond', Georgia, serif; }
+        .font-sans-custom { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .font-print { font-family: 'EB Garamond', 'Instrument Serif', Georgia, 'Times New Roman', serif; }
+
+        .lake-background {
+            background-image: url('Images/lake.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .rain-deep-bg { position: fixed; background: linear-gradient(transparent, rgba(255, 255, 255, 0.15)); width: 0.75px; height: 15px; filter: blur(1.5px); pointer-events: none; z-index: 1; animation: fall-deep-bg linear infinite; }
+        .rain-mid { position: fixed; background: linear-gradient(transparent, rgba(255, 255, 255, 0.35)); width: 1px; height: 25px; filter: blur(0.5px); pointer-events: none; z-index: 1; animation: fall-mid linear infinite; }
+        .rain-fg { position: fixed; background: linear-gradient(transparent, rgba(255, 255, 255, 0.75)); width: 2px; height: 45px; filter: blur(0px); pointer-events: none; z-index: 1; animation: fall-fg linear infinite; }
+        @keyframes fall-deep-bg { 0% { transform: translateY(-30px) skewX(-6deg); } 100% { transform: translateY(105vh) skewX(-6deg); } }
+        @keyframes fall-mid { 0% { transform: translateY(-40px) skewX(-5deg); } 100% { transform: translateY(105vh) skewX(-5deg); } }
+        @keyframes fall-fg { 0% { transform: translateY(-50px) skewX(-4deg); } 100% { transform: translateY(105vh) skewX(-4deg); } }
+        .perspective-ripple { position: fixed; border-radius: 50%; pointer-events: none; z-index: 1; border: 1px solid rgba(255, 255, 255, 0.55); box-shadow: 0 0 5px rgba(255, 255, 255, 0.3); transform: scale(0.1) rotateX(60deg); animation: perspective-ripple-effect 0.65s cubic-bezier(0.1, 0.8, 0.3, 1) forwards; }
+        @keyframes perspective-ripple-effect { 0% { transform: scale(0.1) rotateX(65deg); opacity: 0.9; } 50% { opacity: 0.5; } 100% { transform: scale(2.6) rotateX(45deg); opacity: 0; } }
+
+        .library-scene {
+            width: 100%;
+        }
+
+        .shelf-stage {
+            transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1), filter 0.5s ease;
+        }
+        body.is-reading .shelf-stage {
+            filter: blur(8px) brightness(0.45);
+            transform: scale(0.96);
+            pointer-events: none;
+        }
+
+        .bookcase {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1024 / 558;
+            overflow: hidden;
+            border-radius: 6px;
+            background-color: #140c08;
+            background-image: url('assets/bookshelf_shelf.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            box-shadow: 0 28px 70px rgba(0,0,0,0.85);
+            isolation: isolate;
+        }
+
+        .leather-book {
+            appearance: none;
+            -webkit-appearance: none;
+            border: 0;
+            margin: 0;
+            padding: 0;
+            background: transparent;
+            cursor: pointer;
+            position: absolute;
+            z-index: 2;
+            top: 17%;
+            height: 71%;
+            width: 12%;
+            border-radius: 3px;
+            outline: none;
+            transition: background 0.35s ease;
+        }
+        .leather-book[data-key="cultural"] { left: 15.8%; }
+        .leather-book[data-key="poetry"] { left: 34.6%; }
+        .leather-book[data-key="lyrics"] { left: 52.4%; }
+        .leather-book[data-key="stories"] { left: 71.8%; }
+        .leather-book:hover,
+        .leather-book:focus-visible,
+        .leather-book.is-pulling {
+            z-index: 3;
+            background: linear-gradient(
+                90deg,
+                rgba(255, 220, 170, 0.12) 0%,
+                rgba(255, 210, 150, 0.5) 16%,
+                rgba(255, 236, 200, 0.72) 44%,
+                rgba(255, 196, 120, 0.42) 78%,
+                rgba(40, 18, 10, 0.08) 100%
+            );
+            mix-blend-mode: overlay;
+        }
+        .leather-book:focus-visible {
+            outline: 2px solid rgba(232, 196, 120, 0.65);
+            outline-offset: 4px;
+        }
+
+        .open-book-layer {
+            position: fixed;
+            inset: 0;
+            z-index: 40;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 5.5rem 1rem 1.5rem;
+        }
+        body.is-reading .open-book-layer {
+            display: flex;
+        }
+
+        .folio {
+            position: relative;
+            display: flex;
+            width: min(1080px, 96vw);
+            height: min(58vh, 580px);
+            transform-style: preserve-3d;
+            transform: rotateX(3deg);
+            filter: drop-shadow(0 40px 50px rgba(0,0,0,0.8));
+        }
+        .folio-cover-edge {
+            position: absolute;
+            inset: -10px -14px -14px -14px;
+            background: linear-gradient(90deg, #2a160e, #3d2418 8%, #3d2418 92%, #2a160e);
+            border-radius: 4px 12px 12px 4px;
+            z-index: -1;
+            box-shadow: inset 0 0 0 2px #573723;
+        }
+        .folio-page {
+            position: relative;
+            flex: 1;
+            overflow: hidden;
+            background-color: #f0e2c4;
+            background-image:
+                radial-gradient(rgba(90, 50, 20, 0.05) 0.8px, transparent 0.8px),
+                linear-gradient(90deg, rgba(80,40,10,0.08), transparent 8%, transparent 92%, rgba(80,40,10,0.1));
+            background-size: 18px 18px, 100% 100%;
+            color: #2a1c12;
+            display: flex;
+            flex-direction: column;
+        }
+        .folio-page.left {
+            border-right: 0;
+            box-shadow: inset -18px 0 28px rgba(80, 40, 10, 0.12);
+            cursor: w-resize;
+        }
+        .folio-page.right {
+            border-left: 0;
+            box-shadow: inset 18px 0 28px rgba(80, 40, 10, 0.12);
+            cursor: e-resize;
+        }
+        .folio-gutter {
+            width: 18px;
+            background: linear-gradient(90deg, rgba(0,0,0,0.28), rgba(0,0,0,0.08) 40%, rgba(0,0,0,0.08) 60%, rgba(0,0,0,0.28));
+            flex: 0 0 18px;
+        }
+        .page-inner {
+            flex: 1;
+            overflow: hidden;
+            padding: 1.85rem 1.75rem 0.45rem 1.85rem;
+        }
+        .page-num {
+            font-family: 'EB Garamond', Georgia, serif;
+            font-style: italic;
+            font-size: 12px;
+            color: #7a5a3a;
+            text-align: center;
+            padding: 0.45rem 0 0.75rem;
+            letter-spacing: 0.14em;
+        }
+        .page-kicker {
+            font-family: 'EB Garamond', Georgia, serif;
+            font-size: 10px;
+            letter-spacing: 0.28em;
+            text-transform: uppercase;
+            color: #8a6238;
+            margin-bottom: 0.4rem;
+        }
+        .page-title {
+            font-family: 'EB Garamond', 'Instrument Serif', Georgia, serif;
+            font-size: 1.5rem;
+            font-variant: small-caps;
+            letter-spacing: 0.04em;
+            color: #4a2c14;
+            margin-bottom: 0.85rem;
+            line-height: 1.2;
+        }
+        .print-prose .print-p {
+            font-family: 'EB Garamond', 'Instrument Serif', Georgia, serif;
+            font-style: italic;
+            font-size: 1.02rem;
+            line-height: 1.68;
+            text-align: justify;
+            hyphens: auto;
+            text-indent: 1.65em;
+            margin: 0 0 0.7em;
+            color: #2a1c12;
+        }
+        .print-prose .print-p.is-lead {
+            text-indent: 0;
+        }
+        .print-prose .print-p.is-lead::first-letter {
+            float: left;
+            font-family: 'EB Garamond', 'Instrument Serif', Georgia, serif;
+            font-style: normal;
+            font-weight: 600;
+            font-size: 3.35em;
+            line-height: 0.78;
+            padding: 0.06em 0.08em 0 0;
+            color: #5a3418;
+        }
+        .print-verse {
+            font-family: 'EB Garamond', 'Instrument Serif', Georgia, serif;
+            font-style: italic;
+            font-size: 1.05rem;
+            line-height: 1.62;
+            text-align: left;
+            white-space: pre-line;
+            color: #2a1c12;
+        }
+        .title-plate {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 1rem;
+        }
+        .contents-link {
+            display: block;
+            text-align: left;
+            width: 100%;
+            font-family: 'EB Garamond', Georgia, serif;
+            font-style: italic;
+            color: #3a2718;
+            padding: 0.2rem 0;
+            border-bottom: 1px dotted rgba(90,52,24,0.25);
+            font-size: 1rem;
+        }
+        .contents-link:hover { color: #92400e; }
+
+        .flip-sheet {
+            position: absolute;
+            top: 0;
+            width: 50%;
+            height: 100%;
+            transform-style: preserve-3d;
+            pointer-events: none;
+            z-index: 6;
+        }
+        .flip-sheet.next {
+            right: 0;
+            transform-origin: left center;
+            animation: flip-next 0.62s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        .flip-sheet.prev {
+            left: 0;
+            transform-origin: right center;
+            animation: flip-prev 0.62s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        @keyframes flip-next {
+            0% { transform: rotateY(0deg); }
+            100% { transform: rotateY(-180deg); }
+        }
+        @keyframes flip-prev {
+            0% { transform: rotateY(0deg); }
+            100% { transform: rotateY(180deg); }
+        }
+        .flip-face {
+            position: absolute;
+            inset: 0;
+            background: #ead7ae;
+            box-shadow: 0 0 24px rgba(0,0,0,0.25);
+        }
+        .flip-sheet.next .flip-face { border-left: 1px solid rgba(80,40,10,0.2); }
+        .flip-sheet.prev .flip-face { border-right: 1px solid rgba(80,40,10,0.2); }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        .ctrl-btn {
+            font-family: ui-monospace, monospace;
+            font-size: 11px;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: #fbbf24;
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.28);
+            border-radius: 0.5rem;
+            padding: 0.55rem 0.95rem;
+            transition: background 0.2s ease, color 0.2s ease;
+        }
+        .ctrl-btn:hover:not(:disabled) { background: rgba(245, 158, 11, 0.22); color: #fde68a; }
+        .ctrl-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+        @media (max-width: 768px) {
+            .folio { flex-direction: column; height: min(58vh, 620px); transform: none; }
+            .folio-gutter { display: none; }
+            .folio-page.left, .folio-page.right { cursor: pointer; min-height: 46%; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .tome, .shelf-stage, .open-book-layer, .rain-deep-bg, .rain-mid, .rain-fg { animation: none !important; transition: none !important; }
+        }
+    </style>
+</head>
+<body class="bg-zinc-950 text-zinc-300 font-sans-custom antialiased selection:bg-amber-500 selection:text-zinc-950 overflow-x-hidden">
+
+    <div class="fixed inset-0 z-0 lake-background filter brightness-[0.42] contrast-125"></div>
+    <div id="rain-container" class="fixed inset-0 z-[1] pointer-events-none overflow-hidden h-full w-full"></div>
+    <div class="fixed inset-0 z-0 pointer-events-none bg-gradient-to-b from-zinc-950/80 via-zinc-950/50 to-zinc-950/90"></div>
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[28rem] bg-amber-600/20 blur-[140px] pointer-events-none rounded-full"></div>
+
+    <header class="relative z-20 max-w-6xl mx-auto px-6 py-8 flex justify-between items-center border-b border-zinc-900/50">
+        <a href="index.html" class="text-xl font-serif-custom tracking-wider text-zinc-100 hover:text-amber-400 transition">TALON T. CHERRY</a>
+        <nav class="space-x-6 text-sm font-medium text-zinc-400">
+            <a href="music.html" class="hover:text-amber-400 transition">Music & Radio</a>
+            <a href="writings.html" class="text-amber-400 transition">Writings</a>
+            <a href="life.html" class="hover:text-amber-400 transition">The Life</a>
+            <a href="forum.html" class="hover:text-amber-400 transition">The Parlor</a>
+            <a href="https://www.youtube.com/@TalonCherry" target="_blank" class="hover:text-amber-400 transition">YouTube ↗</a>
+        </nav>
+    </header>
+
+    <main class="relative z-10 max-w-6xl mx-auto px-4 md:px-6 py-8">
+        <div id="shelf-copy" class="text-center mb-8">
+            <span class="inline-block text-xs uppercase tracking-widest text-amber-500 font-semibold mb-3 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">
+                The Gilded Study • Pull a volume from the shelf
+            </span>
+            <h1 class="text-4xl md:text-6xl font-serif-custom text-zinc-100 tracking-tight mb-3">Collected Writings</h1>
+            <p class="text-zinc-400 text-sm max-w-lg mx-auto font-light">
+                Four leather-bound books. Click one to draw it from the case and open it on the desk.
+            </p>
+        </div>
+
+        <div class="library-scene">
+            <div class="shelf-stage">
+                <div class="bookcase" role="img" aria-label="Four antique leather volumes on a library shelf: Cultural, Poetry, Lyrics, and Stories">
+                    <button type="button" class="leather-book" data-key="cultural" aria-label="Open Cultural volume" onclick="openLibraryVolume('cultural')">
+                        <span class="sr-only">Cultural</span>
+                    </button>
+                    <button type="button" class="leather-book" data-key="poetry" aria-label="Open Poetry volume" onclick="openLibraryVolume('poetry')">
+                        <span class="sr-only">Poetry</span>
+                    </button>
+                    <button type="button" class="leather-book" data-key="lyrics" aria-label="Open Lyrics volume" onclick="openLibraryVolume('lyrics')">
+                        <span class="sr-only">Lyrics</span>
+                    </button>
+                    <button type="button" class="leather-book" data-key="stories" aria-label="Open Short Stories volume" onclick="openLibraryVolume('stories')">
+                        <span class="sr-only">Stories</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <p class="text-center text-[11px] font-mono text-zinc-500 mt-6 tracking-widest">Hover a volume • Click to open • ← → to turn pages</p>
+    </main>
+
+    <div class="open-book-layer" id="open-book-layer" aria-hidden="true">
+        <div class="w-full max-w-5xl flex justify-between items-center mb-4 px-1">
+            <button type="button" id="return-shelf" class="ctrl-btn">← Return to Shelf</button>
+            <p id="volume-label" class="font-serif-custom text-amber-200/90 text-lg md:text-xl">Volume</p>
+            <span class="text-[10px] font-mono text-zinc-500 tracking-widest hidden sm:inline">ESC closes</span>
+        </div>
+
+        <div class="folio" id="folio">
+            <div class="folio-cover-edge"></div>
+            <article class="folio-page left" id="page-left" title="Previous page"></article>
+            <div class="folio-gutter"></div>
+            <article class="folio-page right" id="page-right" title="Next page"></article>
+        </div>
+
+        <div class="mt-5 flex items-center justify-center gap-4">
+            <button type="button" id="prev-page" class="ctrl-btn">← Previous</button>
+            <span id="page-indicator" class="font-serif-custom text-amber-400/90 min-w-[9rem] text-center text-sm">1–2</span>
+            <button type="button" id="next-page" class="ctrl-btn">Next →</button>
+        </div>
+
+        <a class="author-tip-jar author-tip-jar--reader" href="https://venmo.com/Talon-Cherry" target="_blank" rel="noopener noreferrer">
+            <span class="tip-jar-wood" aria-hidden="true">
+                <span class="tip-jar-brass">Author's Tip Jar</span>
+                <span class="tip-jar-slot"></span>
+                <span class="tip-jar-coin"></span>
+            </span>
+            <span class="tip-jar-copy">
+                <span class="tip-jar-kicker">A coin for the road</span>
+                <span class="tip-jar-line">If these words found a home in you, drop a coin in the jar.</span>
+            </span>
+        </a>
+    </div>
+
+    <footer class="border-t border-zinc-900/80 py-10 bg-zinc-950/40 backdrop-blur-md relative z-10 mt-16">
+        <div class="max-w-5xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center text-xs text-zinc-600 space-y-4 md:space-y-0 gap-4">
+            <p>Copyright © 2026 Talon T. Cherry. All Rights Reserved.</p>
+            <a href="https://venmo.com/Talon-Cherry" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 font-serif-custom text-sm tracking-[0.2em] uppercase text-[#d9ab55] hover:text-amber-300 transition" aria-label="Tip jar — Venmo Talon Cherry (opens in a new tab)">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 36" class="w-5 h-6" fill="none" aria-hidden="true">
+                    <path d="M8 7h12" stroke="#c4a35a" stroke-width="1.6" stroke-linecap="round"/>
+                    <path d="M9.5 7c0-1.6 2-2.6 4.5-2.6S18.5 5.4 18.5 7" stroke="#c4a35a" stroke-width="1.4"/>
+                    <rect x="7" y="7" width="14" height="3.2" rx="0.6" fill="#b08d57" stroke="#6e5a32" stroke-width="0.6"/>
+                    <path d="M8.2 10.4h11.6l1.4 18.2c.1 1.4-1 2.6-2.4 2.6H9.2c-1.4 0-2.5-1.2-2.4-2.6L8.2 10.4Z" fill="#3a2418" stroke="#c4a35a" stroke-width="1.2"/>
+                    <path d="M10 16h8M10 21h8M10 26h6" stroke="#d9ab55" stroke-width="0.9" stroke-linecap="round" opacity="0.7"/>
+                </svg>
+                Tip Jar
+            </a>
+            <p class="text-zinc-500">Built local. Hosted free via GitHub Pages.</p>
+        </div>
+    </footer>
+
+    <script>
+        const rainContainer = document.getElementById('rain-container');
+        for (let i = 0; i < 30; i++) {
+            const drop = document.createElement('div');
+            drop.classList.add('rain-deep-bg');
+            drop.style.left = Math.random() * 100 + 'vw';
+            drop.style.top = '-30px';
+            drop.style.animationDuration = (0.8 + Math.random() * 0.7) + 's';
+            drop.style.animationDelay = (Math.random() * 2) + 's';
+            rainContainer.appendChild(drop);
+        }
+        for (let i = 0; i < 25; i++) {
+            const drop = document.createElement('div');
+            drop.classList.add('rain-mid');
+            drop.style.left = Math.random() * 100 + 'vw';
+            drop.style.top = '-40px';
+            drop.style.animationDuration = (0.5 + Math.random() * 0.4) + 's';
+            drop.style.animationDelay = (Math.random() * 2) + 's';
+            rainContainer.appendChild(drop);
+        }
+        for (let i = 0; i < 15; i++) {
+            const drop = document.createElement('div');
+            drop.classList.add('rain-fg');
+            drop.style.left = Math.random() * 100 + 'vw';
+            drop.style.top = '-50px';
+            drop.style.animationDuration = (0.28 + Math.random() * 0.25) + 's';
+            drop.style.animationDelay = (Math.random() * 2) + 's';
+            rainContainer.appendChild(drop);
+        }
+        setInterval(() => {
+            const ripple = document.createElement('div');
+            ripple.classList.add('perspective-ripple');
+            ripple.style.left = (Math.random() * 100) + 'vw';
+            const topPosition = 50 + (Math.random() * 50);
+            ripple.style.top = topPosition + 'vh';
+            const normalizedDepth = (topPosition - 50) / 50;
+            const width = 8 + (normalizedDepth * 50);
+            const heightFactor = 2.2 + (normalizedDepth * 1.8);
+            ripple.style.width = width + 'px';
+            ripple.style.height = (width / heightFactor) + 'px';
+            ripple.style.opacity = topPosition < 62 ? '0.5' : '0.85';
+            rainContainer.appendChild(ripple);
+            setTimeout(() => ripple.remove(), 650);
+        }, 80);
+    </script>
+
+    <script src="library_data.js"></script>
+    <script>
+        const CHARS_PER_PAGE = 980;
+        let pages = [];
+        let spreadIndex = 0;
+        let flipping = false;
+        let audioCtx = null;
+
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        function formatProseHtml(text, withDropCap) {
+            const paras = String(text || '')
+                .replace(/\r\n/g, '\n')
+                .split(/\n\s*\n/)
+                .map((p) => p.replace(/\s+/g, ' ').trim())
+                .filter(Boolean);
+            if (!paras.length) return '';
+            return paras.map((p, i) => {
+                const lead = withDropCap && i === 0 && /[A-Za-z]/.test(p.charAt(0));
+                return `<p class="print-p${lead ? ' is-lead' : ''}">${escapeHtml(p)}</p>`;
+            }).join('');
+        }
+
+        function formatVerseHtml(text) {
+            return `<div class="print-verse">${escapeHtml(String(text || '').trim())}</div>`;
+        }
+
+        function unlockAudio() {
+            if (!audioCtx) {
+                const AC = window.AudioContext || window.webkitAudioContext;
+                if (AC) audioCtx = new AC();
+            }
+            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        function playPaper(kind) {
+            if (!audioCtx) return;
+            const t = audioCtx.currentTime;
+            const dur = kind === 'open' ? 0.28 : 0.16;
+            const bufferSize = audioCtx.sampleRate * dur;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                const env = Math.pow(1 - i / bufferSize, 2.2);
+                data[i] = (Math.random() * 2 - 1) * env * (kind === 'open' ? 0.22 : 0.16);
+            }
+            const noise = audioCtx.createBufferSource();
+            noise.buffer = buffer;
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.value = kind === 'open' ? 680 : 1400;
+            filter.Q.value = 0.7;
+            const gain = audioCtx.createGain();
+            gain.gain.value = 0.55;
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioCtx.destination);
+            noise.start();
+        }
+
+        function chunkText(text, limit) {
+            const cleaned = (text || '').replace(/\n{3,}/g, '\n\n').trim();
+            if (cleaned.length <= limit) return [cleaned];
+            const parts = [];
+            const paras = cleaned.split(/\n\n/);
+            let buf = '';
+            const pushBuf = () => { if (buf.trim()) parts.push(buf.trim()); buf = ''; };
+            for (const para of paras) {
+                if (para.length > limit) {
+                    pushBuf();
+                    const words = para.split(/\s+/);
+                    let line = '';
+                    for (const w of words) {
+                        if ((line + ' ' + w).trim().length > limit && line) {
+                            parts.push(line.trim());
+                            line = w;
+                        } else {
+                            line = (line + ' ' + w).trim();
+                        }
+                    }
+                    if (line) buf = line;
+                } else if ((buf + '\n\n' + para).trim().length > limit && buf) {
+                    pushBuf();
+                    buf = para;
+                } else {
+                    buf = buf ? buf + '\n\n' + para : para;
+                }
+            }
+            pushBuf();
+            return parts.length ? parts : [cleaned];
+        }
+
+        function buildPages(bookKey) {
+            const data = libraryData[bookKey];
+            const layout = (bookKey === 'poetry' || bookKey === 'lyrics') ? 'verse' : 'prose';
+            const built = [];
+            built.push({
+                type: 'title',
+                kicker: 'The Gilded Library',
+                title: data.title,
+                text: data.subtitle + '\n\nTalon T. Cherry',
+                date: ''
+            });
+
+            const tocChunks = [];
+            let tocBuf = [];
+            data.entries.forEach((entry, i) => {
+                tocBuf.push({ i, title: entry.title });
+                if (tocBuf.length >= 14) {
+                    tocChunks.push(tocBuf);
+                    tocBuf = [];
+                }
+            });
+            if (tocBuf.length) tocChunks.push(tocBuf);
+            tocChunks.forEach((chunk, n) => {
+                built.push({
+                    type: 'contents',
+                    kicker: n === 0 ? 'Contents' : 'Contents (cont.)',
+                    title: data.title,
+                    items: chunk,
+                    date: ''
+                });
+            });
+
+            data.entries.forEach((entry, entryIndex) => {
+                const chunks = chunkText(entry.text, CHARS_PER_PAGE);
+                chunks.forEach((chunk, n) => {
+                    built.push({
+                        type: 'body',
+                        layout,
+                        kicker: entry.date && entry.date !== 'Archive' ? entry.date : data.title,
+                        title: n === 0 ? entry.title : entry.title + ' (cont.)',
+                        text: chunk,
+                        date: entry.date,
+                        entryIndex,
+                        continued: n > 0
+                    });
+                });
+            });
+
+            if (built.length % 2 === 1) {
+                built.push({ type: 'blank', kicker: '', title: '', text: '', date: '' });
+            }
+            return built;
+        }
+
+        function renderPage(el, page, pageNumber) {
+            if (!page || page.type === 'blank') {
+                el.innerHTML = `<div class="page-inner"></div><div class="page-num">${pageNumber || ''}</div>`;
+                return;
+            }
+            if (page.type === 'title') {
+                el.innerHTML = `
+                    <div class="page-inner">
+                        <div class="title-plate">
+                            <p class="page-kicker">${escapeHtml(page.kicker)}</p>
+                            <h2 class="font-serif-custom text-4xl md:text-5xl text-amber-900 mt-3 mb-4">${escapeHtml(page.title)}</h2>
+                            <div class="w-16 h-px bg-amber-800/40 mb-4"></div>
+                            <p class="font-print italic text-center text-[#3a2718] leading-relaxed">${escapeHtml(page.text)}</p>
+                        </div>
+                    </div>
+                    <div class="page-num">${pageNumber}</div>`;
+                return;
+            }
+            if (page.type === 'contents') {
+                const links = page.items.map((item) =>
+                    `<button type="button" class="contents-link" data-entry="${item.i}">${escapeHtml(item.title)}</button>`
+                ).join('');
+                el.innerHTML = `
+                    <div class="page-inner">
+                        <p class="page-kicker">${escapeHtml(page.kicker)}</p>
+                        <h3 class="page-title">In this volume</h3>
+                        <div>${links}</div>
+                    </div>
+                    <div class="page-num">${pageNumber}</div>`;
+                el.querySelectorAll('[data-entry]').forEach((btn) => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        jumpToEntry(Number(btn.dataset.entry));
+                    });
+                });
+                return;
+            }
+            const verse = page.layout === 'verse';
+            const body = verse
+                ? formatVerseHtml(page.text)
+                : `<div class="print-prose">${formatProseHtml(page.text, !page.continued)}</div>`;
+            el.innerHTML = `
+                <div class="page-inner">
+                    <p class="page-kicker">${escapeHtml(page.kicker)}</p>
+                    <h3 class="page-title">${escapeHtml(page.title)}</h3>
+                    ${body}
+                </div>
+                <div class="page-num">${pageNumber}</div>`;
+        }
+
+        function spreadCount() {
+            return Math.ceil(pages.length / 2);
+        }
+
+        function renderSpread() {
+            const leftN = spreadIndex * 2;
+            const rightN = leftN + 1;
+            renderPage(document.getElementById('page-left'), pages[leftN], leftN + 1);
+            renderPage(document.getElementById('page-right'), pages[rightN], rightN + 1);
+            const last = Math.min(rightN + 1, pages.length);
+            document.getElementById('page-indicator').textContent = `${leftN + 1}–${last} / ${pages.length}`;
+            document.getElementById('prev-page').disabled = spreadIndex <= 0;
+            document.getElementById('next-page').disabled = spreadIndex >= spreadCount() - 1;
+        }
+
+        function runFlip(direction) {
+            const folio = document.getElementById('folio');
+            const sheet = document.createElement('div');
+            sheet.className = 'flip-sheet ' + (direction === 'next' ? 'next' : 'prev');
+            sheet.innerHTML = '<div class="flip-face"></div>';
+            folio.appendChild(sheet);
+            setTimeout(() => sheet.remove(), 620);
+        }
+
+        function goSpread(nextIndex, direction) {
+            if (flipping) return;
+            const max = spreadCount() - 1;
+            if (nextIndex < 0 || nextIndex > max || nextIndex === spreadIndex) return;
+            flipping = true;
+            playPaper('flip');
+            runFlip(direction);
+            setTimeout(() => {
+                spreadIndex = nextIndex;
+                renderSpread();
+                flipping = false;
+            }, 280);
+        }
+
+        function jumpToEntry(entryIndex) {
+            const idx = pages.findIndex((p) => p.type === 'body' && p.entryIndex === entryIndex && !p.continued);
+            if (idx < 0) return;
+            spreadIndex = Math.floor(idx / 2);
+            playPaper('flip');
+            renderSpread();
+        }
+
+        function openVolume(bookKey) {
+            if (typeof libraryData === 'undefined' || !libraryData[bookKey]) {
+                alert('Library data is missing. Keep library_data.js next to this page.');
+                return;
+            }
+            unlockAudio();
+            playPaper('open');
+            const tome = document.querySelector(`.leather-book[data-key="${bookKey}"]`);
+            document.querySelectorAll('.leather-book').forEach((el) => el.classList.remove('is-pulling'));
+            if (tome) tome.classList.add('is-pulling');
+
+            pages = buildPages(bookKey);
+            spreadIndex = 0;
+            document.getElementById('volume-label').textContent = libraryData[bookKey].title;
+            renderSpread();
+            document.body.classList.add('is-reading');
+            document.getElementById('open-book-layer').setAttribute('aria-hidden', 'false');
+            history.replaceState(null, '', '#' + bookKey);
+        }
+
+        function closeVolume() {
+            document.body.classList.remove('is-reading');
+            document.getElementById('open-book-layer').setAttribute('aria-hidden', 'true');
+            document.querySelectorAll('.leather-book').forEach((el) => el.classList.remove('is-pulling'));
+            playPaper('open');
+            history.replaceState(null, '', location.pathname);
+        }
+
+        window.openLibraryVolume = openVolume;
+
+        document.getElementById('return-shelf').addEventListener('click', closeVolume);
+        document.getElementById('prev-page').addEventListener('click', () => goSpread(spreadIndex - 1, 'prev'));
+        document.getElementById('next-page').addEventListener('click', () => goSpread(spreadIndex + 1, 'next'));
+        document.getElementById('page-left').addEventListener('click', (e) => {
+            if (e.target.closest('[data-entry]')) return;
+            goSpread(spreadIndex - 1, 'prev');
+        });
+        document.getElementById('page-right').addEventListener('click', (e) => {
+            if (e.target.closest('[data-entry]')) return;
+            goSpread(spreadIndex + 1, 'next');
+        });
+
+        window.addEventListener('keydown', (e) => {
+            if (!document.body.classList.contains('is-reading')) return;
+            if (e.key === 'ArrowRight') { e.preventDefault(); goSpread(spreadIndex + 1, 'next'); }
+            if (e.key === 'ArrowLeft') { e.preventDefault(); goSpread(spreadIndex - 1, 'prev'); }
+            if (e.key === 'Escape') { e.preventDefault(); closeVolume(); }
+        });
+
+        const initial = location.hash.replace('#', '');
+        if (initial && typeof libraryData !== 'undefined' && libraryData[initial]) {
+            openVolume(initial);
+        }
+    </script>
+</body>
+</html>

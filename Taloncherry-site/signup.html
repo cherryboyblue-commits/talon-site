@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join The Parlor | Talon T. Cherry</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="parlor.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap');
+        .font-serif-custom { font-family: 'Instrument Serif', serif; }
+        .font-sans-custom { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .lake-background {
+            background-image: url('Images/lake.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+    </style>
+</head>
+<body class="bg-zinc-950 text-zinc-300 font-sans-custom antialiased" data-parlor-mode="signup">
+    <div class="fixed inset-0 z-0 lake-background filter brightness-[0.42] contrast-125"></div>
+    <div class="fixed inset-0 z-0 pointer-events-none bg-gradient-to-b from-zinc-950/80 via-zinc-950/50 to-zinc-950/90"></div>
+
+    <header class="relative z-10 max-w-5xl mx-auto px-6 py-8 flex justify-between items-center border-b border-zinc-900/50">
+        <a href="index.html" class="text-xl font-serif-custom tracking-wider text-zinc-100 hover:text-amber-400 transition">TALON T. CHERRY</a>
+        <nav class="space-x-6 text-sm font-medium text-zinc-400">
+            <a href="forum.html" class="text-amber-400 transition">The Parlor</a>
+        </nav>
+    </header>
+
+    <main class="relative z-10 max-w-lg mx-auto px-6 py-16 parlor-shell">
+        <div class="text-center mb-8">
+            <span class="inline-block text-xs uppercase tracking-widest text-amber-500 font-semibold mb-3 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">The Parlor</span>
+            <h1 id="parlor-title" class="text-4xl font-serif-custom text-zinc-100">Sign the guest book</h1>
+            <p id="parlor-blurb" class="text-zinc-400 text-sm mt-2 font-light">Give a real email, a parlor username, and a word only you know. Then the parlor door opens.</p>
+        </div>
+
+        <form id="parlor-auth-form" class="parlor-ledger p-8 md:p-10">
+            <div class="parlor-toggle" role="tablist" aria-label="Parlor door">
+                <button type="button" id="tab-signin" role="tab" aria-selected="false">Sign In</button>
+                <button type="button" id="tab-signup" class="is-active" role="tab" aria-selected="true">Sign Up</button>
+            </div>
+            <label class="block mb-4 text-left">
+                <span class="block text-[10px] font-mono tracking-[0.2em] uppercase text-[#7a4e18] mb-1">Email</span>
+                <input class="parlor-field" type="email" name="email" id="parlor-email" required autocomplete="email" placeholder="you@example.com">
+            </label>
+            <label id="parlor-username-wrap" class="block mb-4 text-left">
+                <span class="block text-[10px] font-mono tracking-[0.2em] uppercase text-[#7a4e18] mb-1">Username</span>
+                <input class="parlor-field" type="text" name="username" id="parlor-username" required autocomplete="username" maxlength="32" placeholder="Talon86">
+            </label>
+            <label class="block mb-6 text-left">
+                <span class="block text-[10px] font-mono tracking-[0.2em] uppercase text-[#7a4e18] mb-1">Password</span>
+                <input class="parlor-field" type="password" name="password" id="parlor-password" required autocomplete="new-password" minlength="8">
+            </label>
+            <p id="form-error" class="parlor-error mb-4"></p>
+            <button type="submit" id="parlor-submit" class="parlor-btn w-full">Create my membership</button>
+        </form>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="parlor-config.js"></script>
+    <script src="parlor-auth.js"></script>
+    <script src="parlor-door.js"></script>
+    <script>
+        if (!new URLSearchParams(location.search).get("mode")) {
+            history.replaceState(null, "", "signup.html?mode=signup");
+        }
+        parlorBindAuthDoor();
+    </script>
+</body>
+</html>

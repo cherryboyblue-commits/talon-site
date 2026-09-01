@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Parlor | Talon T. Cherry</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="parlor.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap');
+        .font-serif-custom { font-family: 'Instrument Serif', serif; }
+        .font-sans-custom { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .lake-background {
+            background-image: url('Images/lake.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+    </style>
+</head>
+<body class="bg-zinc-950 text-zinc-300 font-sans-custom antialiased">
+    <div class="fixed inset-0 z-0 lake-background filter brightness-[0.38] contrast-125"></div>
+    <div class="fixed inset-0 z-0 pointer-events-none bg-gradient-to-b from-zinc-950/85 via-zinc-950/55 to-zinc-950/92"></div>
+
+    <header class="relative z-10 max-w-6xl mx-auto px-6 py-8 flex justify-between items-center border-b border-zinc-900/50">
+        <a href="index.html" class="text-xl font-serif-custom tracking-wider text-zinc-100 hover:text-amber-400 transition">TALON T. CHERRY</a>
+        <nav class="space-x-6 text-sm font-medium text-zinc-400">
+            <span id="member-label" class="text-amber-200/80 font-serif-custom"></span>
+            <button type="button" id="sign-out" class="hover:text-amber-400 transition">Sign out</button>
+        </nav>
+    </header>
+
+    <main id="parlor-main" class="relative z-10 max-w-6xl mx-auto px-6 py-10 hidden">
+        <div class="text-center mb-10">
+            <span class="inline-block text-xs uppercase tracking-widest text-amber-500 font-semibold mb-3 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">Members' bulletin</span>
+            <h1 class="text-4xl md:text-5xl font-serif-custom text-zinc-100">The Parlor</h1>
+            <p class="text-zinc-400 text-sm mt-2 font-light">Pin a note to the board. Fellow members will find it here.</p>
+        </div>
+
+        <form id="pin-form" class="parlor-ledger p-6 md:p-8 mb-10 max-w-2xl mx-auto">
+            <label class="block mb-4 text-left">
+                <span class="block text-[10px] font-mono tracking-[0.2em] uppercase text-[#7a4e18] mb-1">Username</span>
+                <input class="parlor-field" type="text" name="name" id="pin-name" required maxlength="80" autocomplete="username" readonly>
+            </label>
+            <label class="block mb-4 text-left">
+                <span class="block text-[10px] font-mono tracking-[0.2em] uppercase text-[#7a4e18] mb-1">A note for the board</span>
+                <textarea class="parlor-field" name="message" id="pin-message" required maxlength="500" rows="4" placeholder="Leave a word for the house…"></textarea>
+            </label>
+            <p id="pin-error" class="parlor-error mb-3"></p>
+            <p id="pin-source" class="text-xs italic text-[#6b4a28] mb-3"></p>
+            <button type="submit" id="pin-btn" class="parlor-btn">Pin this note</button>
+        </form>
+
+        <div id="corkboard" class="corkboard" aria-live="polite"></div>
+    </main>
+
+    <p id="gate-msg" class="relative z-10 text-center text-zinc-400 font-serif-custom italic py-24">Checking the guest book…</p>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="parlor-config.js"></script>
+    <script src="parlor-auth.js"></script>
+    <script>
+        const TILTS = ['-2.4deg', '1.6deg', '-0.8deg', '2.1deg', '-1.5deg', '0.9deg'];
+        let currentUser = null;
+        let client = null;
+        let isAdmin = false;
+        let pinCount = 0;
+
+        const corkboard = document.getElementById('corkboard');
+        const pinForm = document.getElementById('pin-form');
+        const pinError = document.getElementById('pin-error');
+        const pinBtn = document.getElementById('pin-btn');
+        const pinSource = document.getElementById('pin-source');
+
+        function notesEndpoint() {
+            return window.parlorRestUrl();
+        }
+
+        async function notesHeaders() {
+            const config = window.PARLOR_CONFIG || {};
+            let token = config.supabaseAnonKey;
+            if (client) {
+                const { data } = await client.auth.getSession();
+                if (data?.session?.access_token) token = data.session.access_token;
+            }
+            return {
+                apikey: config.supabaseAnonKey,
+                Authorization: 'Bearer ' + token,
+                'Content-Type': 'application/json',
+                Prefer: 'return=representation'
+            };
+        }
+
+        function formatDate(value) {
+            if (!value) return '';
+            const date = new Date(value);
+            if (Number.isNaN(date.getTime())) return '';
+            return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+        }
+
+        function createNoteElement(author, message, created, recordId) {
+            const article = document.createElement('article');
+            article.className = 'pin-note';
+            article.style.setProperty('--tilt', TILTS[pinCount % TILTS.length]);
+            pinCount += 1;
+            if (recordId) article.dataset.recordId = recordId;
+
+            const pin = document.createElement('span');
+            pin.className = 'pin-head';
+
+            const by = document.createElement('span');
+            by.className = 'pin-author';
+            by.textContent = author || 'A member';
+
+            const body = document.createElement('p');
+            body.className = 'pin-body';
+            body.textContent = message || '';
+
+            const when = document.createElement('span');
+            when.className = 'pin-date';
+            when.textContent = formatDate(created);
+
+            article.append(pin, by, body, when);
+
+            if (isAdmin && recordId) {
+                const remove = document.createElement('button');
+                remove.type = 'button';
+                remove.className = 'pin-delete';
+                remove.setAttribute('aria-label', 'Take down this note');
+                remove.title = 'Take down this note';
+                remove.textContent = '×';
+                article.append(remove);
+            }
+            return article;
+        }
+
+        function clearEmptyState() {
+            const empty = corkboard.querySelector('.cork-empty');
+            if (empty) empty.remove();
+        }
+
+        function showEmptyState() {
+            corkboard.replaceChildren();
+            const empty = document.createElement('p');
+            empty.className = 'cork-empty';
+            empty.textContent = 'The board is empty. Be the first to pin a note.';
+            corkboard.append(empty);
+        }
+
+        function appendNote(author, message, created, atFront, recordId) {
+            clearEmptyState();
+            const noteEl = createNoteElement(author, message, created, recordId);
+            if (atFront && corkboard.firstChild) {
+                corkboard.prepend(noteEl);
+            } else {
+                corkboard.append(noteEl);
+            }
+        }
+
+        async function deleteNote(recordId, noteEl) {
+            if (!isAdmin || !recordId) return;
+            const response = await fetch(notesEndpoint() + '?id=eq.' + encodeURIComponent(recordId), {
+                method: 'DELETE',
+                headers: await notesHeaders()
+            });
+            if (!response.ok) {
+                const detail = await response.text();
+                throw new Error(detail || 'The note would not come down.');
+            }
+            if (noteEl && noteEl.parentNode) noteEl.remove();
+            if (!corkboard.querySelector('.pin-note')) showEmptyState();
+        }
+
+        async function fetchExistingNotes() {
+            pinSource.textContent = 'Opening the parlor ledger…';
+            const response = await fetch(notesEndpoint() + '?select=*&order=created_at.desc', {
+                method: 'GET',
+                headers: await notesHeaders()
+            });
+            if (!response.ok) {
+                throw new Error('The ledger could not be opened.');
+            }
+            const records = await response.json();
+
+            corkboard.replaceChildren();
+            pinCount = 0;
+            if (!records.length) {
+                showEmptyState();
+            } else {
+                records.forEach(function (record) {
+                    appendNote(record.author, record.note, record.created_at, false, record.id);
+                });
+            }
+            pinSource.textContent = 'Notes are bound to parlor_notes.';
+        }
+
+        function profilesEndpoint() {
+            const config = window.PARLOR_CONFIG || {};
+            return String(config.supabaseUrl || '').replace(/\/$/, '') + '/rest/v1/parlor_profiles';
+        }
+
+        function rpcEndpoint() {
+            const config = window.PARLOR_CONFIG || {};
+            return String(config.supabaseUrl || '').replace(/\/$/, '') + '/rest/v1/rpc/admin_revoke_member';
+        }
+
+        async function loadRosterFromNotes() {
+            const response = await fetch(notesEndpoint() + '?select=user_id,author&order=created_at.desc', {
+                method: 'GET',
+                headers: await notesHeaders()
+            });
+            if (!response.ok) return [];
+            const records = await response.json();
+            const seen = {};
+            const rows = [];
+            records.forEach(function (record) {
+                const id = record.user_id;
+                if (!id || seen[id]) return;
+                seen[id] = true;
+                rows.push({ user_id: id, username: record.author, revoked: false });
+            });
+            return rows;
+        }
+
+        function renderRoster(rows, allowRevoke) {
+            const list = document.getElementById('roster-list');
+            list.replaceChildren();
+            if (!rows.length) {
+                list.textContent = 'No members on the roll yet.';
+                return;
+            }
+            rows.forEach(function (row) {
+                const item = document.createElement('div');
+                item.className = 'roster-row';
+                const name = document.createElement('span');
+                name.className = 'roster-name';
+                name.textContent = row.username + (row.revoked ? ' (revoked)' : '');
+                item.append(name);
+                const selfId = currentUser && currentUser.id;
+                const isSteward = String(row.username || '').toLowerCase() === 'talon86';
+                if (allowRevoke && !isSteward && row.user_id !== selfId && !row.revoked) {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'roster-revoke';
+                    btn.dataset.userId = row.user_id;
+                    btn.textContent = 'Remove Member / Revoke Access';
+                    item.append(btn);
+                }
+                list.append(item);
+            });
+        }
+
+        async function loadRoster() {
+            if (!isAdmin) return;
+            const rosterError = document.getElementById('roster-error');
+            rosterError.textContent = '';
+            const response = await fetch(profilesEndpoint() + '?select=user_id,username,revoked,created_at&order=created_at.desc', {
+                method: 'GET',
+                headers: await notesHeaders()
+            });
+            if (!response.ok) {
+                const fromNotes = await loadRosterFromNotes();
+                renderRoster(fromNotes, false);
+                rosterError.textContent = 'Run parlor_admin.sql in Supabase to unlock removal. Showing authors from the board until then.';
+                return;
+            }
+            const rows = await response.json();
+            renderRoster(rows, true);
+        }
+
+        async function revokeMember(userId, button) {
+            if (!isAdmin) return;
+            const response = await fetch(rpcEndpoint(), {
+                method: 'POST',
+                headers: await notesHeaders(),
+                body: JSON.stringify({ target_user: userId })
+            });
+            if (!response.ok) {
+                const detail = await response.text();
+                throw new Error(detail || 'Access could not be stripped.');
+            }
+            if (button && button.closest('.roster-row')) {
+                const label = button.closest('.roster-row').querySelector('.roster-name');
+                if (label) label.textContent = label.textContent.replace(' (revoked)', '') + ' (revoked)';
+                button.remove();
+            }
+            await fetchExistingNotes();
+        }
+
+        function mountAdminSanctuary() {
+            if (!isAdmin) return;
+            const nav = document.querySelector('header nav');
+            const link = document.createElement('a');
+            link.id = 'sanctuary-link';
+            link.href = '#sanctuary';
+            link.className = 'sanctuary-link hover:text-amber-300 transition';
+            link.textContent = 'Admin Sanctuary';
+            nav.insertBefore(link, document.getElementById('sign-out'));
+
+            const panel = document.createElement('section');
+            panel.id = 'admin-sanctuary';
+            panel.className = 'sanctuary-panel';
+            panel.hidden = location.hash !== '#sanctuary';
+            panel.innerHTML = '<p class="text-[10px] font-mono tracking-[0.22em] uppercase text-amber-500 mb-2">Hidden room</p>' +
+                '<h2 class="font-serif-custom text-2xl text-amber-100 mb-2">Admin Sanctuary</h2>' +
+                '<p class="text-sm text-zinc-400 mb-4">Member roll. Removal strips posting rights and takes down their notes.</p>' +
+                '<div id="roster-list"></div>' +
+                '<p id="roster-error" class="parlor-error mt-3"></p>';
+            document.getElementById('parlor-main').append(panel);
+
+            panel.addEventListener('click', async function (event) {
+                const button = event.target.closest('.roster-revoke');
+                if (!button || !isAdmin) return;
+                button.disabled = true;
+                try {
+                    await revokeMember(button.dataset.userId, button);
+                } catch (err) {
+                    document.getElementById('roster-error').textContent = err.message || 'Access could not be stripped.';
+                    button.disabled = false;
+                }
+            });
+
+            window.addEventListener('hashchange', function () {
+                panel.hidden = location.hash !== '#sanctuary';
+                if (!panel.hidden) loadRoster();
+            });
+            if (!panel.hidden) loadRoster();
+        }
+
+        async function submitNewNote(author, message) {
+            const response = await fetch(notesEndpoint(), {
+                method: 'POST',
+                headers: await notesHeaders(),
+                body: JSON.stringify({
+                    author: author,
+                    note: message,
+                    user_id: currentUser && currentUser.id
+                })
+            });
+            if (!response.ok) {
+                const detail = await response.text();
+                throw new Error(detail || 'The note could not be pinned.');
+            }
+            const rows = await response.json();
+            return Array.isArray(rows) ? rows[0] : rows;
+        }
+
+        (async function boot() {
+            const gate = await parlorRequireSession();
+            if (!gate.session) return;
+            currentUser = gate.user;
+            client = gate.client;
+            isAdmin = Boolean(gate.isAdmin || gate.session.isAdmin);
+            document.getElementById('gate-msg').classList.add('hidden');
+            document.getElementById('parlor-main').classList.remove('hidden');
+            document.getElementById('member-label').textContent = parlorDisplayName(currentUser) + (isAdmin ? ' · steward' : '');
+            document.getElementById('pin-name').value = parlorDisplayName(currentUser);
+            mountAdminSanctuary();
+            try {
+                await fetchExistingNotes();
+            } catch (err) {
+                pinError.textContent = err.message || 'The board could not be drawn.';
+            }
+        })();
+
+        document.getElementById('sign-out').addEventListener('click', async () => {
+            if (client) await client.auth.signOut();
+            location.replace('login.html');
+        });
+
+        pinForm.addEventListener('submit', async function (event) {
+            event.preventDefault();
+            pinError.textContent = '';
+            const data = new FormData(pinForm);
+            const author = parlorDisplayName(currentUser);
+            const message = String(data.get('message') || '').trim();
+            if (!author || !message) return;
+
+            pinBtn.disabled = true;
+            try {
+                const saved = await submitNewNote(author, message);
+                appendNote(
+                    saved.author || author,
+                    saved.note || message,
+                    saved.created_at || new Date().toISOString(),
+                    true,
+                    saved.id
+                );
+                pinForm.reset();
+                document.getElementById('pin-name').value = parlorDisplayName(currentUser);
+            } catch (err) {
+                pinError.textContent = err.message || 'The pin would not hold.';
+            } finally {
+                pinBtn.disabled = false;
+            }
+        });
+
+        corkboard.addEventListener('click', async function (event) {
+            const button = event.target.closest('.pin-delete');
+            if (!button || !isAdmin) return;
+            const noteEl = button.closest('.pin-note');
+            const recordId = noteEl && noteEl.dataset.recordId;
+            if (!recordId) return;
+            button.disabled = true;
+            try {
+                await deleteNote(recordId, noteEl);
+            } catch (err) {
+                pinError.textContent = err.message || 'The note would not come down.';
+                button.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

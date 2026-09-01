@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talon T. Cherry | Music, Writings & Life</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="site-widgets.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap');
+        .font-serif-custom { font-family: 'Instrument Serif', serif; }
+        .font-sans-custom { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        /* Atmospheric Lake and Cabin Background Scene */
+        .lake-background {
+            background-image: url('Images/lake.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        /* Engraved Text Effect for Window Header */
+        .engraved-text {
+            color: #4a3022;
+            text-shadow: 0 1px 1px rgba(255, 255, 255, 0.15), 0 -1px 1px rgba(0, 0, 0, 0.8);
+        }
+
+        /* Multi-Layered Rain with True Depth-of-Field Blur */
+        .rain-deep-bg {
+            position: fixed;
+            background: linear-gradient(transparent, rgba(255, 255, 255, 0.15));
+            width: 0.75px;
+            height: 15px;
+            filter: blur(1.5px);
+            pointer-events: none;
+            z-index: 1;
+            animation: fall-deep-bg linear infinite;
+        }
+        .rain-mid {
+            position: fixed;
+            background: linear-gradient(transparent, rgba(255, 255, 255, 0.35));
+            width: 1px;
+            height: 25px;
+            filter: blur(0.5px);
+            pointer-events: none;
+            z-index: 1;
+            animation: fall-mid linear infinite;
+        }
+        .rain-fg {
+            position: fixed;
+            background: linear-gradient(transparent, rgba(255, 255, 255, 0.75));
+            width: 2px;
+            height: 45px;
+            filter: blur(0px);
+            pointer-events: none;
+            z-index: 1;
+            animation: fall-fg linear infinite;
+        }
+
+        @keyframes fall-deep-bg {
+            0% { transform: translateY(-30px) skewX(-6deg); }
+            100% { transform: translateY(105vh) skewX(-6deg); }
+        }
+        @keyframes fall-mid {
+            0% { transform: translateY(-40px) skewX(-5deg); }
+            100% { transform: translateY(105vh) skewX(-5deg); }
+        }
+        @keyframes fall-fg {
+            0% { transform: translateY(-50px) skewX(-4deg); }
+            100% { transform: translateY(105vh) skewX(-4deg); }
+        }
+
+        /* Water-Only Perspective Ripples */
+        .perspective-ripple {
+            position: fixed;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1;
+            border: 1px solid rgba(255, 255, 255, 0.55);
+            box-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+            transform: scale(0.1) rotateX(60deg);
+            animation: perspective-ripple-effect 0.65s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+        }
+        
+        @keyframes perspective-ripple-effect {
+            0% {
+                transform: scale(0.1) rotateX(65deg);
+                opacity: 0.9;
+            }
+            50% {
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(2.6) rotateX(45deg);
+                opacity: 0;
+            }
+        }
+
+        .window-rain-overlay {
+            background-image: url('Images/window rain.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+    </style>
+</head>
+<body class="bg-zinc-950 text-zinc-300 font-sans-custom antialiased selection:bg-amber-500 selection:text-zinc-950 overflow-x-hidden">
+
+    <!-- Atmospheric Background Scene -->
+    <div class="fixed inset-0 z-0 lake-background filter brightness-[0.55] contrast-110"></div>
+    <div id="rain-container" class="fixed inset-0 z-1 pointer-events-none overflow-hidden h-full w-full"></div>
+    <div class="fixed inset-0 z-0 pointer-events-none bg-gradient-to-b from-zinc-950/60 via-transparent to-zinc-950/75"></div>
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-amber-600/10 blur-[120px] pointer-events-none rounded-full"></div>
+
+    <!-- Navigation -->
+    <header class="relative z-10 max-w-5xl mx-auto px-6 py-8 flex justify-end items-center border-b border-zinc-900/50">
+        <nav class="space-x-6 text-sm font-medium text-zinc-400">
+            <a href="music.html" class="hover:text-amber-400 transition">Music</a>
+            <a href="writings.html" class="hover:text-amber-400 transition">Writings</a>
+            <a href="life.html" class="hover:text-amber-400 transition">The Life</a>
+            <a href="forum.html" class="hover:text-amber-400 transition">The Parlor</a>
+            <a href="https://www.youtube.com/@TalonCherry" target="_blank" class="hover:text-amber-400 transition">YouTube ↗</a>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <main class="relative z-10 w-full">
+        <section class="relative w-full min-h-[85vh] flex flex-col items-center justify-center px-6 py-12 text-center">
+            
+            <div class="relative z-10 max-w-3xl mx-auto flex flex-col items-center">
+
+                <!-- Rustic Cabin Windowsill Frame -->
+                <div class="relative mb-8 group p-5 bg-[#1b100b]/90 border-[6px] border-[#2e1d13] rounded-xl shadow-[0_30px_70px_rgba(0,0,0,0.95)] max-w-md w-full backdrop-blur-sm">
+                    <div class="absolute inset-0 border-2 border-[#0d0705] rounded-lg pointer-events-none z-30"></div>
+
+                    <!-- Engraved Name Plate -->
+                    <div class="mb-3 pb-2 border-b border-[#2d1b12] text-center">
+                        <span class="font-serif-custom text-sm tracking-[0.25em] text-[#8c6549] uppercase engraved-text font-medium">Talon T. Cherry</span>
+                    </div>
+
+                    <!-- Glass Container -->
+                    <div class="relative overflow-hidden rounded-lg border-2 border-[#42281b] shadow-inner aspect-[4/5] bg-zinc-900">
+                        <img src="Images/Me1.jpg" alt="Talon T. Cherry" class="absolute inset-0 w-full h-full object-cover filter contrast-110 brightness-90">
+                        <div class="absolute inset-0 z-25 pointer-events-none window-rain-overlay mix-blend-screen opacity-45 filter contrast-125"></div>
+                        <div class="absolute inset-0 z-30 bg-gradient-to-tr from-white/15 via-transparent to-white/5 pointer-events-none mix-blend-overlay"></div>
+                    </div>
+
+                    <!-- Window Sill Label -->
+                    <div class="mt-4 pt-2 border-t border-[#251710] text-center">
+                        <span class="font-serif-custom text-xs tracking-widest text-[#9c7456] uppercase">Oregon Roots • West Texas Soil</span>
+                    </div>
+                </div>
+
+                <h1 class="text-5xl md:text-7xl font-serif-custom font-normal text-zinc-100 tracking-tight mb-4 leading-none">
+                    Born in the pines, rooted in the plains.
+                </h1>
+                
+                <p class="text-lg text-zinc-400 max-w-xl leading-relaxed font-light mb-8">
+                    Bringing the cool-water spirit of Oregon to the wide-open heart of the west Texas Plains. Acoustic originals, rough-hewn poetry, and the honest weight of the days.
+                </p>
+
+                <div class="flex flex-wrap items-center justify-center gap-4">
+                    <a href="music.html" class="bg-amber-500 text-zinc-950 px-6 py-3 rounded-lg font-semibold text-sm hover:bg-amber-400 transition shadow-lg shadow-amber-500/10">
+                        Listen to Originals
+                    </a>
+                    <a href="writings.html" class="border border-zinc-800 hover:border-zinc-700 bg-zinc-900/50 px-6 py-3 rounded-lg text-sm font-medium text-zinc-300 transition">
+                        Read Poetry & Prose
+                    </a>
+                    <a href="life.html" class="border border-zinc-800 hover:border-zinc-700 bg-zinc-900/50 px-6 py-3 rounded-lg text-sm font-medium text-zinc-300 transition">
+                        The Life
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Featured Release Banner -->
+        <div class="max-w-5xl mx-auto px-6">
+            <section class="mb-24 bg-zinc-900/70 backdrop-blur-md border border-zinc-800/80 rounded-2xl p-8 md:p-12 relative overflow-hidden">
+                <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-amber-500/5 rounded-full blur-3xl pointer-events-none"></div>
+                <p class="text-xs text-amber-500 uppercase tracking-widest font-semibold mb-2">Featured Release</p>
+                <h2 class="text-3xl font-serif-custom text-zinc-100 mb-3">The Keeper of Her Shadow</h2>
+                <p class="text-zinc-400 max-w-xl text-sm leading-relaxed mb-6">
+                    Acoustic recording exploring family, legacy, and the quiet spaces bridging distant homes. 
+                </p>
+                <a href="https://www.youtube.com/@TalonCherry" target="_blank" class="inline-flex items-center text-sm font-semibold text-amber-400 hover:text-amber-300 transition">
+                    Listen Now on YouTube &rarr;
+                </a>
+            </section>
+
+            <section id="mail-bag" class="mb-24 bg-zinc-900/70 backdrop-blur-md border border-zinc-800/80 rounded-2xl p-8 md:p-12 relative overflow-hidden">
+                <div class="absolute -left-10 -top-10 w-64 h-64 bg-amber-500/5 rounded-full blur-3xl pointer-events-none"></div>
+                <p class="text-xs text-amber-500 uppercase tracking-widest font-semibold mb-2">The Mail Bag</p>
+                <h2 class="text-3xl font-serif-custom text-zinc-100 mb-3">Leave a word</h2>
+                <p class="text-zinc-400 max-w-xl text-sm leading-relaxed mb-8">
+                    Notes, hellos, and honest mail. I’ll read what you send.
+                </p>
+                <form id="mail-bag-form" action="https://formspree.io/f/mdeoeaze" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl relative z-10">
+                    <label class="block text-left">
+                        <span class="sr-only">Name</span>
+                        <input type="text" name="name" required autocomplete="name" placeholder="Name" class="w-full bg-zinc-950/70 border border-zinc-800 rounded-lg px-4 py-3 text-sm text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:border-amber-500/60">
+                    </label>
+                    <label class="block text-left">
+                        <span class="sr-only">Email</span>
+                        <input type="email" name="email" required autocomplete="email" placeholder="Email" class="w-full bg-zinc-950/70 border border-zinc-800 rounded-lg px-4 py-3 text-sm text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:border-amber-500/60">
+                    </label>
+                    <label class="block text-left md:col-span-2">
+                        <span class="sr-only">Message</span>
+                        <textarea name="message" required rows="5" placeholder="Message" class="w-full bg-zinc-950/70 border border-zinc-800 rounded-lg px-4 py-3 text-sm text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:border-amber-500/60 resize-y min-h-[8rem]"></textarea>
+                    </label>
+                    <div class="md:col-span-2">
+                        <button type="submit" id="mail-bag-submit" class="bg-amber-500 text-zinc-950 px-6 py-3 rounded-lg font-semibold text-sm hover:bg-amber-400 transition shadow-lg shadow-amber-500/10">
+                            Send to the mail bag
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="mb-20" aria-label="Author tip jar">
+                <a class="author-tip-jar" href="https://venmo.com/Talon-Cherry" target="_blank" rel="noopener noreferrer">
+                    <span class="tip-jar-wood" aria-hidden="true">
+                        <span class="tip-jar-brass">Author's Tip Jar</span>
+                        <span class="tip-jar-slot"></span>
+                        <span class="tip-jar-coin"></span>
+                    </span>
+                    <span class="tip-jar-copy">
+                        <span class="tip-jar-kicker">A coin for the road</span>
+                        <span class="tip-jar-line">If these words found a home in you, drop a coin in the jar.</span>
+                    </span>
+                </a>
+            </section>
+        </div>
+    </main>
+
+    <div id="mail-success" class="mail-success" role="dialog" aria-modal="true" aria-labelledby="mail-success-note" aria-hidden="true">
+        <div class="mail-postcard">
+            <div class="mail-stamp">Dispatched<br>West Texas</div>
+            <p class="text-[10px] font-mono tracking-[0.28em] uppercase text-[#8a6238]">The Mail Bag</p>
+            <p id="mail-success-note" class="mail-hand">Your letter has been dispatched into the mail bag. Thank you for writing.</p>
+            <button type="button" class="mail-success-close" id="mail-success-close">Seal the envelope</button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="border-t border-zinc-900/80 py-12 bg-zinc-950/40 backdrop-blur-md relative z-10">
+        <div class="max-w-5xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center text-xs text-zinc-600 space-y-4 md:space-y-0 gap-4">
+            <p>Copyright © 2026 Talon T. Cherry. All Rights Reserved.</p>
+            <a href="https://venmo.com/Talon-Cherry" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 font-serif-custom text-sm tracking-[0.2em] uppercase text-[#d9ab55] hover:text-amber-300 transition" aria-label="Tip jar — Venmo Talon Cherry (opens in a new tab)">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 36" class="w-5 h-6" fill="none" aria-hidden="true">
+                    <path d="M8 7h12" stroke="#c4a35a" stroke-width="1.6" stroke-linecap="round"/>
+                    <path d="M9.5 7c0-1.6 2-2.6 4.5-2.6S18.5 5.4 18.5 7" stroke="#c4a35a" stroke-width="1.4"/>
+                    <rect x="7" y="7" width="14" height="3.2" rx="0.6" fill="#b08d57" stroke="#6e5a32" stroke-width="0.6"/>
+                    <path d="M8.2 10.4h11.6l1.4 18.2c.1 1.4-1 2.6-2.4 2.6H9.2c-1.4 0-2.5-1.2-2.4-2.6L8.2 10.4Z" fill="#3a2418" stroke="#c4a35a" stroke-width="1.2"/>
+                    <path d="M10 16h8M10 21h8M10 26h6" stroke="#d9ab55" stroke-width="0.9" stroke-linecap="round" opacity="0.7"/>
+                </svg>
+                Tip Jar
+            </a>
+            <p class="text-zinc-500">Built local. Hosted free via GitHub Pages.</p>
+        </div>
+    </footer>
+
+    <!-- Rain & Ripple Script -->
+    <script>
+        const rainContainer = document.getElementById('rain-container');
+        for (let i = 0; i < 30; i++) {
+            const drop = document.createElement('div');
+            drop.classList.add('rain-deep-bg');
+            drop.style.left = Math.random() * 100 + 'vw';
+            drop.style.top = '-30px';
+            drop.style.animationDuration = (0.8 + Math.random() * 0.7) + 's';
+            drop.style.animationDelay = (Math.random() * 2) + 's';
+            rainContainer.appendChild(drop);
+        }
+        for (let i = 0; i < 25; i++) {
+            const drop = document.createElement('div');
+            drop.classList.add('rain-mid');
+            drop.style.left = Math.random() * 100 + 'vw';
+            drop.style.top = '-40px';
+            drop.style.animationDuration = (0.5 + Math.random() * 0.4) + 's';
+            drop.style.animationDelay = (Math.random() * 2) + 's';
+            rainContainer.appendChild(drop);
+        }
+        for (let i = 0; i < 15; i++) {
+            const drop = document.createElement('div');
+            drop.classList.add('rain-fg');
+            drop.style.left = Math.random() * 100 + 'vw';
+            drop.style.top = '-50px';
+            drop.style.animationDuration = (0.28 + Math.random() * 0.25) + 's';
+            drop.style.animationDelay = (Math.random() * 2) + 's';
+            rainContainer.appendChild(drop);
+        }
+        setInterval(() => {
+            const ripple = document.createElement('div');
+            ripple.classList.add('perspective-ripple');
+            ripple.style.left = (Math.random() * 100) + 'vw';
+            const topPosition = 50 + (Math.random() * 50); 
+            ripple.style.top = topPosition + 'vh';
+            const normalizedDepth = (topPosition - 50) / 50; 
+            const width = 8 + (normalizedDepth * 50); 
+            const heightFactor = 2.2 + (normalizedDepth * 1.8); 
+            ripple.style.width = width + 'px';
+            ripple.style.height = (width / heightFactor) + 'px';
+            if (topPosition < 62) {
+                ripple.style.opacity = '0.5';
+                ripple.style.filter = 'blur(0.5px)';
+            } else {
+                ripple.style.opacity = '0.85';
+                ripple.style.filter = 'none';
+            }
+            rainContainer.appendChild(ripple);
+            setTimeout(() => { ripple.remove(); }, 650);
+        }, 80);
+
+        const mailForm = document.getElementById('mail-bag-form');
+        const mailModal = document.getElementById('mail-success');
+        const mailSubmit = document.getElementById('mail-bag-submit');
+        function closeMailSuccess() {
+            mailModal.classList.remove('is-open');
+            mailModal.setAttribute('aria-hidden', 'true');
+        }
+        mailForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            mailSubmit.disabled = true;
+            mailSubmit.textContent = 'Posting the letter…';
+            try {
+                const response = await fetch(mailForm.action, {
+                    method: 'POST',
+                    body: new FormData(mailForm),
+                    headers: { Accept: 'application/json' }
+                });
+                if (!response.ok) throw new Error('Formspree rejected the letter');
+                mailForm.reset();
+                mailModal.classList.add('is-open');
+                mailModal.setAttribute('aria-hidden', 'false');
+                document.getElementById('mail-success-close').focus();
+            } catch (err) {
+                alert('The letter did not go through. Please try again in a moment.');
+            } finally {
+                mailSubmit.disabled = false;
+                mailSubmit.textContent = 'Send to the mail bag';
+            }
+        });
+        document.getElementById('mail-success-close').addEventListener('click', closeMailSuccess);
+        mailModal.addEventListener('click', (event) => {
+            if (event.target === mailModal) closeMailSuccess();
+        });
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && mailModal.classList.contains('is-open')) closeMailSuccess();
+        });
+    </script>
+</body>
+</html>

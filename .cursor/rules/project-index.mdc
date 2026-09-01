@@ -1,0 +1,33 @@
+---
+description: What Taloncherry-site is, how it is built, and where content lives
+alwaysApply: true
+---
+
+# Taloncherry-site
+
+Personal site for **Talon T. Cherry**: music, writings, and life story. Tagline: Oregon roots, West Texas soil. Acoustic originals, poetry, faith, family. Intended host: GitHub Pages. YouTube: https://www.youtube.com/@TalonCherry
+
+## Layout
+
+Workspace root contains a nested `Taloncherry-site/` folder. Real site files live there.
+
+- `index.html` — home: cabin-window portrait, rain/lake atmosphere, featured track *The Keeper of Her Shadow*
+- `music.html` — analog-radio UI; knob cycles 3 YouTube playlist stations (originals, covers, Christmas)
+- `writings.html` — 3D cabin library: four leather volumes on a shelf; click opens a two-page spread from `library_data.js` (`cultural`, `poetry`, `lyrics`, `stories`); arrow keys / prev-next flip pages
+- `life.html` — four memoir chapters from `life_data.js` (`old`, `new`, `faith`, `family`)
+- Regenerate both data files with `node build-content.mjs` after editing `.txt` sources
+
+Source copy (plain `.txt`, not yet wired into the live pages except via a missing JS dump):
+
+- `His Life/` — The old life, The New Life, Faith, Family and Friends
+- `Writing/Cultural/` (~13 essays), `Writing/Poetry Archive/` (~65 poems), `Writing/Lyrics/` (~19 songs), `Writing/Short Stories/` (3)
+
+## Stack
+
+Static HTML, Tailwind CDN, Instrument Serif + Plus Jakarta Sans, inline CSS/JS. Dark lake photo, amber/leather UI, duplicated rain+ripple script on every page.
+
+Assets in `Taloncherry-site/Images/` (capital I): `lake.jpg` (moonlit lake background), `Me1.jpg` (portrait in the cabin window), `window rain.jpg` (rain overlay on the portrait). HTML paths are `Images/...` relative to the nested site folder. `library_data.js` and `life_data.js` are generated from the `.txt` archives.
+
+## Voice and content
+
+First-person, direct, faith-forward. Biography: born 1986, Oregon childhood, Colorado 2008, father to Jayden (and Katelyn, Brittany), wife Tabitha, moved to Texas farm after COVID; baptized Hamby/Hanby Church of Christ 2018. Treat `His Life` and writings as authored source, not generic lorem. Do not invent extra biography. When adding pages, match existing atmosphere and keep GitHub Pages static (no build step unless asked).
