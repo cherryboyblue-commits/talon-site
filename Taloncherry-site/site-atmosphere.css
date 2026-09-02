@@ -5,55 +5,61 @@
     background-repeat: no-repeat;
 }
 
-.rain-deep-bg {
+#rain-container {
     position: fixed;
+    inset: 0;
+    z-index: 4;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.rain-deep-bg {
+    position: absolute;
     background: linear-gradient(transparent, rgba(255, 255, 255, 0.15));
     width: 0.75px;
     height: 15px;
     filter: blur(1.5px);
     pointer-events: none;
-    z-index: 1;
     animation: fall-deep-bg linear infinite;
 }
 .rain-mid {
-    position: fixed;
+    position: absolute;
     background: linear-gradient(transparent, rgba(255, 255, 255, 0.35));
     width: 1px;
     height: 25px;
     filter: blur(0.5px);
     pointer-events: none;
-    z-index: 1;
     animation: fall-mid linear infinite;
 }
 .rain-fg {
-    position: fixed;
+    position: absolute;
     background: linear-gradient(transparent, rgba(255, 255, 255, 0.75));
     width: 2px;
     height: 45px;
     filter: blur(0px);
     pointer-events: none;
-    z-index: 1;
     animation: fall-fg linear infinite;
 }
 
 @keyframes fall-deep-bg {
-    0% { transform: translateY(-30px) skewX(-6deg); }
-    100% { transform: translateY(105vh) skewX(-6deg); }
+    0% { transform: translateY(-5vh) skewX(-6deg); }
+    100% { transform: translateY(115vh) skewX(-6deg); }
 }
 @keyframes fall-mid {
-    0% { transform: translateY(-40px) skewX(-5deg); }
-    100% { transform: translateY(105vh) skewX(-5deg); }
+    0% { transform: translateY(-8vh) skewX(-5deg); }
+    100% { transform: translateY(115vh) skewX(-5deg); }
 }
 @keyframes fall-fg {
-    0% { transform: translateY(-50px) skewX(-4deg); }
-    100% { transform: translateY(105vh) skewX(-4deg); }
+    0% { transform: translateY(-10vh) skewX(-4deg); }
+    100% { transform: translateY(115vh) skewX(-4deg); }
 }
 
 .perspective-ripple {
-    position: fixed;
+    position: absolute;
     border-radius: 50%;
     pointer-events: none;
-    z-index: 1;
     border: 1px solid rgba(255, 255, 255, 0.55);
     box-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
     transform: scale(0.1) rotateX(60deg);
@@ -77,9 +83,8 @@
 .snow-deep-bg,
 .snow-mid,
 .snow-fg {
-    position: fixed;
+    position: absolute;
     pointer-events: none;
-    z-index: 1;
     border-radius: 50%;
     background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.35));
     animation: snow-fall linear infinite;
@@ -105,8 +110,8 @@
 }
 
 @keyframes snow-fall {
-    0% { transform: translate3d(0, -20px, 0); }
-    100% { transform: translate3d(var(--snow-drift, 18px), 105vh, 0); }
+    0% { transform: translate3d(0, -8vh, 0); }
+    100% { transform: translate3d(var(--snow-drift, 18px), 115vh, 0); }
 }
 
 @media (prefers-reduced-motion: reduce) {

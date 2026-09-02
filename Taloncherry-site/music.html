@@ -61,16 +61,9 @@
     <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[30rem] bg-amber-600/15 blur-[150px] pointer-events-none rounded-full"></div>
 
     <!-- Navigation -->
-    <header class="relative z-10 max-w-5xl mx-auto px-6 py-8 flex justify-between items-center border-b border-zinc-900/50">
-        <a href="index.html" class="text-xl font-serif-custom tracking-wider text-zinc-100 hover:text-amber-400 transition">TALON T. CHERRY</a>
-        <nav class="space-x-6 text-sm font-medium text-zinc-400">
-            <a href="index.html" class="hover:text-amber-400 transition">Home</a>
-            <a href="music.html" class="text-amber-400 transition">Music & Radio</a>
-            <a href="writings.html" class="hover:text-amber-400 transition">Writings</a>
-            <a href="life.html" class="hover:text-amber-400 transition">The Life</a>
-            <a href="forum.html" class="hover:text-amber-400 transition">The Parlor</a>
-            <a href="https://www.youtube.com/@TalonCherry" target="_blank" class="hover:text-amber-400 transition">YouTube ↗</a>
-        </nav>
+    <header class="sub-head">
+        <a class="sub-head-mark" href="index.html" aria-label="Home">Tc</a>
+        <a class="sub-head-meta" href="index.html">Return home</a>
     </header>
 
     <!-- Main Campfire Radio Room -->
@@ -181,8 +174,14 @@
     </main>
 
     <!-- Footer -->
-    <footer class="border-t border-zinc-900/80 py-12 bg-zinc-950/40 backdrop-blur-md relative z-10">
-        <div class="max-w-5xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center text-xs text-zinc-600 space-y-4 md:space-y-0 gap-4">
+    <footer class="site-foot border-t border-zinc-900/80 bg-zinc-950/40 backdrop-blur-md">
+        <nav class="crossroads" aria-label="Crossroads">
+            <span class="crossroads-kicker">Crossroads</span>
+            <a href="music.html" aria-current="page">Music</a>
+            <a href="writings.html">Writing</a>
+            <a href="life.html">Life</a>
+        </nav>
+        <div class="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center text-xs text-zinc-600 space-y-4 md:space-y-0 gap-4">
             <p>Copyright © 2026 Talon T. Cherry. All Rights Reserved.</p>
             <a href="https://venmo.com/Talon-Cherry" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 font-serif-custom text-sm tracking-[0.2em] uppercase text-[#d9ab55] hover:text-amber-300 transition" aria-label="Tip jar — Venmo Talon Cherry (opens in a new tab)">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 36" class="w-5 h-6" fill="none" aria-hidden="true">

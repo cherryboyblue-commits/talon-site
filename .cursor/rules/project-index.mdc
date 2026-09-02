@@ -11,7 +11,7 @@ Personal site for **Talon T. Cherry**: music, writings, and life story. Tagline:
 
 Workspace root contains a nested `Taloncherry-site/` folder. Real site files live there.
 
-- `index.html` — home: cabin-window portrait, rain/lake atmosphere, featured track *The Keeper of Her Shadow*
+- `index.html` — minimal home: lake sky, Tc monogram, name, tagline *Time can only take the joy you never shared*, nav to Music / Writing / Life / Social
 - `music.html` — analog-radio UI; knob cycles 3 YouTube playlist stations (originals, covers, Christmas)
 - `writings.html` — 3D cabin library: four leather volumes on a shelf; click opens a two-page spread from `library_data.js` (`cultural`, `poetry`, `lyrics`, `stories`); arrow keys / prev-next flip pages
 - `life.html` — four memoir chapters from `life_data.js` (`old`, `new`, `faith`, `family`)

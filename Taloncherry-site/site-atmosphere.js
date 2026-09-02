@@ -74,8 +74,7 @@
     }
 
     function liteMode() {
-        return window.matchMedia('(max-width: 768px)').matches ||
-            window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        return window.innerWidth <= 768;
     }
 
     function reducedMotion() {
@@ -94,37 +93,52 @@
         }
     }
 
-    function spawnLayer(container, count, className, top, durationMin, durationSpan) {
+    function weatherLayer() {
+        var box = document.getElementById('rain-container');
+        if (box) {
+            box.style.position = 'fixed';
+            box.style.inset = '0';
+            box.style.zIndex = '4';
+            box.style.width = '100%';
+            box.style.height = '100%';
+            box.style.overflow = 'hidden';
+            box.style.pointerEvents = 'none';
+        }
+        return box;
+    }
+
+    function spawnLayer(container, count, className, durationMin, durationSpan) {
         for (var i = 0; i < count; i++) {
             var drop = document.createElement('div');
+            var duration = durationMin + Math.random() * durationSpan;
             drop.classList.add(className);
-            drop.style.left = Math.random() * 100 + 'vw';
-            drop.style.top = top;
-            drop.style.animationDuration = (durationMin + Math.random() * durationSpan) + 's';
-            drop.style.animationDelay = (Math.random() * 2) + 's';
+            drop.style.left = (Math.random() * 100) + '%';
+            drop.style.top = '-10%';
+            drop.style.animationDuration = duration + 's';
+            drop.style.animationDelay = (-Math.random() * duration) + 's';
             container.appendChild(drop);
         }
     }
 
     function startRain() {
-        var rainContainer = document.getElementById('rain-container');
+        var rainContainer = weatherLayer();
         if (!rainContainer) return;
         clearWeather();
         var rainLite = liteMode();
-        var rainDeep = rainLite ? 10 : 30;
-        var rainMid = rainLite ? 8 : 25;
-        var rainFg = rainLite ? 5 : 15;
-        spawnLayer(rainContainer, rainDeep, 'rain-deep-bg', '-30px', 0.8, 0.7);
-        spawnLayer(rainContainer, rainMid, 'rain-mid', '-40px', 0.5, 0.4);
-        spawnLayer(rainContainer, rainFg, 'rain-fg', '-50px', 0.28, 0.25);
+        var rainDeep = rainLite ? 28 : 70;
+        var rainMid = rainLite ? 22 : 55;
+        var rainFg = rainLite ? 14 : 36;
+        spawnLayer(rainContainer, rainDeep, 'rain-deep-bg', 0.8, 0.7);
+        spawnLayer(rainContainer, rainMid, 'rain-mid', 0.5, 0.4);
+        spawnLayer(rainContainer, rainFg, 'rain-fg', 0.28, 0.25);
         if (reducedMotion()) return;
         var rippleMs = rainLite ? 280 : 80;
         rippleTimer = setInterval(function () {
             var ripple = document.createElement('div');
             ripple.classList.add('perspective-ripple');
-            ripple.style.left = (Math.random() * 100) + 'vw';
+            ripple.style.left = (Math.random() * 100) + '%';
             var topPosition = 50 + (Math.random() * 50);
-            ripple.style.top = topPosition + 'vh';
+            ripple.style.top = topPosition + '%';
             var normalizedDepth = (topPosition - 50) / 50;
             var width = 8 + (normalizedDepth * 50);
             var heightFactor = 2.2 + (normalizedDepth * 1.8);
@@ -143,23 +157,24 @@
     }
 
     function startSnow() {
-        var rainContainer = document.getElementById('rain-container');
+        var rainContainer = weatherLayer();
         if (!rainContainer) return;
         clearWeather();
         if (reducedMotion()) return;
         var rainLite = liteMode();
-        var snowDeep = rainLite ? 12 : 36;
-        var snowMid = rainLite ? 10 : 28;
-        var snowFg = rainLite ? 6 : 16;
+        var snowDeep = rainLite ? 40 : 90;
+        var snowMid = rainLite ? 28 : 70;
+        var snowFg = rainLite ? 16 : 40;
         function flakes(count, className, durationMin, durationSpan) {
             for (var i = 0; i < count; i++) {
                 var flake = document.createElement('div');
+                var duration = durationMin + Math.random() * durationSpan;
                 flake.classList.add(className);
-                flake.style.left = Math.random() * 100 + 'vw';
-                flake.style.top = '-20px';
-                flake.style.setProperty('--snow-drift', (Math.random() * 40 - 20) + 'px');
-                flake.style.animationDuration = (durationMin + Math.random() * durationSpan) + 's';
-                flake.style.animationDelay = (Math.random() * 5) + 's';
+                flake.style.left = (Math.random() * 100) + '%';
+                flake.style.top = '-8%';
+                flake.style.setProperty('--snow-drift', (Math.random() * 48 - 24) + 'px');
+                flake.style.animationDuration = duration + 's';
+                flake.style.animationDelay = (-Math.random() * duration) + 's';
                 rainContainer.appendChild(flake);
             }
         }

@@ -325,17 +325,9 @@
         }
 
         @media (max-width: 768px) {
-            header.relative {
-                flex-wrap: wrap;
-                gap: 0.75rem;
+            .sub-head {
                 padding-left: 1rem;
                 padding-right: 1rem;
-            }
-            header nav {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 0.65rem 1rem;
-                width: 100%;
             }
             .open-book-layer {
                 padding: 0.75rem 0.65rem 1rem;
@@ -427,15 +419,9 @@
     <div class="fixed inset-0 z-0 pointer-events-none bg-gradient-to-b from-zinc-950/80 via-zinc-950/50 to-zinc-950/90"></div>
     <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[28rem] bg-amber-600/20 blur-[140px] pointer-events-none rounded-full"></div>
 
-    <header class="relative z-20 max-w-6xl mx-auto px-6 py-8 flex justify-between items-center border-b border-zinc-900/50">
-        <a href="index.html" class="text-xl font-serif-custom tracking-wider text-zinc-100 hover:text-amber-400 transition">TALON T. CHERRY</a>
-        <nav class="space-x-6 text-sm font-medium text-zinc-400">
-            <a href="music.html" class="hover:text-amber-400 transition">Music & Radio</a>
-            <a href="writings.html" class="text-amber-400 transition">Writings</a>
-            <a href="life.html" class="hover:text-amber-400 transition">The Life</a>
-            <a href="forum.html" class="hover:text-amber-400 transition">The Parlor</a>
-            <a href="https://www.youtube.com/@TalonCherry" target="_blank" class="hover:text-amber-400 transition">YouTube ↗</a>
-        </nav>
+    <header class="sub-head">
+        <a class="sub-head-mark" href="index.html" aria-label="Home">Tc</a>
+        <a class="sub-head-meta" href="index.html">Return home</a>
     </header>
 
     <main class="relative z-10 max-w-6xl mx-auto px-4 md:px-6 py-8">
@@ -503,8 +489,14 @@
         </a>
     </div>
 
-    <footer class="border-t border-zinc-900/80 py-10 bg-zinc-950/40 backdrop-blur-md relative z-10 mt-16">
-        <div class="max-w-5xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center text-xs text-zinc-600 space-y-4 md:space-y-0 gap-4">
+    <footer class="site-foot border-t border-zinc-900/80 bg-zinc-950/40 backdrop-blur-md mt-16">
+        <nav class="crossroads" aria-label="Crossroads">
+            <span class="crossroads-kicker">Crossroads</span>
+            <a href="music.html">Music</a>
+            <a href="writings.html" aria-current="page">Writing</a>
+            <a href="life.html">Life</a>
+        </nav>
+        <div class="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center text-xs text-zinc-600 space-y-4 md:space-y-0 gap-4">
             <p>Copyright © 2026 Talon T. Cherry. All Rights Reserved.</p>
             <a href="https://venmo.com/Talon-Cherry" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 font-serif-custom text-sm tracking-[0.2em] uppercase text-[#d9ab55] hover:text-amber-300 transition" aria-label="Tip jar — Venmo Talon Cherry (opens in a new tab)">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 36" class="w-5 h-6" fill="none" aria-hidden="true">

@@ -8,33 +8,262 @@
     <link rel="stylesheet" href="site-widgets.css">
     <link rel="stylesheet" href="site-atmosphere.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600&family=Special+Elite&display=swap');
         .font-serif-custom { font-family: 'Instrument Serif', serif; }
         .font-sans-custom { font-family: 'Plus Jakarta Sans', sans-serif; }
 
-        .book-card { transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
-        .book-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.8), 0 0 20px rgba(245, 158, 11, 0.2);
+        .tw-stage {
+            max-width: 46rem;
+            margin: 0 auto;
         }
-        .leather-book {
-            background: linear-gradient(135deg, #21120b 0%, #120a06 100%);
-            border: 2px solid #573723;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.8), 0 10px 30px rgba(0,0,0,0.9);
+        .tw-feed {
+            position: relative;
+            height: min(54vh, 30rem);
+            overflow: hidden;
+            mask-image: linear-gradient(180deg, transparent 0%, #000 12%, #000 90%, transparent 100%);
+            -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 12%, #000 90%, transparent 100%);
         }
-        .gold-foil {
+        .tw-feed.is-done {
+            overflow-y: auto;
+            mask-image: none;
+            -webkit-mask-image: none;
+        }
+        .tw-feed.is-done .tw-paper {
+            transform: none !important;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .tw-feed.is-menu {
+            overflow-y: auto;
+        }
+        .tw-feed.is-menu .tw-paper {
+            transform: none !important;
+        }
+        .tw-paper {
+            width: min(38rem, 94%);
+            margin: 0 auto;
+            background:
+                linear-gradient(90deg, rgba(90, 60, 30, 0.06) 0 1.4rem, transparent 1.4rem),
+                repeating-linear-gradient(180deg, transparent 0 1.55rem, rgba(90, 60, 30, 0.07) 1.55rem 1.58rem),
+                #efe4c8;
+            color: #1c140c;
+            padding: 1.5rem 1.85rem 3.25rem 2.15rem;
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(255, 248, 230, 0.35);
+            font-family: 'Special Elite', 'Courier New', Courier, monospace;
+            font-size: 0.95rem;
+            line-height: 1.65;
+            will-change: transform, opacity;
+        }
+        .tw-paper.is-rolling {
+            transition: transform 0.78s cubic-bezier(0.45, 0.02, 0.55, 1), opacity 0.45s ease;
+        }
+        .tw-toc {
+            list-style: none;
+            margin: 0.35rem 0 0;
+            padding: 0;
+        }
+        .tw-toc li + li { margin-top: 0.15rem; }
+        .tw-toc button {
+            appearance: none;
+            display: block;
+            width: 100%;
+            text-align: left;
+            background: transparent;
+            border: 0;
+            border-bottom: 1px dotted rgba(90, 60, 30, 0.28);
+            padding: 0.55rem 0.15rem 0.65rem;
+            cursor: pointer;
+            color: #1c140c;
+        }
+        .tw-toc button:hover .tw-toc-title,
+        .tw-toc button:focus-visible .tw-toc-title {
+            color: #7a4e18;
+        }
+        .tw-toc button:focus-visible { outline: 1px solid #c4a35a; outline-offset: 4px; }
+        .tw-toc-num {
+            display: block;
+            font-size: 0.62rem;
+            letter-spacing: 0.28em;
+            text-transform: uppercase;
+            color: #7a4e18;
+            margin-bottom: 0.2rem;
+        }
+        .tw-toc-title {
+            display: block;
+            font-family: 'Instrument Serif', Georgia, serif;
+            font-size: 1.42rem;
+            letter-spacing: 0.03em;
+            line-height: 1.15;
+        }
+        .tw-toc-blurb {
+            display: block;
+            margin-top: 0.25rem;
+            font-family: 'Instrument Serif', Georgia, serif;
+            font-style: italic;
+            font-size: 0.88rem;
+            color: #5c4330;
+        }
+        .tw-paper-kicker {
+            display: block;
+            margin-bottom: 0.35rem;
+            font-size: 0.62rem;
+            letter-spacing: 0.28em;
+            text-transform: uppercase;
+            color: #7a4e18;
+        }
+        .tw-paper h2 {
+            margin: 0 0 0.2rem;
+            font-family: 'Instrument Serif', Georgia, serif;
+            font-size: 1.85rem;
+            font-weight: 400;
+            letter-spacing: 0.04em;
+        }
+        .tw-paper-sub {
+            margin: 0 0 1.15rem;
+            font-family: 'Instrument Serif', Georgia, serif;
+            font-style: italic;
+            font-size: 0.92rem;
+            color: #5c4330;
+        }
+        .tw-line {
+            min-height: 1.65em;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .tw-caret {
+            display: inline-block;
+            width: 0.55em;
+            height: 1em;
+            margin-left: 1px;
+            background: #1c140c;
+            vertical-align: text-bottom;
+            animation: tw-blink 0.7s steps(1) infinite;
+        }
+        .tw-machine {
+            position: relative;
+            margin-top: -2.35rem;
+            z-index: 2;
+            filter: drop-shadow(0 22px 28px rgba(0, 0, 0, 0.55));
+        }
+        .tw-machine svg {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+        .tw-kb {
+            margin-top: -4.6rem;
+            position: relative;
+            z-index: 3;
+            width: min(40.5rem, 100%);
+            margin-left: auto;
+            margin-right: auto;
+            padding: 0.7rem 0.7rem 0.95rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+            background: linear-gradient(180deg, #2c1d15 0%, #140c08 100%);
+            border: 1px solid #c4a35a;
+            border-radius: 0 0 16px 16px;
+            box-shadow: inset 0 1px 0 rgba(255, 230, 190, 0.12);
+        }
+        .tw-kb-row {
+            display: flex;
+            justify-content: center;
+            gap: 0.18rem;
+        }
+        .tw-key {
+            flex: 0 0 auto;
+            min-width: 1.62rem;
+            height: 1.62rem;
+            padding: 0 0.12rem;
+            border-radius: 0.38rem;
+            border: 1px solid #5c4030;
+            background: radial-gradient(circle at 35% 28%, #3a2a22, #160e0a 72%);
+            box-shadow: inset 0 1px 0 rgba(255, 230, 190, 0.18), 0 2px 0 #0a0604;
+            color: #d7c4a0;
+            font-family: ui-monospace, 'Courier New', monospace;
+            font-size: 0.52rem;
+            letter-spacing: 0.04em;
+            line-height: 1.62rem;
+            text-align: center;
+            user-select: none;
+        }
+        .tw-key.is-mod {
+            min-width: 3.1rem;
+            font-size: 0.42rem;
+            letter-spacing: 0.12em;
+            color: #a89070;
+        }
+        .tw-key.is-space {
+            min-width: min(16rem, 52%);
+            flex: 1 1 52%;
+            max-width: 18rem;
+        }
+        .tw-key.is-down {
+            transform: translateY(2px);
+            box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.65);
+            background: radial-gradient(circle at 40% 40%, #c4a35a, #5c3a18 72%);
+            color: #1c140c;
+        }
+        @media (max-width: 640px) {
+            .tw-key { min-width: 1.22rem; height: 1.36rem; line-height: 1.36rem; font-size: 0.42rem; }
+            .tw-key.is-mod { min-width: 2.2rem; }
+            .tw-kb { margin-top: -3.4rem; padding: 0.5rem 0.4rem 0.7rem; }
+        }
+        .tw-toolbar:not(:has(button:not([hidden]))) {
+            display: none;
+        }
+        .tw-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 0.75rem;
+            margin: 1.25rem 0 0;
+        }
+        .tw-toolbar button {
+            appearance: none;
+            background: transparent;
+            border: 1px solid rgba(196, 163, 90, 0.35);
             color: #d9ab55;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.9);
+            font-family: ui-monospace, monospace;
+            font-size: 10px;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            padding: 0.55rem 0.85rem;
+            border-radius: 6px;
+            cursor: pointer;
         }
-        .library-parchment {
-            background: #140d0a;
-            background-image: radial-gradient(rgba(245, 158, 11, 0.04) 1px, transparent 0);
-            background-size: 24px 24px;
+        .tw-toolbar button:hover,
+        .tw-toolbar button:focus-visible {
+            color: #fde68a;
+            border-color: rgba(253, 230, 138, 0.55);
+            outline: none;
         }
-        .reader-scroll::-webkit-scrollbar { width: 6px; }
-        .reader-scroll::-webkit-scrollbar-track { background: #140d0a; }
-        .reader-scroll::-webkit-scrollbar-thumb { background: #42281b; border-radius: 3px; }
-        .reader-scroll::-webkit-scrollbar-thumb:hover { background: #6b3e29; }
+        .tw-nav {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            font-family: ui-monospace, monospace;
+            font-size: 10px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+        }
+        .tw-nav button {
+            appearance: none;
+            background: none;
+            border: 0;
+            color: #d9ab55;
+            cursor: pointer;
+            padding: 0;
+        }
+        .tw-nav button:hover { color: #fde68a; }
+        @keyframes tw-blink {
+            50% { opacity: 0; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .tw-caret, .tw-key, .tw-paper.is-rolling { animation: none !important; transition: none !important; }
+        }
     </style>
 </head>
 <body class="bg-zinc-950 text-zinc-300 font-sans-custom antialiased selection:bg-amber-500 selection:text-zinc-950 overflow-x-hidden">
@@ -45,15 +274,9 @@
     <div class="fixed inset-0 z-0 pointer-events-none bg-gradient-to-b from-zinc-950/70 via-zinc-950/40 to-zinc-950/90"></div>
     <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[35rem] bg-amber-600/15 blur-[150px] pointer-events-none rounded-full"></div>
 
-    <header class="relative z-10 max-w-5xl mx-auto px-6 py-8 flex justify-between items-center border-b border-zinc-900/50">
-        <a href="index.html" class="text-xl font-serif-custom tracking-wider text-zinc-100 hover:text-amber-400 transition">TALON T. CHERRY</a>
-        <nav class="space-x-6 text-sm font-medium text-zinc-400">
-            <a href="music.html" class="hover:text-amber-400 transition">Music & Radio</a>
-            <a href="writings.html" class="hover:text-amber-400 transition">Writings</a>
-            <a href="life.html" class="text-amber-400 transition">The Life</a>
-            <a href="forum.html" class="hover:text-amber-400 transition">The Parlor</a>
-            <a href="https://www.youtube.com/@TalonCherry" target="_blank" class="hover:text-amber-400 transition">YouTube ↗</a>
-        </nav>
+    <header class="sub-head">
+        <a class="sub-head-mark" href="index.html" aria-label="Home">Tc</a>
+        <a class="sub-head-meta" href="index.html">Return home</a>
     </header>
 
     <main class="relative z-10 max-w-5xl mx-auto px-6 py-12">
@@ -65,101 +288,84 @@
                 The Life
             </h1>
             <p class="text-zinc-400 text-sm max-w-md mx-auto font-light">
-                Four chapters. The old life, the new life, faith, and the people who held it together.
+                Four chapters on the roll. Choose a title and the sheet feeds through the carriage.
             </p>
         </div>
 
-        <div id="chapter-shelf" class="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-24">
-            <div role="button" tabindex="0" onclick="openChapter('old')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openChapter('old')}" class="book-card leather-book p-8 rounded-xl cursor-pointer flex flex-col justify-between min-h-[22rem] relative group">
-                <div class="absolute top-3 left-3 right-3 bottom-3 border border-[#4a2e1d] rounded-lg pointer-events-none"></div>
-                <div class="text-center pt-4">
-                    <span class="text-[10px] font-mono tracking-[0.3em] text-amber-600 uppercase block mb-2">Chapter I</span>
-                    <h3 class="font-serif-custom text-3xl gold-foil tracking-wide mb-1">The Old Life</h3>
-                    <div class="w-12 h-[1px] bg-amber-600/40 mx-auto my-3"></div>
-                </div>
-                <div class="text-center my-auto">
-                    <span class="text-4xl filter grayscale group-hover:grayscale-0 transition opacity-80">🌲</span>
-                </div>
-                <div class="text-center pb-2">
-                    <p class="text-xs text-zinc-400 font-serif-custom italic mb-3">Oregon childhood, Colorado, fatherhood, and the years that made the man.</p>
-                    <span class="text-xs font-mono text-amber-500 uppercase tracking-widest group-hover:underline">Open Chapter →</span>
-                </div>
+        <div class="tw-stage" id="tw-stage">
+            <div class="tw-feed" id="tw-feed">
+                <article class="tw-paper" id="tw-paper">
+                    <div id="tw-index">
+                        <span class="tw-paper-kicker">The Life</span>
+                        <h2>Chapters</h2>
+                        <p class="tw-paper-sub">A paper roll. Four titles. Pick one.</p>
+                        <ol class="tw-toc">
+                            <li>
+                                <button type="button" data-chapter="old">
+                                    <span class="tw-toc-num">Chapter I</span>
+                                    <span class="tw-toc-title">The Old Life</span>
+                                    <span class="tw-toc-blurb">Oregon childhood, Colorado, fatherhood, and the years that made the man.</span>
+                                </button>
+                            </li>
+                            <li>
+                                <button type="button" data-chapter="new">
+                                    <span class="tw-toc-num">Chapter II</span>
+                                    <span class="tw-toc-title">The New Life</span>
+                                    <span class="tw-toc-blurb">How we became Texans, farm lessons, and the turn toward Christ.</span>
+                                </button>
+                            </li>
+                            <li>
+                                <button type="button" data-chapter="faith">
+                                    <span class="tw-toc-num">Chapter III</span>
+                                    <span class="tw-toc-title">Faith</span>
+                                    <span class="tw-toc-blurb">The fall, the climb, and baptism at Hamby Church of Christ.</span>
+                                </button>
+                            </li>
+                            <li>
+                                <button type="button" data-chapter="family">
+                                    <span class="tw-toc-num">Chapter IV</span>
+                                    <span class="tw-toc-title">Family &amp; Friends</span>
+                                    <span class="tw-toc-blurb">Kent and Judi, Logan and Brandy, Tim, Sean, Jason, and the rest.</span>
+                                </button>
+                            </li>
+                        </ol>
+                    </div>
+                    <div id="tw-read" hidden>
+                        <span class="tw-paper-kicker">The Life</span>
+                        <h2 id="tw-title"></h2>
+                        <p class="tw-paper-sub" id="tw-subtitle"></p>
+                        <div id="tw-body"></div>
+                    </div>
+                </article>
             </div>
 
-            <div role="button" tabindex="0" onclick="openChapter('new')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openChapter('new')}" class="book-card leather-book p-8 rounded-xl cursor-pointer flex flex-col justify-between min-h-[22rem] relative group">
-                <div class="absolute top-3 left-3 right-3 bottom-3 border border-[#4a2e1d] rounded-lg pointer-events-none"></div>
-                <div class="text-center pt-4">
-                    <span class="text-[10px] font-mono tracking-[0.3em] text-amber-600 uppercase block mb-2">Chapter II</span>
-                    <h3 class="font-serif-custom text-3xl gold-foil tracking-wide mb-1">The New Life</h3>
-                    <div class="w-12 h-[1px] bg-amber-600/40 mx-auto my-3"></div>
-                </div>
-                <div class="text-center my-auto">
-                    <span class="text-4xl filter grayscale group-hover:grayscale-0 transition opacity-80">🌾</span>
-                </div>
-                <div class="text-center pb-2">
-                    <p class="text-xs text-zinc-400 font-serif-custom italic mb-3">How we became Texans, farm lessons, and the turn toward Christ.</p>
-                    <span class="text-xs font-mono text-amber-500 uppercase tracking-widest group-hover:underline">Open Chapter →</span>
-                </div>
+            <div class="tw-machine" id="tw-machine" aria-hidden="true">
+                <svg viewBox="0 0 640 150" fill="none">
+                    <rect x="48" y="62" width="544" height="88" rx="18" fill="#1a120c" stroke="#c4a35a" stroke-width="1.4"/>
+                    <ellipse cx="320" cy="70" rx="196" ry="24" fill="#3d2a1e" stroke="#8a6238" stroke-width="1.2"/>
+                    <ellipse cx="320" cy="64" rx="186" ry="15" fill="#5c4030"/>
+                    <rect x="128" y="40" width="384" height="24" rx="4" fill="#efe4c8" opacity="0.38"/>
+                </svg>
+                <div class="tw-kb" id="tw-keys"></div>
             </div>
 
-            <div role="button" tabindex="0" onclick="openChapter('faith')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openChapter('faith')}" class="book-card leather-book p-8 rounded-xl cursor-pointer flex flex-col justify-between min-h-[22rem] relative group">
-                <div class="absolute top-3 left-3 right-3 bottom-3 border border-[#4a2e1d] rounded-lg pointer-events-none"></div>
-                <div class="text-center pt-4">
-                    <span class="text-[10px] font-mono tracking-[0.3em] text-amber-600 uppercase block mb-2">Chapter III</span>
-                    <h3 class="font-serif-custom text-3xl gold-foil tracking-wide mb-1">Faith</h3>
-                    <div class="w-12 h-[1px] bg-amber-600/40 mx-auto my-3"></div>
-                </div>
-                <div class="text-center my-auto">
-                    <span class="text-4xl filter grayscale group-hover:grayscale-0 transition opacity-80">✝️</span>
-                </div>
-                <div class="text-center pb-2">
-                    <p class="text-xs text-zinc-400 font-serif-custom italic mb-3">The fall, the climb, and baptism at Hamby Church of Christ.</p>
-                    <span class="text-xs font-mono text-amber-500 uppercase tracking-widest group-hover:underline">Open Chapter →</span>
-                </div>
+            <div class="tw-toolbar">
+                <button type="button" id="tw-back" hidden>Return to chapters</button>
+                <button type="button" id="tw-sound" aria-pressed="true">Keys on</button>
+                <button type="button" id="tw-skip" hidden>Finish the page</button>
             </div>
-
-            <div role="button" tabindex="0" onclick="openChapter('family')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openChapter('family')}" class="book-card leather-book p-8 rounded-xl cursor-pointer flex flex-col justify-between min-h-[22rem] relative group">
-                <div class="absolute top-3 left-3 right-3 bottom-3 border border-[#4a2e1d] rounded-lg pointer-events-none"></div>
-                <div class="text-center pt-4">
-                    <span class="text-[10px] font-mono tracking-[0.3em] text-amber-600 uppercase block mb-2">Chapter IV</span>
-                    <h3 class="font-serif-custom text-3xl gold-foil tracking-wide mb-1">Family &amp; Friends</h3>
-                    <div class="w-12 h-[1px] bg-amber-600/40 mx-auto my-3"></div>
-                </div>
-                <div class="text-center my-auto">
-                    <span class="text-4xl filter grayscale group-hover:grayscale-0 transition opacity-80">🕯️</span>
-                </div>
-                <div class="text-center pb-2">
-                    <p class="text-xs text-zinc-400 font-serif-custom italic mb-3">Kent and Judi, Logan and Brandy, Tim, Sean, Jason, and the rest.</p>
-                    <span class="text-xs font-mono text-amber-500 uppercase tracking-widest group-hover:underline">Open Chapter →</span>
-                </div>
-            </div>
-        </div>
-
-        <div id="reader-view" class="hidden">
-            <button onclick="closeChapter()" class="mb-8 text-xs font-mono text-amber-400 hover:text-amber-300 transition flex items-center space-x-2 bg-amber-500/10 px-4 py-2 rounded-lg border border-amber-500/20 w-fit">
-                <span>← Return to Chapters</span>
-            </button>
-
-            <div class="library-parchment p-8 md:p-12 border-2 border-[#2b1910] rounded-2xl shadow-2xl relative min-h-[600px] backdrop-blur-md">
-                <div id="chapter-content-container" class="reader-scroll max-h-[700px] overflow-y-auto pr-2"></div>
-            </div>
-
-            <a class="author-tip-jar mt-8" href="https://venmo.com/Talon-Cherry" target="_blank" rel="noopener noreferrer">
-                <span class="tip-jar-wood" aria-hidden="true">
-                    <span class="tip-jar-brass">Author's Tip Jar</span>
-                    <span class="tip-jar-slot"></span>
-                    <span class="tip-jar-coin"></span>
-                </span>
-                <span class="tip-jar-copy">
-                    <span class="tip-jar-kicker">A coin for the road</span>
-                    <span class="tip-jar-line">If these words found a home in you, drop a coin in the jar.</span>
-                </span>
-            </a>
+            <div class="tw-nav" id="tw-nav"></div>
         </div>
     </main>
 
-    <footer class="border-t border-zinc-900/80 py-12 bg-zinc-950/40 backdrop-blur-md relative z-10">
-        <div class="max-w-5xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center text-xs text-zinc-600 space-y-4 md:space-y-0 gap-4">
+    <footer class="site-foot border-t border-zinc-900/80 bg-zinc-950/40 backdrop-blur-md">
+        <nav class="crossroads" aria-label="Crossroads">
+            <span class="crossroads-kicker">Crossroads</span>
+            <a href="music.html">Music</a>
+            <a href="writings.html">Writing</a>
+            <a href="life.html" aria-current="page">Life</a>
+        </nav>
+        <div class="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center text-xs text-zinc-600 space-y-4 md:space-y-0 gap-4">
             <p>Copyright © 2026 Talon T. Cherry. All Rights Reserved.</p>
             <a href="https://venmo.com/Talon-Cherry" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 font-serif-custom text-sm tracking-[0.2em] uppercase text-[#d9ab55] hover:text-amber-300 transition" aria-label="Tip jar — Venmo Talon Cherry (opens in a new tab)">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 36" class="w-5 h-6" fill="none" aria-hidden="true">
@@ -176,9 +382,204 @@
         <p class="cookie-aside">We use Google Analytics just to see if anyone is reading this, or if I'm shouting into the void.</p>
     </footer>
 
-    <script src="life_data.js"></script>
+    <script src="life_data.js?v=life-2026-09-02b"></script>
     <script>
         const chapterOrder = ['old', 'new', 'faith', 'family'];
+        const keysRoot = document.getElementById('tw-keys');
+        const KEY_ROWS = [
+            [
+                { label: '`', code: '`' }, { label: '1', code: '1' }, { label: '2', code: '2' }, { label: '3', code: '3' },
+                { label: '4', code: '4' }, { label: '5', code: '5' }, { label: '6', code: '6' }, { label: '7', code: '7' },
+                { label: '8', code: '8' }, { label: '9', code: '9' }, { label: '0', code: '0' }, { label: '-', code: '-' },
+                { label: '=', code: '=' }
+            ],
+            [
+                { label: 'TAB', code: '\t', mod: true }, { label: 'Q', code: 'q' }, { label: 'W', code: 'w' },
+                { label: 'E', code: 'e' }, { label: 'R', code: 'r' }, { label: 'T', code: 't' }, { label: 'Y', code: 'y' },
+                { label: 'U', code: 'u' }, { label: 'I', code: 'i' }, { label: 'O', code: 'o' }, { label: 'P', code: 'p' },
+                { label: '[', code: '[' }, { label: ']', code: ']' }, { label: '\\', code: '\\' }
+            ],
+            [
+                { label: 'CAPS', code: 'caps', mod: true }, { label: 'A', code: 'a' }, { label: 'S', code: 's' },
+                { label: 'D', code: 'd' }, { label: 'F', code: 'f' }, { label: 'G', code: 'g' }, { label: 'H', code: 'h' },
+                { label: 'J', code: 'j' }, { label: 'K', code: 'k' }, { label: 'L', code: 'l' }, { label: ';', code: ';' },
+                { label: '\'', code: '\'' }, { label: 'RET', code: 'return', mod: true }
+            ],
+            [
+                { label: 'SHIFT', code: 'shift', mod: true }, { label: 'Z', code: 'z' }, { label: 'X', code: 'x' },
+                { label: 'C', code: 'c' }, { label: 'V', code: 'v' }, { label: 'B', code: 'b' }, { label: 'N', code: 'n' },
+                { label: 'M', code: 'm' }, { label: ',', code: ',' }, { label: '.', code: '.' }, { label: '/', code: '/' },
+                { label: 'SHIFT', code: 'shift-r', mod: true }
+            ],
+            [
+                { label: '', code: 'space', space: true }
+            ]
+        ];
+        KEY_ROWS.forEach(function (row) {
+            const rowEl = document.createElement('div');
+            rowEl.className = 'tw-kb-row';
+            row.forEach(function (spec) {
+                const key = document.createElement('span');
+                key.className = 'tw-key' + (spec.mod ? ' is-mod' : '') + (spec.space ? ' is-space' : '');
+                key.dataset.code = spec.code;
+                key.textContent = spec.label;
+                rowEl.appendChild(key);
+            });
+            keysRoot.appendChild(rowEl);
+        });
+
+        const CHAR_TO_CODE = {
+            '"': '\'', ':': ';', '?': '/', '!': '1', '@': '2', '#': '3', '$': '4',
+            '%': '5', '^': '6', '&': '7', '*': '8', '(': '9', ')': '0', '_': '-', '+': '='
+        };
+
+        let typeTimer = null;
+        let typeQueue = [];
+        let typeIndex = 0;
+        let currentLine = null;
+        let downKey = null;
+        let paperLock = false;
+        let sheetBusy = false;
+        let currentChapter = null;
+
+        function reduceMotion() {
+            return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        }
+
+        function platenY() {
+            const feed = document.getElementById('tw-feed');
+            const paper = document.getElementById('tw-paper');
+            return feed.clientHeight - paper.offsetHeight;
+        }
+
+        function whenRolled(paper, done) {
+            let settled = false;
+            function finish() {
+                if (settled) return;
+                settled = true;
+                paper.removeEventListener('transitionend', onEnd);
+                done();
+            }
+            function onEnd(event) {
+                if (event.target === paper && event.propertyName === 'transform') {
+                    finish();
+                }
+            }
+            paper.addEventListener('transitionend', onEnd);
+            setTimeout(finish, 900);
+        }
+
+        function restY() {
+            const feed = document.getElementById('tw-feed');
+            const paper = document.getElementById('tw-paper');
+            const indexOn = !document.getElementById('tw-index').hidden;
+            if (indexOn && paper.offsetHeight > feed.clientHeight - 8) return 0;
+            return platenY();
+        }
+
+        function seatIndex() {
+            const feed = document.getElementById('tw-feed');
+            const paper = document.getElementById('tw-paper');
+            if (!document.getElementById('tw-index').hidden && paper.offsetHeight > feed.clientHeight - 8) {
+                feed.classList.add('is-menu');
+                paper.style.transform = '';
+            } else {
+                feed.classList.remove('is-menu');
+                feedPaper();
+            }
+        }
+
+        function showIndexSheet() {
+            document.getElementById('tw-index').hidden = false;
+            document.getElementById('tw-read').hidden = true;
+            document.getElementById('tw-back').hidden = true;
+            document.getElementById('tw-skip').hidden = true;
+            document.getElementById('tw-nav').innerHTML = '';
+            document.getElementById('tw-feed').classList.remove('is-done');
+            document.getElementById('tw-body').innerHTML = '';
+        }
+
+        function showReadSheet(key) {
+            const data = lifeData[key];
+            document.getElementById('tw-index').hidden = true;
+            document.getElementById('tw-read').hidden = false;
+            document.getElementById('tw-title').textContent = data.title;
+            document.getElementById('tw-subtitle').textContent = data.subtitle || '';
+            document.getElementById('tw-body').innerHTML = '';
+            document.getElementById('tw-back').hidden = false;
+            document.getElementById('tw-skip').hidden = false;
+            document.getElementById('tw-feed').classList.remove('is-done');
+            document.getElementById('tw-feed').classList.remove('is-menu');
+            const idx = chapterOrder.indexOf(key);
+            const prev = idx > 0 ? chapterOrder[idx - 1] : null;
+            const next = idx < chapterOrder.length - 1 ? chapterOrder[idx + 1] : null;
+            const nav = document.getElementById('tw-nav');
+            nav.innerHTML = '';
+            if (prev) {
+                const b = document.createElement('button');
+                b.type = 'button';
+                b.textContent = '← ' + lifeData[prev].title;
+                b.addEventListener('click', function () { openChapter(prev); });
+                nav.appendChild(b);
+            } else {
+                nav.appendChild(document.createElement('span'));
+            }
+            if (next) {
+                const b = document.createElement('button');
+                b.type = 'button';
+                b.textContent = lifeData[next].title + ' →';
+                b.addEventListener('click', function () { openChapter(next); });
+                nav.appendChild(b);
+            } else {
+                nav.appendChild(document.createElement('span'));
+            }
+        }
+
+        function ejectThenInsert(prepare, afterArrive) {
+            const paper = document.getElementById('tw-paper');
+            const feed = document.getElementById('tw-feed');
+            paperLock = true;
+            stopTyping();
+            const startY = paper.getBoundingClientRect().top - feed.getBoundingClientRect().top;
+            feed.classList.remove('is-done', 'is-menu');
+            paper.style.transform = 'translateY(' + startY + 'px)';
+
+            function insertFresh() {
+                prepare();
+                paper.style.opacity = '1';
+                paper.classList.remove('is-rolling');
+                paper.style.transition = 'none';
+                paper.style.transform = 'translateY(' + (feed.clientHeight + 24) + 'px)';
+                void paper.offsetHeight;
+                requestAnimationFrame(function () {
+                    paper.classList.add('is-rolling');
+                    paper.style.transition = '';
+                    paper.style.transform = 'translateY(' + restY() + 'px)';
+                    whenRolled(paper, function () {
+                        paper.classList.remove('is-rolling');
+                        paperLock = false;
+                        sheetBusy = false;
+                        if (afterArrive) afterArrive();
+                    });
+                });
+            }
+
+            if (reduceMotion()) {
+                prepare();
+                paper.style.opacity = '1';
+                paper.style.transform = 'translateY(' + restY() + 'px)';
+                paperLock = false;
+                sheetBusy = false;
+                if (afterArrive) afterArrive();
+                return;
+            }
+
+            void paper.offsetHeight;
+            paper.classList.add('is-rolling');
+            paper.style.opacity = '0';
+            paper.style.transform = 'translateY(' + (-paper.offsetHeight - 48) + 'px)';
+            whenRolled(paper, insertFresh);
+        }
 
         function escapeHtml(value) {
             return String(value ?? '')
@@ -188,55 +589,351 @@
                 .replace(/"/g, '&quot;');
         }
 
+        const LIFE_FILES = {
+            old: 'His Life/The old life.txt',
+            new: 'His Life/The New Life.txt',
+            faith: 'His Life/Faith.txt',
+            family: 'His Life/Family and Friends.txt'
+        };
+
+        function cleanChapterText(raw, title) {
+            let text = String(raw || '').replace(/^\uFEFF/, '').replace(/\r\n/g, '\n');
+            const kept = [];
+            text.split('\n').forEach(function (line) {
+                const trimmed = line.trim();
+                if (!trimmed) {
+                    kept.push(line);
+                    return;
+                }
+                if (/^\/\/img1\.wsimg\.com\//i.test(trimmed)) return;
+                if (/^image\d+(image\d+)+$/i.test(trimmed.replace(/\s/g, ''))) return;
+                kept.push(line);
+            });
+            text = kept.join('\n').replace(/^\n+/, '').replace(/\n+$/, '');
+            const lines = text.split('\n');
+            let i = 0;
+            function skip(line) {
+                const t = line.trim();
+                if (!t) return true;
+                if (t.toLowerCase() === String(title || '').toLowerCase()) return true;
+                if (/©|all rights reserved/i.test(t)) return true;
+                if (/^(January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},?\s+\d{4}/i.test(t)) return true;
+                return false;
+            }
+            while (i < lines.length && skip(lines[i]) && i < 6) i++;
+            return lines.slice(i).join('\n').replace(/^\n+/, '').replace(/\n+$/, '');
+        }
+
+        const lifeReady = (typeof lifeData === 'undefined')
+            ? Promise.resolve()
+            : Promise.all(chapterOrder.map(function (key) {
+                const file = LIFE_FILES[key];
+                if (!file || !lifeData[key]) return Promise.resolve();
+                return fetch(encodeURI(file) + '?t=' + Date.now())
+                    .then(function (res) {
+                        if (!res.ok) throw new Error(file);
+                        return res.text();
+                    })
+                    .then(function (raw) {
+                        lifeData[key].text = cleanChapterText(raw, lifeData[key].title);
+                    })
+                    .catch(function () { /* bundled life_data.js stays */ });
+            }));
+
+        function wrapLines(text) {
+            const width = window.innerWidth < 640 ? 36 : 52;
+            const blocks = String(text || '').replace(/\r/g, '').split('\n');
+            const lines = [];
+            blocks.forEach(function (block) {
+                const words = block.trim().split(/\s+/).filter(Boolean);
+                if (!words.length) {
+                    lines.push('');
+                    return;
+                }
+                let line = '';
+                words.forEach(function (word) {
+                    const next = line ? line + ' ' + word : word;
+                    if (next.length > width) {
+                        if (line) lines.push(line);
+                        line = word;
+                    } else {
+                        line = next;
+                    }
+                });
+                if (line) lines.push(line);
+            });
+            return lines;
+        }
+
+        function stopTyping() {
+            if (typeTimer) {
+                clearTimeout(typeTimer);
+                typeTimer = null;
+            }
+        }
+
+        function feedPaper() {
+            const feed = document.getElementById('tw-feed');
+            const paper = document.getElementById('tw-paper');
+            if (paperLock || feed.classList.contains('is-done')) return;
+            paper.style.transform = 'translateY(' + platenY() + 'px)';
+        }
+
+        let audioCtx = null;
+        let soundOn = true;
+        try {
+            soundOn = localStorage.getItem('tw-keys-sound') !== 'off';
+        } catch (err) { /* ignore */ }
+
+        function unlockKeys() {
+            const Ctx = window.AudioContext || window.webkitAudioContext;
+            if (!Ctx) return;
+            if (!audioCtx) audioCtx = new Ctx();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        function syncSoundButton() {
+            const btn = document.getElementById('tw-sound');
+            btn.textContent = soundOn ? 'Keys on' : 'Keys off';
+            btn.setAttribute('aria-pressed', soundOn ? 'true' : 'false');
+        }
+
+        function playKeyClick(kind) {
+            if (!soundOn) return;
+            unlockKeys();
+            if (!audioCtx) return;
+            const now = audioCtx.currentTime;
+            const dur = kind === 'return' ? 0.024 : 0.018;
+            const rate = audioCtx.sampleRate;
+            const samples = Math.max(64, Math.floor(rate * dur));
+            const buffer = audioCtx.createBuffer(1, samples, rate);
+            const data = buffer.getChannelData(0);
+            let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+            for (let i = 0; i < samples; i++) {
+                const white = Math.random() * 2 - 1;
+                b0 = 0.99886 * b0 + white * 0.0555179;
+                b1 = 0.99332 * b1 + white * 0.0750759;
+                b2 = 0.96900 * b2 + white * 0.1538520;
+                b3 = 0.86650 * b3 + white * 0.3104856;
+                b4 = 0.55000 * b4 + white * 0.5329522;
+                b5 = -0.7616 * b5 - white * 0.0168980;
+                const pink = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362;
+                b6 = white * 0.115926;
+                const env = Math.pow(1 - i / samples, 28);
+                data[i] = pink * 0.22 * env;
+            }
+
+            const src = audioCtx.createBufferSource();
+            src.buffer = buffer;
+
+            const hipass = audioCtx.createBiquadFilter();
+            hipass.type = 'highpass';
+            hipass.frequency.value = 1100;
+            hipass.Q.value = 0.5;
+
+            const lopass = audioCtx.createBiquadFilter();
+            lopass.type = 'lowpass';
+            lopass.frequency.value = kind === 'space' ? 2800 : 4200;
+            lopass.Q.value = 0.5;
+
+            const noiseGain = audioCtx.createGain();
+            noiseGain.gain.setValueAtTime(kind === 'space' ? 0.28 : 0.42, now);
+            noiseGain.gain.exponentialRampToValueAtTime(0.0008, now + dur);
+
+            src.connect(hipass);
+            hipass.connect(lopass);
+            lopass.connect(noiseGain);
+            noiseGain.connect(audioCtx.destination);
+            src.start(now);
+
+            const edge = audioCtx.createOscillator();
+            const edgeFilter = audioCtx.createBiquadFilter();
+            const edgeGain = audioCtx.createGain();
+            edge.type = 'square';
+            edge.frequency.value = kind === 'return' ? 95 : 130 + Math.random() * 40;
+            edgeFilter.type = 'highpass';
+            edgeFilter.frequency.value = 700;
+            edgeFilter.Q.value = 0.4;
+            const snap = 0.0025;
+            edgeGain.gain.setValueAtTime(kind === 'space' ? 0.04 : 0.07, now);
+            edgeGain.gain.exponentialRampToValueAtTime(0.0008, now + snap);
+            edge.connect(edgeFilter);
+            edgeFilter.connect(edgeGain);
+            edgeGain.connect(audioCtx.destination);
+            edge.start(now);
+            edge.stop(now + 0.003);
+        }
+
+        function strikeMachine(ch) {
+            const kind = (ch === ' ' ? 'space' : (ch === '\n' || ch === '' ? 'return' : 'key'));
+            playKeyClick(kind);
+            if (reduceMotion()) return;
+            let code = ch;
+            if (ch === ' ') code = 'space';
+            else if (ch === '\n' || ch === '') code = 'return';
+            else if (CHAR_TO_CODE[ch]) code = CHAR_TO_CODE[ch];
+            else code = String(ch).toLowerCase();
+
+            if (downKey) downKey.classList.remove('is-down');
+            const key = keysRoot.querySelector('[data-code="' + CSS.escape(code) + '"]')
+                || keysRoot.querySelector('[data-code="shift"]');
+            if (key) {
+                key.classList.add('is-down');
+                downKey = key;
+            }
+            setTimeout(function () {
+                if (key) key.classList.remove('is-down');
+                if (downKey === key) downKey = null;
+            }, 140);
+        }
+
+        function newLineEl() {
+            const line = document.createElement('div');
+            line.className = 'tw-line';
+            document.getElementById('tw-body').appendChild(line);
+            return line;
+        }
+
+        function finishPage() {
+            stopTyping();
+            const body = document.getElementById('tw-body');
+            body.innerHTML = typeQueue.map(function (line) {
+                return '<div class="tw-line">' + escapeHtml(line) + '</div>';
+            }).join('');
+            document.getElementById('tw-feed').classList.add('is-done');
+            document.getElementById('tw-paper').style.transform = '';
+            document.getElementById('tw-skip').hidden = true;
+        }
+
+        function charDelay(ch) {
+            if (ch === '.' || ch === '!' || ch === '?') return 380;
+            if (ch === ',' || ch === ';' || ch === ':') return 220;
+            if (ch === ' ') return 95;
+            return 88;
+        }
+
+        function typeNext() {
+            if (typeIndex >= typeQueue.length) {
+                document.getElementById('tw-feed').classList.add('is-done');
+                document.getElementById('tw-paper').style.transform = '';
+                document.getElementById('tw-skip').hidden = true;
+                if (currentLine) {
+                    const caret = currentLine.querySelector('.tw-caret');
+                    if (caret) caret.remove();
+                }
+                return;
+            }
+            const text = typeQueue[typeIndex];
+            if (!currentLine) {
+                currentLine = newLineEl();
+                currentLine.dataset.i = '0';
+            }
+            const i = Number(currentLine.dataset.i || 0);
+            if (i < text.length) {
+                currentLine.textContent = text.slice(0, i + 1);
+                const caret = document.createElement('span');
+                caret.className = 'tw-caret';
+                caret.setAttribute('aria-hidden', 'true');
+                currentLine.appendChild(caret);
+                currentLine.dataset.i = String(i + 1);
+                strikeMachine(text[i]);
+                feedPaper();
+                typeTimer = setTimeout(typeNext, charDelay(text[i]));
+            } else {
+                const caret = currentLine.querySelector('.tw-caret');
+                if (caret) caret.remove();
+                typeIndex += 1;
+                currentLine = null;
+                strikeMachine('\n');
+                feedPaper();
+                typeTimer = setTimeout(typeNext, text === '' ? 340 : 180);
+            }
+        }
+
+        function startTyping(text) {
+            stopTyping();
+            typeQueue = wrapLines(text);
+            typeIndex = 0;
+            currentLine = null;
+            document.getElementById('tw-body').innerHTML = '';
+            document.getElementById('tw-feed').classList.remove('is-done');
+            document.getElementById('tw-skip').hidden = false;
+            if (reduceMotion()) {
+                finishPage();
+                return;
+            }
+            requestAnimationFrame(function () {
+                feedPaper();
+                typeNext();
+            });
+        }
+
         function openChapter(key) {
+            if (sheetBusy) return;
             if (typeof lifeData === 'undefined' || !lifeData[key]) {
                 alert('Life chapters are still loading or missing. Make sure life_data.js is in the same folder.');
                 return;
             }
-
-            const data = lifeData[key];
-            const idx = chapterOrder.indexOf(key);
-            const prev = idx > 0 ? chapterOrder[idx - 1] : null;
-            const next = idx < chapterOrder.length - 1 ? chapterOrder[idx + 1] : null;
-
-            let nav = '<div class="mt-12 pt-6 border-t border-[#382216] flex justify-between text-xs font-mono uppercase tracking-widest">';
-            nav += prev
-                ? `<button onclick="openChapter('${prev}')" class="text-amber-400 hover:text-amber-300">← ${escapeHtml(lifeData[prev].title)}</button>`
-                : '<span></span>';
-            nav += next
-                ? `<button onclick="openChapter('${next}')" class="text-amber-400 hover:text-amber-300">${escapeHtml(lifeData[next].title)} →</button>`
-                : '<span></span>';
-            nav += '</div>';
-
-            document.getElementById('chapter-content-container').innerHTML = `
-                <div class="text-center mb-10 pb-6 border-b border-[#382216]">
-                    <span class="text-xs font-mono uppercase tracking-[0.3em] text-amber-500">The Life</span>
-                    <h2 class="font-serif-custom text-4xl md:text-5xl text-zinc-100 mt-2 mb-2">${escapeHtml(data.title)}</h2>
-                    <p class="text-xs text-zinc-400 font-serif-custom italic">${escapeHtml(data.subtitle)}</p>
-                </div>
-                <p class="text-sm md:text-base text-zinc-300 font-serif-custom leading-relaxed whitespace-pre-line">${escapeHtml(data.text)}</p>
-                ${nav}
-            `;
-
-            document.getElementById('life-header').classList.add('hidden');
-            document.getElementById('chapter-shelf').classList.add('hidden');
-            document.getElementById('reader-view').classList.remove('hidden');
-            history.replaceState(null, '', '#' + key);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            sheetBusy = true;
+            lifeReady.then(function () {
+                sheetBusy = false;
+                if (typeof lifeData === 'undefined' || !lifeData[key]) return;
+                sheetBusy = true;
+                currentChapter = key;
+                unlockKeys();
+                history.replaceState(null, '', '#' + key);
+                ejectThenInsert(function () {
+                    showReadSheet(key);
+                }, function () {
+                    startTyping(lifeData[key].text);
+                });
+            });
         }
 
         function closeChapter() {
-            document.getElementById('reader-view').classList.add('hidden');
-            document.getElementById('life-header').classList.remove('hidden');
-            document.getElementById('chapter-shelf').classList.remove('hidden');
+            if (sheetBusy) return;
+            sheetBusy = true;
+            currentChapter = null;
+            stopTyping();
             history.replaceState(null, '', location.pathname);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            ejectThenInsert(function () {
+                showIndexSheet();
+            }, function () {
+                seatIndex();
+            });
         }
 
-        const initialKey = location.hash.replace('#', '');
-        if (initialKey && typeof lifeData !== 'undefined' && lifeData[initialKey]) {
-            openChapter(initialKey);
-        }
+        document.getElementById('tw-skip').addEventListener('click', finishPage);
+        document.getElementById('tw-back').addEventListener('click', closeChapter);
+        syncSoundButton();
+        document.getElementById('tw-sound').addEventListener('click', function () {
+            soundOn = !soundOn;
+            try {
+                localStorage.setItem('tw-keys-sound', soundOn ? 'on' : 'off');
+            } catch (err) { /* ignore */ }
+            syncSoundButton();
+            if (soundOn) {
+                unlockKeys();
+                playKeyClick('key');
+            }
+        });
+        document.querySelectorAll('#tw-index [data-chapter]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                openChapter(btn.getAttribute('data-chapter'));
+            });
+        });
+        window.addEventListener('resize', feedPaper);
+
+        requestAnimationFrame(function () {
+            seatIndex();
+        });
+
+        lifeReady.then(function () {
+            const initialKey = location.hash.replace('#', '');
+            if (initialKey && typeof lifeData !== 'undefined' && lifeData[initialKey]) {
+                openChapter(initialKey);
+            }
+        });
     </script>
 </body>
 </html>
