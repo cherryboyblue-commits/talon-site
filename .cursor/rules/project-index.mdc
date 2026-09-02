@@ -24,9 +24,9 @@ Source copy (plain `.txt`, not yet wired into the live pages except via a missin
 
 ## Stack
 
-Static HTML, Tailwind CDN, Instrument Serif + Plus Jakarta Sans, inline CSS/JS. Dark lake photo, amber/leather UI, duplicated rain+ripple script on every page.
+Static HTML, Tailwind CDN, Instrument Serif + Plus Jakarta Sans, inline CSS/JS. Shared lake sky via `site-atmosphere.css` / `site-atmosphere.js` (holiday months, Easter Sunday, day/night weather from Open-Meteo; rain+ripples or snow).
 
-Assets in `Taloncherry-site/Images/` (capital I): `lake.jpg` (moonlit lake background), `Me1.jpg` (portrait in the cabin window), `window rain.jpg` (rain overlay on the portrait). HTML paths are `Images/...` relative to the nested site folder. `library_data.js` and `life_data.js` are generated from the `.txt` archives.
+Assets in `Taloncherry-site/Images/` (capital I): lake day/night, rainy, snowy, and holiday stills; `Me1.jpg` (portrait in the cabin window), `window rain.jpg` (rain overlay on the portrait). HTML paths are `Images/...` relative to the nested site folder. `library_data.js` and `life_data.js` are generated from the `.txt` archives.
 
 ## Voice and content
 

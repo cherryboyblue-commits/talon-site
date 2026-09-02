@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sky preview | Talon T. Cherry</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="site-atmosphere.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        h1 { font-family: 'Instrument Serif', serif; }
+    </style>
+</head>
+<body class="bg-zinc-950 text-zinc-300 min-h-screen">
+    <div class="fixed inset-0 z-0 lake-background filter brightness-[0.45] contrast-110"></div>
+    <div id="rain-container" class="fixed inset-0 z-[1] pointer-events-none overflow-hidden"></div>
+    <script src="site-atmosphere.js"></script>
+    <main class="relative z-10 max-w-5xl mx-auto px-6 py-12">
+        <p class="text-xs uppercase tracking-[0.2em] text-amber-500 mb-3">Local preview</p>
+        <h1 class="text-4xl text-zinc-100 mb-3">Look at every sky</h1>
+        <p class="text-zinc-400 text-sm max-w-2xl mb-8">Pick a sky, then open each page. A bar at the bottom lets you step Prev/Next and jump pages without losing the sky. The cabin window only lives on Home. Parlor needs a sign-in.</p>
+        <div id="grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+    </main>
+    <script>
+        const skies = [
+            ['day', 'Clear day'],
+            ['night', 'Clear night'],
+            ['rain-day', 'Rainy day'],
+            ['rain-night', 'Rainy night'],
+            ['snow-day', 'Snowy day'],
+            ['snow-night', 'Snowy night'],
+            ['halloween', 'Halloween'],
+            ['thanksgiving', 'Thanksgiving'],
+            ['christmas', 'Christmas'],
+            ['new-year', 'New Year'],
+            ['fourth', 'Fourth of July'],
+            ['easter', 'Easter']
+        ];
+        const pages = [
+            ['index.html', 'Home'],
+            ['music.html', 'Music'],
+            ['writings.html', 'Writings'],
+            ['life.html', 'The Life'],
+            ['login.html', 'Parlor door'],
+            ['signup.html', 'Sign up']
+        ];
+        const grid = document.getElementById('grid');
+        skies.forEach(function ([key, label]) {
+            const card = document.createElement('article');
+            card.className = 'rounded-lg border border-amber-500/20 bg-zinc-950/70 p-4';
+            const title = document.createElement('h2');
+            title.className = 'font-serif text-xl text-zinc-100 mb-3';
+            title.style.fontFamily = 'Instrument Serif, serif';
+            title.textContent = label;
+            card.appendChild(title);
+            const list = document.createElement('div');
+            list.className = 'flex flex-wrap gap-2';
+            pages.forEach(function ([href, name]) {
+                const a = document.createElement('a');
+                a.className = 'text-xs uppercase tracking-wider text-amber-400 hover:text-amber-200 border border-amber-500/20 rounded px-2 py-1';
+                a.href = href + '?preview=1&sky=' + encodeURIComponent(key);
+                a.textContent = name;
+                list.appendChild(a);
+            });
+            card.appendChild(list);
+            grid.appendChild(card);
+        });
+    </script>
+</body>
+</html>

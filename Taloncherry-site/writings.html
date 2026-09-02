@@ -6,27 +6,12 @@
     <title>The Gilded Library | Talon T. Cherry</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="site-widgets.css">
+    <link rel="stylesheet" href="site-atmosphere.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap');
         .font-serif-custom { font-family: 'Instrument Serif', 'EB Garamond', Georgia, serif; }
         .font-sans-custom { font-family: 'Plus Jakarta Sans', sans-serif; }
         .font-print { font-family: 'EB Garamond', 'Instrument Serif', Georgia, 'Times New Roman', serif; }
-
-        .lake-background {
-            background-image: url('Images/lake.jpg');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-        }
-
-        .rain-deep-bg { position: fixed; background: linear-gradient(transparent, rgba(255, 255, 255, 0.15)); width: 0.75px; height: 15px; filter: blur(1.5px); pointer-events: none; z-index: 1; animation: fall-deep-bg linear infinite; }
-        .rain-mid { position: fixed; background: linear-gradient(transparent, rgba(255, 255, 255, 0.35)); width: 1px; height: 25px; filter: blur(0.5px); pointer-events: none; z-index: 1; animation: fall-mid linear infinite; }
-        .rain-fg { position: fixed; background: linear-gradient(transparent, rgba(255, 255, 255, 0.75)); width: 2px; height: 45px; filter: blur(0px); pointer-events: none; z-index: 1; animation: fall-fg linear infinite; }
-        @keyframes fall-deep-bg { 0% { transform: translateY(-30px) skewX(-6deg); } 100% { transform: translateY(105vh) skewX(-6deg); } }
-        @keyframes fall-mid { 0% { transform: translateY(-40px) skewX(-5deg); } 100% { transform: translateY(105vh) skewX(-5deg); } }
-        @keyframes fall-fg { 0% { transform: translateY(-50px) skewX(-4deg); } 100% { transform: translateY(105vh) skewX(-4deg); } }
-        .perspective-ripple { position: fixed; border-radius: 50%; pointer-events: none; z-index: 1; border: 1px solid rgba(255, 255, 255, 0.55); box-shadow: 0 0 5px rgba(255, 255, 255, 0.3); transform: scale(0.1) rotateX(60deg); animation: perspective-ripple-effect 0.65s cubic-bezier(0.1, 0.8, 0.3, 1) forwards; }
-        @keyframes perspective-ripple-effect { 0% { transform: scale(0.1) rotateX(65deg); opacity: 0.9; } 50% { opacity: 0.5; } 100% { transform: scale(2.6) rotateX(45deg); opacity: 0; } }
 
         .library-scene {
             width: 100%;
@@ -430,7 +415,7 @@
         }
 
         @media (prefers-reduced-motion: reduce) {
-            .tome, .shelf-stage, .open-book-layer, .rain-deep-bg, .rain-mid, .rain-fg { animation: none !important; transition: none !important; }
+            .tome, .shelf-stage, .open-book-layer { animation: none !important; transition: none !important; }
         }
     </style>
 </head>
@@ -438,6 +423,7 @@
 
     <div class="fixed inset-0 z-0 lake-background filter brightness-[0.42] contrast-125"></div>
     <div id="rain-container" class="fixed inset-0 z-[1] pointer-events-none overflow-hidden h-full w-full"></div>
+    <script src="site-atmosphere.js"></script>
     <div class="fixed inset-0 z-0 pointer-events-none bg-gradient-to-b from-zinc-950/80 via-zinc-950/50 to-zinc-950/90"></div>
     <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[28rem] bg-amber-600/20 blur-[140px] pointer-events-none rounded-full"></div>
 
@@ -534,59 +520,6 @@
         </div>
         <p class="cookie-aside">We use Google Analytics just to see if anyone is reading this, or if I'm shouting into the void.</p>
     </footer>
-
-    <script>
-        const rainContainer = document.getElementById('rain-container');
-        const rainLite = window.matchMedia('(max-width: 768px)').matches || window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        const rainDeep = rainLite ? 10 : 30;
-        const rainMid = rainLite ? 8 : 25;
-        const rainFg = rainLite ? 5 : 15;
-        for (let i = 0; i < rainDeep; i++) {
-            const drop = document.createElement('div');
-            drop.classList.add('rain-deep-bg');
-            drop.style.left = Math.random() * 100 + 'vw';
-            drop.style.top = '-30px';
-            drop.style.animationDuration = (0.8 + Math.random() * 0.7) + 's';
-            drop.style.animationDelay = (Math.random() * 2) + 's';
-            rainContainer.appendChild(drop);
-        }
-        for (let i = 0; i < rainMid; i++) {
-            const drop = document.createElement('div');
-            drop.classList.add('rain-mid');
-            drop.style.left = Math.random() * 100 + 'vw';
-            drop.style.top = '-40px';
-            drop.style.animationDuration = (0.5 + Math.random() * 0.4) + 's';
-            drop.style.animationDelay = (Math.random() * 2) + 's';
-            rainContainer.appendChild(drop);
-        }
-        for (let i = 0; i < rainFg; i++) {
-            const drop = document.createElement('div');
-            drop.classList.add('rain-fg');
-            drop.style.left = Math.random() * 100 + 'vw';
-            drop.style.top = '-50px';
-            drop.style.animationDuration = (0.28 + Math.random() * 0.25) + 's';
-            drop.style.animationDelay = (Math.random() * 2) + 's';
-            rainContainer.appendChild(drop);
-        }
-        const rippleMs = rainLite ? 280 : 80;
-        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-            setInterval(() => {
-                const ripple = document.createElement('div');
-                ripple.classList.add('perspective-ripple');
-                ripple.style.left = (Math.random() * 100) + 'vw';
-                const topPosition = 50 + (Math.random() * 50);
-                ripple.style.top = topPosition + 'vh';
-                const normalizedDepth = (topPosition - 50) / 50;
-                const width = 8 + (normalizedDepth * 50);
-                const heightFactor = 2.2 + (normalizedDepth * 1.8);
-                ripple.style.width = width + 'px';
-                ripple.style.height = (width / heightFactor) + 'px';
-                ripple.style.opacity = topPosition < 62 ? '0.5' : '0.85';
-                rainContainer.appendChild(ripple);
-                setTimeout(() => ripple.remove(), 650);
-            }, rippleMs);
-        }
-    </script>
 
     <script src="library_data.js"></script>
     <script>

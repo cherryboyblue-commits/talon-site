@@ -6,19 +6,17 @@
     <title>The Parlor Door | Talon T. Cherry</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="parlor.css">
+    <link rel="stylesheet" href="site-atmosphere.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap');
         .font-serif-custom { font-family: 'Instrument Serif', serif; }
         .font-sans-custom { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .lake-background {
-            background-image: url('Images/lake.jpg');
-            background-size: cover;
-            background-position: center;
-        }
     </style>
 </head>
 <body class="bg-zinc-950 text-zinc-300 font-sans-custom antialiased" data-parlor-mode="signin">
     <div class="fixed inset-0 z-0 lake-background filter brightness-[0.42] contrast-125"></div>
+    <div id="rain-container" class="fixed inset-0 z-[1] pointer-events-none overflow-hidden h-full w-full"></div>
+    <script src="site-atmosphere.js"></script>
     <div class="fixed inset-0 z-0 pointer-events-none bg-gradient-to-b from-zinc-950/80 via-zinc-950/50 to-zinc-950/90"></div>
 
     <header class="relative z-10 max-w-5xl mx-auto px-6 py-8 flex justify-between items-center border-b border-zinc-900/50">
