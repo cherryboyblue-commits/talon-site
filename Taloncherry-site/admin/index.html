@@ -31,6 +31,7 @@
     <div id="rain-container" class="fixed-sky rain-layer"></div>
     <script src="../site-atmosphere.js"></script>
     <p class="study-wait" id="study-wait">The study is locked.</p>
+    <script src="txt-frontmatter.js"></script>
     <script src="gate.js"></script>
     <script>
         function bootCms() {
@@ -42,8 +43,13 @@
             if (rain) rain.remove();
             var modal = document.getElementById('study-modal');
             if (modal) modal.remove();
+            window.CMS_MANUAL_INIT = true;
             var cms = document.createElement('script');
             cms.src = 'https://unpkg.com/@sveltia/cms/dist/sveltia-cms.js';
+            cms.onload = function () {
+                CMS.registerCustomFormat('txt-frontmatter', 'txt', window.TalonTxtFrontmatter);
+                CMS.init();
+            };
             document.body.appendChild(cms);
         }
         window.TalonStudy.afterUnlock = bootCms;

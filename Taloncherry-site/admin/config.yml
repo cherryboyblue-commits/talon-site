@@ -41,8 +41,7 @@ collections:
     label: Chapters
     label_singular: Chapter
     folder: Taloncherry-site/His Life
-    format: yaml-frontmatter
-    extension: txt
+    format: txt-frontmatter
     identifier_field: title
     create: true
     slug: "{{slug}}"
@@ -58,8 +57,7 @@ collections:
     label: Entries — Cultural
     label_singular: Essay
     folder: Taloncherry-site/Writing/Cultural
-    format: yaml-frontmatter
-    extension: txt
+    format: txt-frontmatter
     identifier_field: title
     create: true
     slug: "{{slug}}"
@@ -74,8 +72,7 @@ collections:
     label: Entries — Poetry
     label_singular: Poem
     folder: "Taloncherry-site/Writing/Poetry Archive"
-    format: yaml-frontmatter
-    extension: txt
+    format: txt-frontmatter
     identifier_field: title
     create: true
     slug: "{{slug}}"
@@ -90,8 +87,7 @@ collections:
     label: Entries — Lyrics
     label_singular: Song
     folder: Taloncherry-site/Writing/Lyrics
-    format: yaml-frontmatter
-    extension: txt
+    format: txt-frontmatter
     identifier_field: title
     create: true
     slug: "{{slug}}"
@@ -106,8 +102,7 @@ collections:
     label: Entries — Stories
     label_singular: Story
     folder: "Taloncherry-site/Writing/Short Stories"
-    format: yaml-frontmatter
-    extension: txt
+    format: txt-frontmatter
     identifier_field: title
     create: true
     slug: "{{slug}}"
