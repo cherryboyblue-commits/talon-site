@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>The Study</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../site-widgets.css">
+    <link rel="stylesheet" href="../site-atmosphere.css">
+    <link rel="stylesheet" href="gate.css">
+    <style>
+        html, body { min-height: 100%; margin: 0; background: #09090b; }
+        .study-wait {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Instrument Serif', Georgia, serif;
+            font-style: italic;
+            color: rgba(228, 228, 231, 0.7);
+        }
+    </style>
+</head>
+<body>
+    <div class="fixed-sky lake-background"></div>
+    <div id="rain-container" class="fixed-sky rain-layer"></div>
+    <script src="../site-atmosphere.js"></script>
+    <p class="study-wait" id="study-wait">The study is locked.</p>
+    <script src="gate.js"></script>
+    <script>
+        function bootCms() {
+            var wait = document.getElementById('study-wait');
+            if (wait) wait.remove();
+            var sky = document.querySelector('.lake-background');
+            var rain = document.getElementById('rain-container');
+            if (sky) sky.remove();
+            if (rain) rain.remove();
+            var modal = document.getElementById('study-modal');
+            if (modal) modal.remove();
+            var cms = document.createElement('script');
+            cms.src = 'https://unpkg.com/@sveltia/cms/dist/sveltia-cms.js';
+            document.body.appendChild(cms);
+        }
+        window.TalonStudy.afterUnlock = bootCms;
+        if (window.TalonStudy.isOpen()) {
+            bootCms();
+        } else {
+            window.TalonStudy.openModal({ required: true, onSuccess: bootCms });
+        }
+    </script>
+</body>
+</html>

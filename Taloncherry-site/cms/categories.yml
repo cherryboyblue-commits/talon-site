@@ -1,0 +1,21 @@
+categories:
+  - name: Life chapters
+    slug: chapters
+    kind: chapter
+    folder: His Life
+  - name: Cultural
+    slug: cultural
+    kind: writing
+    folder: Writing/Cultural
+  - name: Poetry
+    slug: poetry
+    kind: writing
+    folder: Writing/Poetry Archive
+  - name: Lyrics
+    slug: lyrics
+    kind: writing
+    folder: Writing/Lyrics
+  - name: Short Stories
+    slug: stories
+    kind: writing
+    folder: Writing/Short Stories

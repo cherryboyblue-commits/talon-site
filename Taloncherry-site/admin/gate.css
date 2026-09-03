@@ -1,0 +1,114 @@
+.study-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    background: rgba(6, 8, 12, 0.72);
+    backdrop-filter: blur(10px);
+}
+.study-modal.is-open {
+    display: flex;
+}
+.study-card {
+    width: min(22.5rem, 100%);
+    padding: 1.65rem 1.55rem 1.4rem;
+    background:
+        linear-gradient(180deg, rgba(20, 14, 10, 0.92), rgba(10, 8, 7, 0.96));
+    border: 1px solid rgba(196, 163, 90, 0.38);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), inset 0 0 0 1px rgba(196, 163, 90, 0.08);
+    border-radius: 10px;
+    color: #e7e5e4;
+}
+.study-kicker {
+    margin: 0 0 0.4rem;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.62rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: #d9ab55;
+}
+.study-card h2 {
+    margin: 0 0 1.15rem;
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-size: 1.7rem;
+    font-weight: 400;
+    color: #f4f1ea;
+}
+.study-card label {
+    display: block;
+    margin-bottom: 0.85rem;
+}
+.study-card label span {
+    display: block;
+    margin-bottom: 0.3rem;
+    font-size: 0.62rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(212, 212, 216, 0.7);
+}
+.study-card input {
+    width: 100%;
+    box-sizing: border-box;
+    appearance: none;
+    background: rgba(9, 9, 11, 0.55);
+    border: 1px solid rgba(196, 163, 90, 0.28);
+    border-radius: 8px;
+    color: #e7e5e4;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.92rem;
+    padding: 0.72rem 0.85rem;
+}
+.study-card input:focus {
+    outline: none;
+    border-color: rgba(232, 213, 163, 0.7);
+}
+.study-error {
+    min-height: 1.2rem;
+    margin: 0 0 0.7rem;
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-style: italic;
+    font-size: 0.95rem;
+    color: #fca5a5;
+}
+.study-actions {
+    display: flex;
+    gap: 0.65rem;
+    justify-content: flex-end;
+}
+.study-actions button {
+    appearance: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 0.7rem 0.95rem;
+}
+.study-submit {
+    background: #d9ab55;
+    border: 0;
+    color: #1c140c;
+}
+.study-submit:hover,
+.study-submit:focus-visible {
+    background: #e8d5a3;
+    outline: none;
+}
+.study-cancel {
+    background: transparent;
+    border: 1px solid rgba(196, 163, 90, 0.35);
+    color: rgba(232, 213, 163, 0.9);
+}
+.study-cancel:hover,
+.study-cancel:focus-visible {
+    border-color: rgba(232, 213, 163, 0.7);
+    outline: none;
+}
+.study-modal.is-required .study-cancel {
+    display: none;
+}

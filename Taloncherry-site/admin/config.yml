@@ -1,0 +1,108 @@
+# yaml-language-server: $schema=https://unpkg.com/@sveltia/cms/schema/sveltia-cms.json
+
+backend:
+  name: github
+  repo: cherryboyblue-commits/talon-site
+  branch: main
+
+site_url: https://cherryboyblue-commits.github.io/talon-site/
+display_url: https://cherryboyblue-commits.github.io/talon-site/
+logo_url: ../Images/Me1.jpg
+
+media_folder: Taloncherry-site/Images
+public_folder: /Images
+
+slug:
+  encoding: ascii
+  clean_accents: true
+  sanitize_replacement: "_"
+
+collections:
+  - name: categories
+    label: Categories
+    label_singular: Category
+    files:
+      - name: shelves
+        label: Shelves
+        file: Taloncherry-site/cms/categories.yml
+        fields:
+          - name: categories
+            label: Categories
+            label_singular: Category
+            widget: list
+            summary: "{{fields.name}}"
+            fields:
+              - { name: name, label: Name, widget: string }
+              - { name: slug, label: Slug, widget: string }
+              - { name: kind, label: Kind, widget: select, options: [chapter, writing] }
+              - { name: folder, label: Folder, widget: string }
+
+  - name: chapters
+    label: Chapters
+    label_singular: Chapter
+    folder: Taloncherry-site/His Life
+    format: raw
+    extension: txt
+    create: true
+    slug: "{{slug}}"
+    summary: "{{filename}}"
+    editor:
+      preview: false
+    fields:
+      - { name: body, label: Chapter, widget: text }
+
+  - name: entries_cultural
+    label: Entries — Cultural
+    label_singular: Essay
+    folder: Taloncherry-site/Writing/Cultural
+    format: raw
+    extension: txt
+    create: true
+    slug: "{{slug}}"
+    summary: "{{filename}}"
+    editor:
+      preview: false
+    fields:
+      - { name: body, label: Entry, widget: text }
+
+  - name: entries_poetry
+    label: Entries — Poetry
+    label_singular: Poem
+    folder: "Taloncherry-site/Writing/Poetry Archive"
+    format: raw
+    extension: txt
+    create: true
+    slug: "{{slug}}"
+    summary: "{{filename}}"
+    editor:
+      preview: false
+    fields:
+      - { name: body, label: Entry, widget: text }
+
+  - name: entries_lyrics
+    label: Entries — Lyrics
+    label_singular: Song
+    folder: Taloncherry-site/Writing/Lyrics
+    format: raw
+    extension: txt
+    create: true
+    slug: "{{slug}}"
+    summary: "{{filename}}"
+    editor:
+      preview: false
+    fields:
+      - { name: body, label: Entry, widget: text }
+
+  - name: entries_stories
+    label: Entries — Stories
+    label_singular: Story
+    folder: "Taloncherry-site/Writing/Short Stories"
+    format: raw
+    extension: txt
+    create: true
+    slug: "{{slug}}"
+    summary: "{{filename}}"
+    editor:
+      preview: false
+    fields:
+      - { name: body, label: Entry, widget: text }

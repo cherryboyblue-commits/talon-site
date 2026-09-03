@@ -17,6 +17,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="site-widgets.css?v=mail-cue">
     <link rel="stylesheet" href="site-atmosphere.css">
+    <link rel="stylesheet" href="admin/gate.css">
     <style>
         .home-portrait {
             position: fixed !important;
@@ -66,7 +67,7 @@
     <main class="home-stage">
         <p class="home-mono" aria-hidden="true">Tc</p>
         <h1 class="home-name">Talon T. Cherry</h1>
-        <p class="home-tagline">Time can only take the joy you never shared</p>
+        <p class="home-tagline">Time can only take the joy you never shared<button type="button" class="home-study-mark" id="study-trigger" aria-hidden="true" tabindex="-1">.</button></p>
         <nav class="home-nav" aria-label="Primary">
             <a href="music.html">Music</a>
             <a href="writings.html">Writing</a>
@@ -150,6 +151,13 @@
         });
         document.addEventListener('keydown', function (event) {
             if (event.key === 'Escape' && mailModal.classList.contains('is-open')) closeMailSuccess();
+        });
+    </script>
+    <script src="admin/gate.js"></script>
+    <script>
+        document.getElementById('study-trigger').addEventListener('click', function (event) {
+            event.preventDefault();
+            window.TalonStudy.openModal({ onSuccess: window.TalonStudy.afterHome });
         });
     </script>
     <script>
