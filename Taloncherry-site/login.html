@@ -5,25 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Parlor Door | Talon T. Cherry</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="site-widgets.css">
     <link rel="stylesheet" href="parlor.css">
     <link rel="stylesheet" href="site-atmosphere.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap');
         .font-serif-custom { font-family: 'Instrument Serif', serif; }
         .font-sans-custom { font-family: 'Plus Jakarta Sans', sans-serif; }
     </style>
 </head>
-<body class="bg-zinc-950 text-zinc-300 font-sans-custom antialiased" data-parlor-mode="signin">
-    <div class="fixed inset-0 z-0 lake-background filter brightness-[0.42] contrast-125"></div>
+<body class="bg-zinc-950 text-zinc-300 font-sans-custom antialiased selection:bg-amber-500 selection:text-zinc-950 overflow-x-hidden" data-parlor-mode="signin">
+    <div class="fixed inset-0 z-0 lake-background filter brightness-[0.5] contrast-125"></div>
     <div id="rain-container" class="fixed inset-0 z-[1] pointer-events-none overflow-hidden h-full w-full"></div>
     <script src="site-atmosphere.js"></script>
-    <div class="fixed inset-0 z-0 pointer-events-none bg-gradient-to-b from-zinc-950/80 via-zinc-950/50 to-zinc-950/90"></div>
+    <div class="fixed inset-0 z-0 pointer-events-none bg-gradient-to-b from-zinc-950/70 via-zinc-950/40 to-zinc-950/90"></div>
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[30rem] bg-amber-600/15 blur-[150px] pointer-events-none rounded-full"></div>
 
-    <header class="relative z-10 max-w-5xl mx-auto px-6 py-8 flex justify-between items-center border-b border-zinc-900/50">
-        <a href="index.html" class="text-xl font-serif-custom tracking-wider text-zinc-100 hover:text-amber-400 transition">TALON T. CHERRY</a>
-        <nav class="space-x-6 text-sm font-medium text-zinc-400">
-            <a href="forum.html" class="text-amber-400 transition">The Parlor</a>
-        </nav>
+    <header class="sub-head">
+        <a class="sub-head-mark" href="index.html" aria-label="Home">Tc</a>
+        <a class="sub-head-meta" href="index.html">Return home</a>
     </header>
 
     <main class="relative z-10 max-w-lg mx-auto px-6 py-16 parlor-shell">
@@ -54,6 +56,31 @@
             <button type="submit" id="parlor-submit" class="parlor-btn w-full">Enter the parlor</button>
         </form>
     </main>
+
+    <footer class="site-foot border-t border-zinc-900/80 bg-zinc-950/40 backdrop-blur-md">
+        <nav class="crossroads" aria-label="Crossroads">
+            <span class="crossroads-kicker">Crossroads</span>
+            <a href="music.html">Music</a>
+            <a href="writings.html">Writing</a>
+            <a href="life.html">Life</a>
+            <a href="forum.html" aria-current="page">Parlor</a>
+        </nav>
+        <div class="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center text-xs text-zinc-600 space-y-4 md:space-y-0 gap-4">
+            <p>Copyright © 2026 Talon T. Cherry. All Rights Reserved.</p>
+            <a href="https://venmo.com/Talon-Cherry" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 font-serif-custom text-sm tracking-[0.2em] uppercase text-[#d9ab55] hover:text-amber-300 transition" aria-label="Tip jar — Venmo Talon Cherry (opens in a new tab)">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 36" class="w-5 h-6" fill="none" aria-hidden="true">
+                    <path d="M8 7h12" stroke="#c4a35a" stroke-width="1.6" stroke-linecap="round"/>
+                    <path d="M9.5 7c0-1.6 2-2.6 4.5-2.6S18.5 5.4 18.5 7" stroke="#c4a35a" stroke-width="1.4"/>
+                    <rect x="7" y="7" width="14" height="3.2" rx="0.6" fill="#b08d57" stroke="#6e5a32" stroke-width="0.6"/>
+                    <path d="M8.2 10.4h11.6l1.4 18.2c.1 1.4-1 2.6-2.4 2.6H9.2c-1.4 0-2.5-1.2-2.4-2.6L8.2 10.4Z" fill="#3a2418" stroke="#c4a35a" stroke-width="1.2"/>
+                    <path d="M10 16h8M10 21h8M10 26h6" stroke="#d9ab55" stroke-width="0.9" stroke-linecap="round" opacity="0.7"/>
+                </svg>
+                Tip Jar
+            </a>
+            <p class="text-zinc-500">Built local. Hosted free via GitHub Pages.</p>
+        </div>
+        <p class="cookie-aside">We use Google Analytics just to see if anyone is reading this, or if I'm shouting into the void.</p>
+    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="parlor-config.js"></script>

@@ -463,6 +463,131 @@
     border-bottom-color: rgba(232, 213, 163, 0.45);
     outline: none;
 }
+.home-mail-cue,
+.home-mail-cue:link,
+.home-mail-cue:visited {
+    position: relative;
+    z-index: 1;
+    margin-top: 2.1rem;
+    font-size: 0.68rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: rgba(196, 163, 90, 0.82);
+    opacity: 0;
+    animation: home-fade-up 1.15s cubic-bezier(0.22, 1, 0.36, 1) 0.95s forwards;
+}
+.home-mail-cue:hover,
+.home-mail-cue:focus-visible,
+.home-mail-cue:active {
+    color: #e8d5a3;
+    outline: none;
+}
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+.mail-bag {
+    position: relative;
+    z-index: 10;
+    max-width: 38rem;
+    margin: 0 auto;
+    padding: 0 1.5rem 4.5rem;
+}
+.mail-bag-kicker {
+    margin: 0 0 0.45rem;
+    font-size: 0.62rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: #d9ab55;
+}
+.mail-bag h2 {
+    margin: 0;
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-size: clamp(1.8rem, 4vw, 2.4rem);
+    font-weight: 400;
+    color: #f4f1ea;
+}
+.mail-bag-blurb {
+    margin: 0.7rem 0 1.5rem;
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-style: italic;
+    font-size: 1.05rem;
+    line-height: 1.5;
+    color: rgba(212, 212, 216, 0.78);
+}
+.mail-bag-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+}
+.mail-bag-full { grid-column: 1 / -1; }
+.mail-bag-form input,
+.mail-bag-form textarea {
+    width: 100%;
+    box-sizing: border-box;
+    appearance: none;
+    background: rgba(9, 9, 11, 0.45);
+    border: 1px solid rgba(196, 163, 90, 0.28);
+    border-radius: 8px;
+    color: #e7e5e4;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.9rem;
+    padding: 0.8rem 0.9rem;
+}
+.mail-bag-form textarea {
+    min-height: 8rem;
+    resize: vertical;
+}
+.mail-bag-form input:focus,
+.mail-bag-form textarea:focus {
+    outline: none;
+    border-color: rgba(232, 213, 163, 0.7);
+}
+.mail-bag-form button {
+    appearance: none;
+    background: #d9ab55;
+    border: 0;
+    border-radius: 8px;
+    color: #1c140c;
+    cursor: pointer;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.85rem 1.2rem;
+}
+.mail-bag-form button:hover,
+.mail-bag-form button:focus-visible {
+    background: #e8d5a3;
+    outline: none;
+}
+.mail-bag-form button:disabled { opacity: 0.55; cursor: wait; }
+.mail-postcard-kicker {
+    margin: 0;
+    font-family: ui-monospace, monospace;
+    font-size: 10px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: #8a6238;
+}
+@media (max-width: 640px) {
+    .mail-bag-form { grid-template-columns: 1fr; }
+}
+.home-foot--flow {
+    position: relative;
+    pointer-events: auto;
+    padding-top: 0.5rem;
+    padding-bottom: 2.2rem;
+}
 
 .sub-head {
     position: relative;
@@ -541,7 +666,8 @@
     .home-mono,
     .home-name,
     .home-tagline,
-    .home-nav {
+    .home-nav,
+    .home-mail-cue {
         animation: none;
         opacity: 1;
         transform: none;

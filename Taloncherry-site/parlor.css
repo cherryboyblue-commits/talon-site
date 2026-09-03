@@ -1,5 +1,26 @@
 .parlor-shell {
-    min-height: calc(100vh - 8rem);
+    min-height: calc(100vh - 12rem);
+}
+.parlor-head-nav {
+    display: flex;
+    align-items: baseline;
+    gap: 1.15rem 1.5rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+.parlor-member {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-size: 0.95rem;
+    letter-spacing: 0.04em;
+    color: rgba(232, 213, 163, 0.88);
+}
+.parlor-signout {
+    appearance: none;
+    background: none;
+    border: 0;
+    cursor: pointer;
+    padding: 0;
+    font: inherit;
 }
 .parlor-ledger {
     position: relative;
@@ -251,7 +272,18 @@ body[data-parlor-mode="signin"] #parlor-username-wrap {
     padding: 4rem 1rem;
 }
 .sanctuary-link {
-    color: #d9ab55;
+    font-size: 0.62rem;
+    font-weight: 400;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: rgba(217, 171, 85, 0.9);
+    white-space: nowrap;
+}
+.sanctuary-link:hover,
+.sanctuary-link:focus-visible {
+    color: #e8d5a3;
+    outline: none;
 }
 .sanctuary-panel {
     margin-top: 2.5rem;

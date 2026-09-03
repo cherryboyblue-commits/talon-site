@@ -14,8 +14,8 @@
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="site-widgets.css?v=portrait-2">
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="site-widgets.css?v=mail-cue">
     <link rel="stylesheet" href="site-atmosphere.css">
     <style>
         .home-portrait {
@@ -40,6 +40,17 @@
             border-radius: 50%;
             flex: none;
         }
+        .home-mail-cue,
+        .home-mail-cue:link,
+        .home-mail-cue:visited {
+            color: rgba(196, 163, 90, 0.82);
+            text-decoration: none;
+        }
+        .home-mail-cue:hover,
+        .home-mail-cue:focus-visible,
+        .home-mail-cue:active {
+            color: #e8d5a3;
+        }
     </style>
 </head>
 <body class="home-body">
@@ -61,14 +72,86 @@
             <a href="writings.html">Writing</a>
             <a href="life.html">Life</a>
             <a href="social.html">Social</a>
+            <a href="forum.html">Parlor</a>
         </nav>
+        <a class="home-mail-cue" href="#mail-bag">The Mail Bag</a>
     </main>
 
-    <footer class="home-foot">
+    <section id="mail-bag" class="mail-bag">
+        <p class="mail-bag-kicker">The Mail Bag</p>
+        <h2>Leave a word</h2>
+        <p class="mail-bag-blurb">Notes, hellos, and honest mail. I’ll read what you send.</p>
+        <form id="mail-bag-form" action="https://formspree.io/f/mdeoeaze" method="POST" class="mail-bag-form">
+            <label>
+                <span class="sr-only">Name</span>
+                <input type="text" name="name" required autocomplete="name" placeholder="Name">
+            </label>
+            <label>
+                <span class="sr-only">Email</span>
+                <input type="email" name="email" required autocomplete="email" placeholder="Email">
+            </label>
+            <label class="mail-bag-full">
+                <span class="sr-only">Message</span>
+                <textarea name="message" required rows="5" placeholder="Message"></textarea>
+            </label>
+            <div class="mail-bag-full">
+                <button type="submit" id="mail-bag-submit">Send to the mail bag</button>
+            </div>
+        </form>
+    </section>
+
+    <div id="mail-success" class="mail-success" role="dialog" aria-modal="true" aria-labelledby="mail-success-note" aria-hidden="true">
+        <div class="mail-postcard">
+            <div class="mail-stamp">Dispatched<br>West Texas</div>
+            <p class="mail-postcard-kicker">The Mail Bag</p>
+            <p id="mail-success-note" class="mail-hand">Your letter has been dispatched into the mail bag. Thank you for writing.</p>
+            <button type="button" class="mail-success-close" id="mail-success-close">Seal the envelope</button>
+        </div>
+    </div>
+
+    <footer class="home-foot home-foot--flow">
         <p>Copyright © 2026 Talon T. Cherry. All Rights Reserved.</p>
         <p class="cookie-aside">We use Google Analytics just to see if anyone is reading this, or if I'm shouting into the void.</p>
     </footer>
 
+    <script>
+        const mailForm = document.getElementById('mail-bag-form');
+        const mailModal = document.getElementById('mail-success');
+        const mailSubmit = document.getElementById('mail-bag-submit');
+        function closeMailSuccess() {
+            mailModal.classList.remove('is-open');
+            mailModal.setAttribute('aria-hidden', 'true');
+        }
+        mailForm.addEventListener('submit', async function (event) {
+            event.preventDefault();
+            mailSubmit.disabled = true;
+            mailSubmit.textContent = 'Posting the letter…';
+            try {
+                const response = await fetch(mailForm.action, {
+                    method: 'POST',
+                    body: new FormData(mailForm),
+                    headers: { Accept: 'application/json' }
+                });
+                if (!response.ok) throw new Error('Formspree rejected the letter');
+                mailForm.reset();
+                mailModal.classList.add('is-open');
+                mailModal.setAttribute('aria-hidden', 'false');
+                document.getElementById('mail-success-close').focus();
+            } catch (err) {
+                alert('The letter did not go through. Please try again in a moment.');
+            } finally {
+                mailSubmit.disabled = false;
+                mailSubmit.textContent = 'Send to the mail bag';
+            }
+        });
+        document.getElementById('mail-success-close').addEventListener('click', closeMailSuccess);
+        mailModal.addEventListener('click', function (event) {
+            if (event.target === mailModal) closeMailSuccess();
+        });
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape' && mailModal.classList.contains('is-open')) closeMailSuccess();
+        });
+    </script>
     <script>
         window.addEventListener('CookiebotOnDialogDisplay', function () {
             var host = document.getElementById('CybotCookiebotDialogBodyContent');
