@@ -15,6 +15,34 @@ function titleFromFilename(filename) {
   return base.replace(/_/g, "'");
 }
 
+function parseSimpleYaml(block) {
+  const meta = {};
+  String(block || "").split("\n").forEach((line) => {
+    const match = line.match(/^([A-Za-z0-9_-]+):\s*(.*)$/);
+    if (!match) return;
+    let value = match[2].trim();
+    if (
+      (value.startsWith('"') && value.endsWith('"')) ||
+      (value.startsWith("'") && value.endsWith("'"))
+    ) {
+      value = value.slice(1, -1);
+    }
+    meta[match[1]] = value;
+  });
+  return meta;
+}
+
+function splitFrontmatter(raw) {
+  const text = String(raw || "").replace(/^\uFEFF/, "").replace(/\r\n/g, "\n");
+  if (!text.startsWith("---\n")) return { meta: {}, body: text };
+  const close = text.indexOf("\n---\n", 4);
+  if (close === -1) return { meta: {}, body: text };
+  return {
+    meta: parseSimpleYaml(text.slice(4, close)),
+    body: text.slice(close + 5),
+  };
+}
+
 function cleanBody(raw) {
   let text = raw.replace(/^\uFEFF/, "").replace(/\r\n/g, "\n");
   const lines = text.split("\n");
@@ -65,10 +93,11 @@ function loadEntries(dir) {
     .filter((f) => f.toLowerCase().endsWith(".txt"))
     .sort((a, b) => a.localeCompare(b, "en", { sensitivity: "base" }))
     .map((file) => {
-      const title = titleFromFilename(file);
       const raw = fs.readFileSync(path.join(dir, file), "utf8");
-      const cleaned = cleanBody(raw);
-      const date = extractDate(cleaned);
+      const split = splitFrontmatter(raw);
+      const title = String(split.meta.title || titleFromFilename(file)).trim() || titleFromFilename(file);
+      const cleaned = cleanBody(split.body);
+      const date = split.meta.date || extractDate(cleaned);
       const text = stripTitleAndMeta(cleaned, title);
       return { title, date, text };
     });
@@ -107,11 +136,13 @@ const lifeOrder = [
 const lifeData = {};
 for (const [key, file, title, subtitle] of lifeOrder) {
   const raw = fs.readFileSync(path.join(root, "His Life", file), "utf8");
-  const cleaned = cleanBody(raw);
+  const split = splitFrontmatter(raw);
+  const resolvedTitle = String(split.meta.title || title).trim() || title;
+  const cleaned = cleanBody(split.body);
   lifeData[key] = {
-    title,
-    subtitle,
-    text: stripTitleAndMeta(cleaned, title),
+    title: resolvedTitle,
+    subtitle: String(split.meta.subtitle || subtitle).trim() || subtitle,
+    text: stripTitleAndMeta(cleaned, resolvedTitle),
   };
 }
 

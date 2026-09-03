@@ -515,8 +515,15 @@
     </footer>
 
     <script src="library_data.js"></script>
+    <script src="content-archive.js"></script>
     <script>
-        const CHARS_PER_PAGE = 980;
+        const writingsReady = (typeof libraryData === 'undefined' || !window.ContentArchive)
+            ? Promise.resolve()
+            : ContentArchive.loadWritings(libraryData).then(function (library) {
+                Object.keys(library).forEach(function (key) {
+                    libraryData[key] = library[key];
+                });
+            });
         let pages = [];
         let pageCursor = 0;
         let flipping = false;
@@ -1091,6 +1098,7 @@
         }
 
         async function openVolume(bookKey) {
+            await writingsReady;
             if (typeof libraryData === 'undefined' || !libraryData[bookKey]) {
                 alert('Library data is missing. Keep library_data.js next to this page.');
                 return;
@@ -1191,9 +1199,11 @@
         }
 
         const initial = location.hash.replace('#', '');
-        if (initial && typeof libraryData !== 'undefined' && libraryData[initial]) {
-            openVolume(initial);
-        }
+        writingsReady.then(function () {
+            if (initial && typeof libraryData !== 'undefined' && libraryData[initial]) {
+                openVolume(initial);
+            }
+        });
     </script>
 </body>
 </html>

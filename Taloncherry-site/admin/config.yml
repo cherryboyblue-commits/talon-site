@@ -41,68 +41,79 @@ collections:
     label: Chapters
     label_singular: Chapter
     folder: Taloncherry-site/His Life
-    format: raw
+    format: yaml-frontmatter
     extension: txt
+    identifier_field: title
     create: true
     slug: "{{slug}}"
-    summary: "{{filename}}"
+    summary: "{{title}}"
     editor:
       preview: false
     fields:
-      - { name: body, label: Chapter, widget: text }
+      - { name: title, label: Title, widget: string }
+      - { name: subtitle, label: Subtitle, widget: string, required: false }
+      - { name: body, label: Body, widget: text }
 
   - name: entries_cultural
     label: Entries — Cultural
     label_singular: Essay
     folder: Taloncherry-site/Writing/Cultural
-    format: raw
+    format: yaml-frontmatter
     extension: txt
+    identifier_field: title
     create: true
     slug: "{{slug}}"
-    summary: "{{filename}}"
+    summary: "{{title}}"
     editor:
       preview: false
     fields:
-      - { name: body, label: Entry, widget: text }
+      - { name: title, label: Title, widget: string }
+      - { name: body, label: Body, widget: text }
 
   - name: entries_poetry
     label: Entries — Poetry
     label_singular: Poem
     folder: "Taloncherry-site/Writing/Poetry Archive"
-    format: raw
+    format: yaml-frontmatter
     extension: txt
+    identifier_field: title
     create: true
     slug: "{{slug}}"
-    summary: "{{filename}}"
+    summary: "{{title}}"
     editor:
       preview: false
     fields:
-      - { name: body, label: Entry, widget: text }
+      - { name: title, label: Title, widget: string }
+      - { name: body, label: Body, widget: text }
 
   - name: entries_lyrics
     label: Entries — Lyrics
     label_singular: Song
     folder: Taloncherry-site/Writing/Lyrics
-    format: raw
+    format: yaml-frontmatter
     extension: txt
+    identifier_field: title
     create: true
     slug: "{{slug}}"
-    summary: "{{filename}}"
+    summary: "{{title}}"
     editor:
       preview: false
     fields:
-      - { name: body, label: Entry, widget: text }
+      - { name: title, label: Title, widget: string }
+      - { name: body, label: Body, widget: text }
 
   - name: entries_stories
     label: Entries — Stories
     label_singular: Story
     folder: "Taloncherry-site/Writing/Short Stories"
-    format: raw
+    format: yaml-frontmatter
     extension: txt
+    identifier_field: title
     create: true
     slug: "{{slug}}"
-    summary: "{{filename}}"
+    summary: "{{title}}"
     editor:
       preview: false
     fields:
-      - { name: body, label: Entry, widget: text }
+      - { name: title, label: Title, widget: string }
+      - { name: body, label: Body, widget: text }

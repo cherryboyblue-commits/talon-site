@@ -288,7 +288,7 @@
                 The Life
             </h1>
             <p class="text-zinc-400 text-sm max-w-md mx-auto font-light">
-                Four chapters on the roll. Choose a title and the sheet feeds through the carriage.
+                Choose a chapter
             </p>
         </div>
 
@@ -298,8 +298,8 @@
                     <div id="tw-index">
                         <span class="tw-paper-kicker">The Life</span>
                         <h2>Chapters</h2>
-                        <p class="tw-paper-sub">A paper roll. Four titles. Pick one.</p>
-                        <ol class="tw-toc">
+                        <p class="tw-paper-sub">A paper roll. Pick a title.</p>
+                        <ol class="tw-toc" id="tw-toc">
                             <li>
                                 <button type="button" data-chapter="old">
                                     <span class="tw-toc-num">Chapter I</span>
@@ -384,8 +384,9 @@
     </footer>
 
     <script src="life_data.js?v=life-2026-09-02b"></script>
+    <script src="content-archive.js"></script>
     <script>
-        const chapterOrder = ['old', 'new', 'faith', 'family'];
+        let chapterOrder = ['old', 'new', 'faith', 'family'];
         const keysRoot = document.getElementById('tw-keys');
         const KEY_ROWS = [
             [
@@ -590,56 +591,45 @@
                 .replace(/"/g, '&quot;');
         }
 
-        const LIFE_FILES = {
-            old: 'His Life/The old life.txt',
-            new: 'His Life/The New Life.txt',
-            faith: 'His Life/Faith.txt',
-            family: 'His Life/Family and Friends.txt'
-        };
-
-        function cleanChapterText(raw, title) {
-            let text = String(raw || '').replace(/^\uFEFF/, '').replace(/\r\n/g, '\n');
-            const kept = [];
-            text.split('\n').forEach(function (line) {
-                const trimmed = line.trim();
-                if (!trimmed) {
-                    kept.push(line);
-                    return;
-                }
-                if (/^\/\/img1\.wsimg\.com\//i.test(trimmed)) return;
-                if (/^image\d+(image\d+)+$/i.test(trimmed.replace(/\s/g, ''))) return;
-                kept.push(line);
+        function paintChapterIndex() {
+            const ol = document.getElementById('tw-toc');
+            if (!ol || typeof lifeData === 'undefined') return;
+            ol.innerHTML = '';
+            chapterOrder.forEach(function (key, i) {
+                const chapter = lifeData[key];
+                if (!chapter) return;
+                const li = document.createElement('li');
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.setAttribute('data-chapter', key);
+                btn.innerHTML =
+                    '<span class="tw-toc-num">Chapter ' + (window.ContentArchive ? ContentArchive.roman(i) : String(i + 1)) + '</span>' +
+                    '<span class="tw-toc-title">' + escapeHtml(chapter.title) + '</span>' +
+                    '<span class="tw-toc-blurb">' + escapeHtml(chapter.subtitle || '') + '</span>';
+                btn.addEventListener('click', function () { openChapter(key); });
+                li.appendChild(btn);
+                ol.appendChild(li);
             });
-            text = kept.join('\n').replace(/^\n+/, '').replace(/\n+$/, '');
-            const lines = text.split('\n');
-            let i = 0;
-            function skip(line) {
-                const t = line.trim();
-                if (!t) return true;
-                if (t.toLowerCase() === String(title || '').toLowerCase()) return true;
-                if (/©|all rights reserved/i.test(t)) return true;
-                if (/^(January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},?\s+\d{4}/i.test(t)) return true;
-                return false;
+            const sub = document.querySelector('#tw-index .tw-paper-sub');
+            if (sub) {
+                sub.textContent = chapterOrder.length === 1
+                    ? 'A paper roll. One title. Pick it.'
+                    : 'A paper roll. ' + chapterOrder.length + ' titles. Pick one.';
             }
-            while (i < lines.length && skip(lines[i]) && i < 6) i++;
-            return lines.slice(i).join('\n').replace(/^\n+/, '').replace(/\n+$/, '');
+            requestAnimationFrame(seatIndex);
         }
 
-        const lifeReady = (typeof lifeData === 'undefined')
+        const lifeReady = (typeof lifeData === 'undefined' || !window.ContentArchive)
             ? Promise.resolve()
-            : Promise.all(chapterOrder.map(function (key) {
-                const file = LIFE_FILES[key];
-                if (!file || !lifeData[key]) return Promise.resolve();
-                return fetch(encodeURI(file) + '?t=' + Date.now())
-                    .then(function (res) {
-                        if (!res.ok) throw new Error(file);
-                        return res.text();
-                    })
-                    .then(function (raw) {
-                        lifeData[key].text = cleanChapterText(raw, lifeData[key].title);
-                    })
-                    .catch(function () { /* bundled life_data.js stays */ });
-            }));
+            : ContentArchive.loadChapters(lifeData).then(function (result) {
+                Object.keys(result.data).forEach(function (key) {
+                    lifeData[key] = result.data[key];
+                });
+                if (result.order.length) chapterOrder = result.order;
+                paintChapterIndex();
+            });
+
+        paintChapterIndex();
 
         function wrapLines(text) {
             const width = window.innerWidth < 640 ? 36 : 52;
@@ -917,11 +907,6 @@
                 unlockKeys();
                 playKeyClick('key');
             }
-        });
-        document.querySelectorAll('#tw-index [data-chapter]').forEach(function (btn) {
-            btn.addEventListener('click', function () {
-                openChapter(btn.getAttribute('data-chapter'));
-            });
         });
         window.addEventListener('resize', feedPaper);
 
