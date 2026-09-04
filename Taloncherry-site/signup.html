@@ -33,7 +33,7 @@
         <div class="text-center mb-8">
             <span class="inline-block text-xs uppercase tracking-widest text-amber-500 font-semibold mb-3 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">The Parlor</span>
             <h1 id="parlor-title" class="text-4xl font-serif-custom text-zinc-100">Sign the guest book</h1>
-            <p id="parlor-blurb" class="text-zinc-400 text-sm mt-2 font-light">Give a real email, a parlor username, and a word only you know. Then the parlor door opens.</p>
+            <p id="parlor-blurb" class="text-zinc-400 text-sm mt-2 font-light">Give a real email, a parlor username, and a word only you know. A likeness is optional. Then the parlor door opens.</p>
         </div>
 
         <form id="parlor-auth-form" class="parlor-ledger p-8 md:p-10">
@@ -48,6 +48,10 @@
             <label id="parlor-username-wrap" class="block mb-4 text-left">
                 <span class="block text-[10px] font-mono tracking-[0.2em] uppercase text-[#7a4e18] mb-1">Username</span>
                 <input class="parlor-field" type="text" name="username" id="parlor-username" required autocomplete="username" maxlength="32" placeholder="Talon86">
+            </label>
+            <label id="parlor-avatar-wrap" class="block mb-4 text-left parlor-file">
+                <span class="block w-full text-[10px] font-mono tracking-[0.2em] uppercase text-[#7a4e18] mb-1">Likeness (optional)</span>
+                <input class="parlor-field" type="file" name="avatar" id="parlor-avatar" accept="image/jpeg,image/png,image/webp,image/gif">
             </label>
             <label class="block mb-6 text-left">
                 <span class="block text-[10px] font-mono tracking-[0.2em] uppercase text-[#7a4e18] mb-1">Password</span>

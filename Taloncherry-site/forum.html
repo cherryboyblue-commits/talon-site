@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="site-widgets.css">
-    <link rel="stylesheet" href="parlor.css">
+    <link rel="stylesheet" href="parlor.css?v=4">
     <link rel="stylesheet" href="site-atmosphere.css">
     <style>
         .font-serif-custom { font-family: 'Instrument Serif', serif; }
@@ -27,7 +27,13 @@
     <header class="sub-head parlor-head">
         <a class="sub-head-mark" href="index.html" aria-label="Home">Tc</a>
         <nav class="parlor-head-nav" aria-label="Parlor">
-            <span id="member-label" class="parlor-member"></span>
+            <span class="parlor-member-chip">
+                <img id="member-avatar" class="parlor-member-face is-empty" alt="">
+                <span id="member-label" class="parlor-member"></span>
+            </span>
+            <label class="sanctuary-link parlor-likeness" title="Affix or change your likeness">Likeness
+                <input type="file" id="member-avatar-file" accept="image/jpeg,image/png,image/webp,image/gif">
+            </label>
             <button type="button" id="sign-out" class="sub-head-meta parlor-signout">Sign out</button>
             <a class="sub-head-meta" href="index.html">Return home</a>
         </nav>
@@ -37,10 +43,37 @@
         <div class="text-center mb-10">
             <span class="inline-block text-xs uppercase tracking-widest text-amber-500 font-semibold mb-3 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">Members' bulletin</span>
             <h1 class="text-4xl md:text-5xl font-serif-custom text-zinc-100">The Parlor</h1>
-            <p class="text-zinc-400 text-sm mt-2 font-light">Pin a note to the board. Fellow members will find it here.</p>
+            <p class="text-zinc-400 text-sm mt-2 font-light">The house corkboard. Fellow members pin a word here.</p>
         </div>
 
-        <form id="pin-form" class="parlor-ledger p-6 md:p-8 mb-10 max-w-2xl mx-auto">
+        <section class="cork-wall" data-drawer="all">
+            <div id="cork-filters" class="cork-tabs" role="radiogroup" aria-label="Board drawers">
+                <label class="cork-tab is-active">
+                    <input type="radio" name="cork-drawer" value="all" checked>
+                    All
+                </label>
+                <label class="cork-tab">
+                    <input type="radio" name="cork-drawer" value="general">
+                    General
+                </label>
+                <label class="cork-tab">
+                    <input type="radio" name="cork-drawer" value="music">
+                    Music
+                </label>
+                <label class="cork-tab">
+                    <input type="radio" name="cork-drawer" value="writing">
+                    Writing
+                </label>
+                <label class="cork-tab">
+                    <input type="radio" name="cork-drawer" value="reflection">
+                    Reflection
+                </label>
+            </div>
+            <p id="board-error" class="parlor-error cork-board-error" hidden></p>
+            <div id="corkboard" class="corkboard" aria-live="polite"></div>
+        </section>
+
+        <form id="pin-form" class="parlor-ledger p-6 md:p-8 mt-10 max-w-2xl mx-auto">
             <label class="block mb-4 text-left">
                 <span class="block text-[10px] font-mono tracking-[0.2em] uppercase text-[#7a4e18] mb-1">Username</span>
                 <input class="parlor-field" type="text" name="name" id="pin-name" required maxlength="80" autocomplete="username" readonly>
@@ -49,12 +82,28 @@
                 <span class="block text-[10px] font-mono tracking-[0.2em] uppercase text-[#7a4e18] mb-1">A note for the board</span>
                 <textarea class="parlor-field" name="message" id="pin-message" required maxlength="500" rows="4" placeholder="Leave a word for the house…"></textarea>
             </label>
+            <fieldset class="block mb-4 text-left">
+                <legend class="block text-[10px] font-mono tracking-[0.2em] uppercase text-[#7a4e18] mb-2">Drawer</legend>
+                <div id="pin-categories" class="parlor-cats">
+                    <label><input type="radio" name="category" value="general" checked> General</label>
+                    <label><input type="radio" name="category" value="music"> Music</label>
+                    <label><input type="radio" name="category" value="writing"> Writing</label>
+                    <label><input type="radio" name="category" value="reflection"> Reflection</label>
+                </div>
+            </fieldset>
+            <label class="block mb-4 text-left parlor-file">
+                <span class="block w-full text-[10px] font-mono tracking-[0.2em] uppercase text-[#7a4e18] mb-1">Photograph (optional)</span>
+                <input class="parlor-field" type="file" name="image" id="pin-image" accept="image/jpeg,image/png,image/webp,image/gif">
+                <span id="pin-image-name" class="parlor-file-name">No print attached.</span>
+            </label>
+            <label id="pin-hold-wrap" class="parlor-hold mb-4" hidden>
+                <input type="checkbox" id="pin-hold">
+                Hold this note to the top of the board
+            </label>
             <p id="pin-error" class="parlor-error mb-3"></p>
-            <p id="pin-source" class="text-xs italic text-[#6b4a28] mb-3"></p>
+            <p id="pin-source" class="sr-only"></p>
             <button type="submit" id="pin-btn" class="parlor-btn">Pin this note</button>
         </form>
-
-        <div id="corkboard" class="corkboard" aria-live="polite"></div>
     </main>
 
     <p id="gate-msg" class="relative z-10 text-center text-zinc-400 font-serif-custom italic py-24">Checking the guest book…</p>
@@ -85,79 +134,65 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="parlor-config.js"></script>
-    <script src="parlor-auth.js"></script>
+    <script src="parlor-config.js?v=5"></script>
+    <script src="parlor-auth.js?v=5"></script>
+    <script src="parlor-board.js?v=5"></script>
     <script>
-        const HEART_STORE = 'talon-parlor-hearts';
-
-        function loadHearts() {
-            try {
-                const parsed = JSON.parse(localStorage.getItem(HEART_STORE) || '{}');
-                return {
-                    liked: parsed.liked && typeof parsed.liked === 'object' ? parsed.liked : {},
-                    counts: parsed.counts && typeof parsed.counts === 'object' ? parsed.counts : {}
-                };
-            } catch (err) {
-                return { liked: {}, counts: {} };
-            }
-        }
-
-        function saveHearts(store) {
-            localStorage.setItem(HEART_STORE, JSON.stringify(store));
-        }
-
-        function noteHeartKey(recordId, author, message, created) {
-            if (recordId) return String(recordId);
-            return 'local:' + String(author || '') + '|' + String(message || '').slice(0, 80) + '|' + String(created || '');
-        }
-
         function paintHeartButton(button, liked, count) {
+            const safeCount = Math.max(0, Number(count) || 0);
+            button.dataset.liked = liked ? '1' : '0';
+            button.dataset.count = String(safeCount);
             button.classList.toggle('is-liked', liked);
             button.setAttribute('aria-pressed', liked ? 'true' : 'false');
-            button.setAttribute('aria-label', liked ? 'Unlike this note, ' + count + ' likes' : 'Like this note, ' + count + ' likes');
+            button.setAttribute('aria-label', liked ? 'Unlike this note, ' + safeCount + ' likes' : 'Like this note, ' + safeCount + ' likes');
             const tally = button.querySelector('.pin-like-count');
-            if (tally) tally.textContent = String(count);
+            if (tally) tally.textContent = String(safeCount);
         }
 
-        function createHeartButton(recordId, author, message, created) {
-            const key = noteHeartKey(recordId, author, message, created);
-            const store = loadHearts();
-            const liked = Boolean(store.liked[key]);
-            const count = Number(store.counts[key] || 0) || 0;
+        function createHeartButton(record) {
+            const liked = Boolean(record && record.liked);
+            const count = Number(record && record.likeCount) || 0;
             const button = document.createElement('button');
             button.type = 'button';
             button.className = 'pin-like';
-            button.dataset.heartKey = key;
+            if (record && record.id != null) button.dataset.noteId = String(record.id);
             button.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7.2-4.35-9.3-8.22C1.2 8.9 2.4 5.6 5.5 4.7c1.85-.54 3.7.18 4.7 1.7 1-1.52 2.85-2.24 4.7-1.7 3.1.9 4.3 4.2 2.8 7.08C19.2 15.65 12 20 12 20z"/></svg><span class="pin-like-count">0</span>';
             paintHeartButton(button, liked, count);
             return button;
         }
 
-        function toggleHeart(button) {
-            const key = button.dataset.heartKey;
-            if (!key) return;
-            const store = loadHearts();
-            const liked = Boolean(store.liked[key]);
-            let count = Number(store.counts[key] || 0) || 0;
-            if (liked) {
-                delete store.liked[key];
-                count = Math.max(0, count - 1);
-            } else {
-                store.liked[key] = true;
-                count += 1;
+        async function toggleHeart(button) {
+            const noteId = button.dataset.noteId;
+            if (!noteId || !currentUser || !currentUser.id) return;
+            if (button.dataset.busy === '1') return;
+            const liked = button.dataset.liked === '1';
+            const count = Number(button.dataset.count || 0) || 0;
+            const nextLiked = !liked;
+            const nextCount = Math.max(0, count + (nextLiked ? 1 : -1));
+            button.dataset.busy = '1';
+            paintHeartButton(button, nextLiked, nextCount);
+            if (nextLiked) {
                 button.classList.remove('is-pop');
                 void button.offsetWidth;
                 button.classList.add('is-pop');
             }
-            store.counts[key] = count;
-            saveHearts(store);
-            paintHeartButton(button, !liked, count);
+            try {
+                if (nextLiked) await parlorLikeNote(noteId, currentUser.id);
+                else await parlorUnlikeNote(noteId, currentUser.id);
+            } catch (err) {
+                paintHeartButton(button, liked, count);
+                pinError.textContent = err.message || 'The heart would not hold.';
+            } finally {
+                button.dataset.busy = '0';
+            }
         }
         const TILTS = ['-2.4deg', '1.6deg', '-0.8deg', '2.1deg', '-1.5deg', '0.9deg'];
         let currentUser = null;
         let client = null;
         let isAdmin = false;
         let pinCount = 0;
+        let activeFilter = 'all';
+        let avatarMap = {};
 
         const corkboard = document.getElementById('corkboard');
         const pinForm = document.getElementById('pin-form');
@@ -170,18 +205,7 @@
         }
 
         async function notesHeaders() {
-            const config = window.PARLOR_CONFIG || {};
-            let token = config.supabaseAnonKey;
-            if (client) {
-                const { data } = await client.auth.getSession();
-                if (data?.session?.access_token) token = data.session.access_token;
-            }
-            return {
-                apikey: config.supabaseAnonKey,
-                Authorization: 'Bearer ' + token,
-                'Content-Type': 'application/json',
-                Prefer: 'return=representation'
-            };
+            return window.parlorRestHeaders();
         }
 
         function formatDate(value) {
@@ -191,23 +215,111 @@
             return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
         }
 
-        function createNoteElement(author, message, created, recordId) {
+        function paintMemberFace(url) {
+            const face = document.getElementById('member-avatar');
+            if (!face) return;
+            if (url) {
+                face.src = url;
+                face.alt = parlorDisplayName(currentUser);
+                face.classList.remove('is-empty');
+            } else {
+                face.removeAttribute('src');
+                face.alt = '';
+                face.classList.add('is-empty');
+            }
+        }
+
+        function noteDrawer(record) {
+            if (typeof parlorDrawerFor === 'function') return parlorDrawerFor(record);
+            if (typeof parlorNormalizeCategory === 'function') return parlorNormalizeCategory(record && record.category);
+            return 'general';
+        }
+
+        function applyBoardFilter() {
+            const wall = document.querySelector('.cork-wall');
+            if (wall) wall.dataset.drawer = activeFilter || 'all';
+            const notes = corkboard.querySelectorAll('.pin-note');
+            notes.forEach(function (note) {
+                const drawer = noteDrawer({ category: note.dataset.category, note: (note.querySelector('.pin-body') || {}).textContent });
+                note.dataset.category = drawer;
+                const match = activeFilter === 'all' || drawer === activeFilter;
+                note.classList.toggle('is-filtered', !match);
+                if (match) note.removeAttribute('hidden');
+                else note.setAttribute('hidden', '');
+            });
+        }
+
+        function setBoardDrawer(filterId) {
+            activeFilter = filterId || 'all';
+            document.querySelectorAll('.cork-tab').forEach(function (el) {
+                const input = el.querySelector('input[name="cork-drawer"]');
+                const value = input ? input.value : (el.dataset.filter || 'all');
+                const on = value === activeFilter;
+                el.classList.toggle('is-active', on);
+                if (input && input.checked !== on) input.checked = on;
+            });
+            applyBoardFilter();
+        }
+
+        function mountCategoryControls() {
+            const cats = document.getElementById('pin-categories');
+            if (cats && !cats.children.length) {
+                window.PARLOR_CATEGORIES.forEach(function (item, index) {
+                    const label = document.createElement('label');
+                    const radio = document.createElement('input');
+                    radio.type = 'radio';
+                    radio.name = 'category';
+                    radio.value = item.id;
+                    radio.checked = index === 0;
+                    label.append(radio, document.createTextNode(' ' + item.label));
+                    cats.append(label);
+                });
+            }
+        }
+
+        function createNoteElement(record) {
+            const author = record.author || 'A member';
+            const message = record.note || '';
+            const created = record.created || '';
+            const recordId = record.id || '';
+            const pinned = record.pinned === true;
             const article = document.createElement('article');
-            article.className = 'pin-note';
+            article.className = 'pin-note' + (pinned ? ' is-held' : '');
             article.style.setProperty('--tilt', TILTS[pinCount % TILTS.length]);
             pinCount += 1;
             if (recordId) article.dataset.recordId = recordId;
+            article.dataset.category = noteDrawer(record);
+            article.dataset.pinned = pinned ? '1' : '0';
 
             const pin = document.createElement('span');
             pin.className = 'pin-head';
 
+            const byline = document.createElement('div');
+            byline.className = 'pin-byline';
+            if (record.avatarUrl) {
+                const face = document.createElement('img');
+                face.className = 'pin-avatar';
+                face.src = record.avatarUrl;
+                face.alt = '';
+                byline.append(face);
+            } else {
+                const mark = document.createElement('span');
+                mark.className = 'pin-avatar-fallback';
+                mark.textContent = String(author).slice(0, 2).toUpperCase();
+                byline.append(mark);
+            }
             const by = document.createElement('span');
             by.className = 'pin-author';
-            by.textContent = author || 'A member';
+            by.textContent = author;
+            byline.append(by);
+
+            const tag = document.createElement('span');
+            tag.className = 'pin-tag';
+            tag.textContent = parlorCategoryLabel(record.category);
 
             const body = document.createElement('p');
             body.className = 'pin-body';
-            body.textContent = message || '';
+            body.textContent = message;
 
             const when = document.createElement('span');
             when.className = 'pin-date';
@@ -215,9 +327,24 @@
 
             const foot = document.createElement('div');
             foot.className = 'pin-foot';
-            foot.append(when, createHeartButton(recordId, author, message, created));
+            foot.append(when, createHeartButton(record));
 
-            article.append(pin, by, body, foot);
+            article.append(pin);
+            if (pinned) {
+                const held = document.createElement('span');
+                held.className = 'pin-held-mark';
+                held.textContent = 'Held';
+                article.append(held);
+            }
+            article.append(byline, tag);
+            if (record.imageUrl) {
+                const photo = document.createElement('img');
+                photo.className = 'pin-photo';
+                photo.src = record.imageUrl;
+                photo.alt = 'A print pinned with this note';
+                article.append(photo);
+            }
+            article.append(body, foot);
 
             if (isAdmin && recordId) {
                 const remove = document.createElement('button');
@@ -227,6 +354,13 @@
                 remove.title = 'Take down this note';
                 remove.textContent = '×';
                 article.append(remove);
+                const hold = document.createElement('button');
+                hold.type = 'button';
+                hold.className = 'pin-hold';
+                hold.dataset.pinned = pinned ? '1' : '0';
+                hold.textContent = pinned ? 'Release' : 'Hold';
+                hold.setAttribute('aria-label', pinned ? 'Release this note from the top' : 'Hold this note to the top');
+                foot.append(hold);
             }
             return article;
         }
@@ -244,49 +378,68 @@
             corkboard.append(empty);
         }
 
-        function appendNote(author, message, created, atFront, recordId) {
+        function insertNoteEl(noteEl, pinned) {
             clearEmptyState();
-            const noteEl = createNoteElement(author, message, created, recordId);
-            if (atFront && corkboard.firstChild) {
+            if (pinned) {
                 corkboard.prepend(noteEl);
+                return;
+            }
+            const held = corkboard.querySelectorAll('.pin-note.is-held');
+            const lastHeld = held[held.length - 1];
+            if (lastHeld) {
+                lastHeld.after(noteEl);
             } else {
+                corkboard.prepend(noteEl);
+            }
+        }
+
+        function appendNote(record, atFront) {
+            const noteEl = createNoteElement(record);
+            if (atFront) {
+                insertNoteEl(noteEl, record.pinned);
+            } else {
+                clearEmptyState();
                 corkboard.append(noteEl);
             }
+            applyBoardFilter();
         }
 
         async function deleteNote(recordId, noteEl) {
             if (!isAdmin || !recordId) return;
-            const response = await fetch(notesEndpoint() + '?id=eq.' + encodeURIComponent(recordId), {
-                method: 'DELETE',
-                headers: await notesHeaders()
-            });
-            if (!response.ok) {
-                const detail = await response.text();
-                throw new Error(detail || 'The note would not come down.');
-            }
+            await parlorDeleteNote(recordId);
             if (noteEl && noteEl.parentNode) noteEl.remove();
             if (!corkboard.querySelector('.pin-note')) showEmptyState();
         }
 
         async function fetchExistingNotes() {
-            pinSource.textContent = 'Opening the parlor ledger…';
-            const response = await fetch(notesEndpoint() + '?select=*&order=created_at.desc', {
-                method: 'GET',
-                headers: await notesHeaders()
-            });
-            if (!response.ok) {
-                throw new Error('The ledger could not be opened.');
+            const boardError = document.getElementById('board-error');
+            if (boardError) {
+                boardError.hidden = true;
+                boardError.textContent = '';
             }
-            const records = await response.json();
-
+            pinSource.textContent = 'Opening the parlor ledger…';
+            const ledger = await parlorLoadNotes(currentUser);
+            avatarMap = ledger.avatars || {};
             corkboard.replaceChildren();
             pinCount = 0;
+            const records = ledger.notes || [];
             if (!records.length) {
                 showEmptyState();
             } else {
                 records.forEach(function (record) {
-                    appendNote(record.author, record.note, record.created_at, false, record.id);
+                    try {
+                        appendNote(record, false);
+                    } catch (err) {
+                        console.warn(err);
+                    }
                 });
+                if (!corkboard.querySelector('.pin-note')) {
+                    showEmptyState();
+                    if (boardError) {
+                        boardError.hidden = false;
+                        boardError.textContent = 'The pins are in the ledger, but the board could not draw them.';
+                    }
+                }
             }
             pinSource.textContent = 'Notes are bound to parlor_notes.';
         }
@@ -329,10 +482,21 @@
             rows.forEach(function (row) {
                 const item = document.createElement('div');
                 item.className = 'roster-row';
+                const who = document.createElement('div');
+                who.className = 'roster-who';
+                const faceUrl = parlorSafeMediaUrl(row.avatar_url);
+                if (faceUrl) {
+                    const face = document.createElement('img');
+                    face.className = 'roster-face';
+                    face.src = faceUrl;
+                    face.alt = '';
+                    who.append(face);
+                }
                 const name = document.createElement('span');
                 name.className = 'roster-name';
                 name.textContent = row.username + (row.revoked ? ' (revoked)' : '');
-                item.append(name);
+                who.append(name);
+                item.append(who);
                 const selfId = currentUser && currentUser.id;
                 const isSteward = String(row.username || '').toLowerCase() === 'talon86';
                 if (allowRevoke && !isSteward && row.user_id !== selfId && !row.revoked) {
@@ -350,19 +514,60 @@
         async function loadRoster() {
             if (!isAdmin) return;
             const rosterError = document.getElementById('roster-error');
+            const list = document.getElementById('roster-list');
+            if (!rosterError || !list) return;
             rosterError.textContent = '';
-            const response = await fetch(profilesEndpoint() + '?select=user_id,username,revoked,created_at&order=created_at.desc', {
-                method: 'GET',
-                headers: await notesHeaders()
-            });
+
+            let profileRows = [];
+            let profilesOk = false;
+            const headers = await notesHeaders();
+            let response = await fetch(
+                profilesEndpoint() + '?select=user_id,username,avatar_url,revoked,created_at&order=created_at.desc',
+                { method: 'GET', headers: headers }
+            );
             if (!response.ok) {
-                const fromNotes = await loadRosterFromNotes();
-                renderRoster(fromNotes, false);
-                rosterError.textContent = 'Run parlor_admin.sql in Supabase to unlock removal. Showing authors from the board until then.';
-                return;
+                response = await fetch(
+                    profilesEndpoint() + '?select=user_id,username,revoked,created_at&order=created_at.desc',
+                    { method: 'GET', headers: headers }
+                );
             }
-            const rows = await response.json();
-            renderRoster(rows, true);
+            if (response.ok) {
+                const rows = await response.json();
+                if (Array.isArray(rows)) {
+                    profileRows = rows;
+                    profilesOk = true;
+                }
+            }
+
+            const fromNotes = await loadRosterFromNotes();
+            const seen = {};
+            const merged = [];
+            function addRow(row) {
+                if (!row || !row.user_id || seen[row.user_id]) return;
+                seen[row.user_id] = true;
+                merged.push({
+                    user_id: row.user_id,
+                    username: row.username || row.author || 'Member',
+                    avatar_url: row.avatar_url || '',
+                    revoked: Boolean(row.revoked)
+                });
+            }
+            profileRows.forEach(addRow);
+            fromNotes.forEach(addRow);
+            if (currentUser && currentUser.id) {
+                addRow({
+                    user_id: currentUser.id,
+                    username: parlorDisplayName(currentUser),
+                    revoked: false
+                });
+            }
+
+            renderRoster(merged, profilesOk && profileRows.length > 0);
+            if (!profilesOk) {
+                rosterError.textContent = 'The profile ledger did not open. Showing authors from the board.';
+            } else if (!profileRows.length && merged.length) {
+                rosterError.textContent = 'Members are listed from the board. Run parlor_admin.sql once in Supabase to store the full roll and unlock removal.';
+            }
         }
 
         async function revokeMember(userId, button) {
@@ -392,7 +597,10 @@
             link.href = '#sanctuary';
             link.className = 'sanctuary-link';
             link.textContent = 'Admin Sanctuary';
-            nav.insertBefore(link, document.getElementById('sign-out'));
+            link.addEventListener('click', function () {
+                panel.hidden = false;
+                loadRoster();
+            });
 
             const panel = document.createElement('section');
             panel.id = 'admin-sanctuary';
@@ -424,24 +632,6 @@
             if (!panel.hidden) loadRoster();
         }
 
-        async function submitNewNote(author, message) {
-            const response = await fetch(notesEndpoint(), {
-                method: 'POST',
-                headers: await notesHeaders(),
-                body: JSON.stringify({
-                    author: author,
-                    note: message,
-                    user_id: currentUser && currentUser.id
-                })
-            });
-            if (!response.ok) {
-                const detail = await response.text();
-                throw new Error(detail || 'The note could not be pinned.');
-            }
-            const rows = await response.json();
-            return Array.isArray(rows) ? rows[0] : rows;
-        }
-
         (async function boot() {
             const gate = await parlorRequireSession();
             if (!gate.session) return;
@@ -452,11 +642,22 @@
             document.getElementById('parlor-main').classList.remove('hidden');
             document.getElementById('member-label').textContent = parlorDisplayName(currentUser) + (isAdmin ? ' · steward' : '');
             document.getElementById('pin-name').value = parlorDisplayName(currentUser);
+            paintMemberFace(parlorAvatarFromUser(currentUser));
+            document.getElementById('pin-hold-wrap').hidden = !isAdmin;
+            mountCategoryControls();
             mountAdminSanctuary();
             try {
                 await fetchExistingNotes();
+                const selfFace = parlorResolveAvatar(currentUser.id, parlorDisplayName(currentUser), avatarMap, currentUser);
+                paintMemberFace(selfFace || parlorAvatarFromUser(currentUser));
             } catch (err) {
-                pinError.textContent = err.message || 'The board could not be drawn.';
+                const boardError = document.getElementById('board-error');
+                const message = err.message || 'The board could not be drawn.';
+                pinError.textContent = message;
+                if (boardError) {
+                    boardError.hidden = false;
+                    boardError.textContent = message;
+                }
             }
         })();
 
@@ -471,24 +672,60 @@
             const data = new FormData(pinForm);
             const author = parlorDisplayName(currentUser);
             const message = String(data.get('message') || '').trim();
+            const category = parlorNormalizeCategory(data.get('category'));
+            const imageFile = document.getElementById('pin-image').files[0] || null;
+            const pinned = isAdmin && document.getElementById('pin-hold').checked;
             if (!author || !message) return;
 
             pinBtn.disabled = true;
             try {
-                const saved = await submitNewNote(author, message);
-                appendNote(
-                    saved.author || author,
-                    saved.note || message,
-                    saved.created_at || new Date().toISOString(),
-                    true,
-                    saved.id
-                );
+                const saved = await parlorPinNote({
+                    author: author,
+                    note: message,
+                    userId: currentUser && currentUser.id,
+                    category: category,
+                    imageFile: imageFile,
+                    pinned: pinned,
+                    avatarMap: avatarMap,
+                    currentUser: currentUser
+                });
+                saved.avatarUrl = saved.avatarUrl || parlorAvatarFromUser(currentUser);
+                appendNote(saved, true);
                 pinForm.reset();
                 document.getElementById('pin-name').value = parlorDisplayName(currentUser);
+                document.getElementById('pin-hold').checked = false;
+                document.getElementById('pin-image-name').textContent = 'No print attached.';
+                const firstCat = pinForm.querySelector('input[name="category"]');
+                if (firstCat) firstCat.checked = true;
             } catch (err) {
                 pinError.textContent = err.message || 'The pin would not hold.';
             } finally {
                 pinBtn.disabled = false;
+            }
+        });
+
+        document.getElementById('pin-image').addEventListener('change', function () {
+            const file = this.files && this.files[0];
+            document.getElementById('pin-image-name').textContent = file ? file.name : 'No print attached.';
+        });
+
+        document.getElementById('cork-filters').addEventListener('change', function (event) {
+            const input = event.target;
+            if (!input || input.name !== 'cork-drawer') return;
+            setBoardDrawer(input.value || 'all');
+        });
+
+        document.getElementById('member-avatar-file').addEventListener('change', async function () {
+            const file = this.files && this.files[0];
+            if (!file) return;
+            pinError.textContent = '';
+            try {
+                const url = await parlorSaveAvatar(file);
+                currentUser = (await client.auth.getUser()).data.user || currentUser;
+                paintMemberFace(url);
+                this.value = '';
+            } catch (err) {
+                pinError.textContent = err.message || 'The likeness would not take.';
             }
         });
 
@@ -502,6 +739,46 @@
             if (like) {
                 event.preventDefault();
                 toggleHeart(like);
+                return;
+            }
+            const hold = event.target.closest('.pin-hold');
+            if (hold) {
+                if (!isAdmin) return;
+                const noteEl = hold.closest('.pin-note');
+                const recordId = noteEl && noteEl.dataset.recordId;
+                if (!recordId) return;
+                const next = hold.dataset.pinned !== '1';
+                hold.disabled = true;
+                try {
+                    await parlorSetNotePinned(recordId, next);
+                    hold.dataset.pinned = next ? '1' : '0';
+                    hold.textContent = next ? 'Release' : 'Hold';
+                    hold.setAttribute('aria-label', next ? 'Release this note from the top' : 'Hold this note to the top');
+                    noteEl.classList.toggle('is-held', next);
+                    noteEl.dataset.pinned = next ? '1' : '0';
+                    let mark = noteEl.querySelector('.pin-held-mark');
+                    if (next && !mark) {
+                        mark = document.createElement('span');
+                        mark.className = 'pin-held-mark';
+                        mark.textContent = 'Held';
+                        const pinHead = noteEl.querySelector('.pin-head');
+                        if (pinHead && pinHead.nextSibling) pinHead.after(mark);
+                        else noteEl.prepend(mark);
+                    } else if (!next && mark) {
+                        mark.remove();
+                    }
+                    if (next) {
+                        corkboard.prepend(noteEl);
+                    } else {
+                        const held = corkboard.querySelectorAll('.pin-note.is-held');
+                        const lastHeld = held[held.length - 1];
+                        if (lastHeld) lastHeld.after(noteEl);
+                    }
+                } catch (err) {
+                    pinError.textContent = err.message || 'The tack would not hold.';
+                } finally {
+                    hold.disabled = false;
+                }
                 return;
             }
             const button = event.target.closest('.pin-delete');

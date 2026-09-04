@@ -61,6 +61,8 @@ select
 from auth.users
 on conflict (user_id) do nothing;
 
+-- Re-run this insert anytime the sanctuary roll is empty.
+
 drop policy if exists "parlor_profiles_admin_read" on public.parlor_profiles;
 create policy "parlor_profiles_admin_read"
   on public.parlor_profiles

@@ -10,7 +10,7 @@
     const username = document.getElementById("parlor-username");
     if (title) title.textContent = isSignUp ? "Sign the guest book" : "Present your credentials";
     if (blurb) blurb.textContent = isSignUp
-      ? "Give a real email, a parlor username, and a word only you know. Then the parlor door opens."
+      ? "Give a real email, a parlor username, and a word only you know. A likeness is optional. Then the parlor door opens."
       : "Members only beyond this door. Sign in with your email.";
     if (submit) submit.textContent = isSignUp ? "Create my membership" : "Enter the parlor";
     if (signInTab) {
@@ -27,6 +27,17 @@
     const params = new URLSearchParams(location.search);
     params.set("mode", isSignUp ? "signup" : "signin");
     history.replaceState(null, "", location.pathname + "?" + params.toString());
+  }
+
+  async function parlorAttachSignupLikeness() {
+    const input = document.getElementById("parlor-avatar");
+    const file = input && input.files && input.files[0];
+    if (!file) return;
+    try {
+      await window.parlorSaveAvatar(file);
+    } catch (err) {
+      console.warn(err);
+    }
   }
 
   window.parlorBindAuthDoor = function () {
@@ -89,6 +100,7 @@
           if (error) throw error;
           if (result.session) {
             await parlorStampAdminIdentity(client, result.user || result.session.user);
+            await parlorAttachSignupLikeness();
             location.replace("forum.html");
             return;
           }
@@ -96,6 +108,7 @@
           if (!signInError) {
             const { data: after } = await client.auth.getUser();
             await parlorStampAdminIdentity(client, after && after.user);
+            await parlorAttachSignupLikeness();
             location.replace("forum.html");
             return;
           }

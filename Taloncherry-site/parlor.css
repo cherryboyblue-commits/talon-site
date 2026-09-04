@@ -54,8 +54,141 @@
     opacity: 0.88;
     cursor: default;
 }
-body[data-parlor-mode="signin"] #parlor-username-wrap {
+body[data-parlor-mode="signin"] #parlor-username-wrap,
+body[data-parlor-mode="signin"] #parlor-avatar-wrap {
     display: none;
+}
+.parlor-member-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+}
+.parlor-member-face {
+    width: 1.85rem;
+    height: 1.85rem;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #c4a35a;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+    background: #ead6ad;
+    flex-shrink: 0;
+}
+.parlor-member-face.is-empty {
+    display: none;
+}
+.parlor-likeness {
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+}
+.parlor-likeness input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+.parlor-file {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+.parlor-file input[type="file"] {
+    width: 100%;
+    font-family: ui-monospace, monospace;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    color: #6b4a28;
+}
+.parlor-file-name {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-size: 0.9rem;
+    font-style: italic;
+    color: #6b4a28;
+}
+.parlor-cats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+.parlor-cats label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.28rem 0.55rem;
+    background: rgba(255, 248, 230, 0.55);
+    border: 1px solid #8a6238;
+    border-radius: 999px;
+    font-family: ui-monospace, monospace;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #6b4a28;
+    cursor: pointer;
+}
+.parlor-cats input {
+    accent-color: #8a6420;
+}
+.parlor-hold {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-family: ui-monospace, monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #6b4a28;
+}
+.parlor-hold[hidden] { display: none !important; }
+.cork-wall {
+    position: relative;
+    z-index: 3;
+}
+.cork-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 0.2rem;
+    padding: 0 0.85rem;
+    position: relative;
+    z-index: 6;
+}
+.cork-tab {
+    position: relative;
+    z-index: 6;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.4rem;
+    padding: 0.4rem 1.05rem 0.55rem;
+    border: 1px solid #2b1810;
+    border-bottom: 0;
+    background: linear-gradient(180deg, #c4a06a, #8a6238);
+    color: #2c1a12;
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-size: 0.95rem;
+    letter-spacing: 0.04em;
+    border-radius: 10px 10px 0 0;
+    cursor: pointer;
+    box-shadow: inset 0 1px 0 rgba(255, 248, 230, 0.28);
+}
+.cork-tab input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 7;
+}
+.cork-tab:hover {
+    filter: brightness(1.08);
+}
+.cork-tab.is-active {
+    background: linear-gradient(180deg, #ead6ad, #c4a35a);
+    z-index: 8;
 }
 .parlor-btn {
     background: linear-gradient(180deg, #c4a35a, #8a6420);
@@ -105,6 +238,7 @@ body[data-parlor-mode="signin"] #parlor-username-wrap {
 }
 .corkboard {
     position: relative;
+    z-index: 2;
     min-height: 28rem;
     padding: 1.5rem;
     background:
@@ -121,6 +255,8 @@ body[data-parlor-mode="signin"] #parlor-username-wrap {
 }
 .pin-note {
     position: relative;
+    display: flex;
+    flex-direction: column;
     background: #f4e6c4;
     color: #2c1a12;
     padding: 1.35rem 1rem 1rem;
@@ -162,6 +298,37 @@ body[data-parlor-mode="signin"] #parlor-username-wrap {
     background: radial-gradient(circle at 35% 30%, #ef4444, #7f1d1d);
     box-shadow: 0 2px 3px rgba(0, 0, 0, 0.45);
 }
+.pin-byline {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.45rem;
+}
+.pin-avatar {
+    width: 1.7rem;
+    height: 1.7rem;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid #8a6238;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+    background: #ead6ad;
+    flex-shrink: 0;
+}
+.pin-avatar-fallback {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.7rem;
+    height: 1.7rem;
+    border-radius: 50%;
+    border: 1px dashed #8a6238;
+    background: #ead6ad;
+    color: #7a4e18;
+    font-family: ui-monospace, monospace;
+    font-size: 9px;
+    letter-spacing: 0.04em;
+    flex-shrink: 0;
+}
 .pin-author {
     display: block;
     font-family: ui-monospace, monospace;
@@ -169,7 +336,79 @@ body[data-parlor-mode="signin"] #parlor-username-wrap {
     letter-spacing: 0.16em;
     text-transform: uppercase;
     color: #7a4e18;
-    margin-bottom: 0.4rem;
+}
+.pin-tag {
+    display: inline-block;
+    margin: 0 0 0.45rem;
+    padding: 0.12rem 0.4rem;
+    border: 1px dashed #8a6238;
+    background: rgba(196, 163, 90, 0.22);
+    font-family: ui-monospace, monospace;
+    font-size: 8px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #6b4a28;
+}
+.pin-photo {
+    display: block;
+    width: 100%;
+    max-height: 9.5rem;
+    object-fit: cover;
+    margin: 0 0 0.55rem;
+    padding: 0.28rem;
+    background: #fff8e6;
+    border: 1px solid #c4a35a;
+    box-shadow: 1px 2px 0 rgba(60, 36, 18, 0.18);
+}
+.pin-note.is-held {
+    outline: 1px solid #c4a35a;
+    box-shadow: 3px 8px 14px rgba(0, 0, 0, 0.35), inset 0 0 0 1px rgba(196, 163, 90, 0.55);
+}
+.pin-note.is-held .pin-head {
+    background: radial-gradient(circle at 35% 30%, #f3e4c4, #8a6420 58%, #5c3310);
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.45), 0 0 0 2px #c4a35a;
+}
+.pin-held-mark {
+    display: none;
+    position: absolute;
+    top: 0.85rem;
+    left: 0.45rem;
+    font-family: ui-monospace, monospace;
+    font-size: 7px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #5c3310;
+    background: #e8d5a3;
+    border: 1px solid #8a6420;
+    padding: 0.12rem 0.28rem;
+    transform: rotate(-8deg);
+}
+.pin-note.is-held .pin-held-mark { display: block; }
+.pin-hold {
+    appearance: none;
+    border: 1px solid #8a6238;
+    background: #ead6ad;
+    color: #5c3310;
+    font-family: ui-monospace, monospace;
+    font-size: 8px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.35rem;
+    cursor: pointer;
+}
+.pin-hold:hover { background: #c4a35a; }
+.cork-wall[data-drawer="general"] .pin-note:not([data-category="general"]),
+.cork-wall[data-drawer="music"] .pin-note:not([data-category="music"]),
+.cork-wall[data-drawer="writing"] .pin-note:not([data-category="writing"]),
+.cork-wall[data-drawer="reflection"] .pin-note:not([data-category="reflection"]) {
+    display: none !important;
+}
+.pin-note[hidden],
+.pin-note.is-filtered { display: none !important; }
+.cork-board-error {
+    margin: 0 0 0.5rem;
+    text-align: center;
+    color: #fca5a5;
 }
 .pin-body {
     font-size: 1.35rem;
@@ -296,18 +535,19 @@ body[data-parlor-mode="signin"] #parlor-username-wrap {
     border-radius: 8px;
 }
 .sanctuary-panel[hidden] { display: none !important; }
-.roster-row {
+.roster-who {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 0.7rem 0;
-    border-bottom: 1px solid rgba(196, 163, 90, 0.18);
-    color: #f3e6c8;
+    gap: 0.65rem;
+    min-width: 0;
 }
-.roster-name {
-    font-family: 'Instrument Serif', Georgia, serif;
-    font-size: 1.15rem;
+.roster-face {
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid #c4a35a;
+    flex-shrink: 0;
 }
 .roster-revoke {
     appearance: none;
