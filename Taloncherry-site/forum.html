@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="site-widgets.css">
-    <link rel="stylesheet" href="parlor.css?v=4">
+    <link rel="stylesheet" href="parlor.css?v=6">
     <link rel="stylesheet" href="site-atmosphere.css">
     <style>
         .font-serif-custom { font-family: 'Instrument Serif', serif; }
@@ -34,6 +34,7 @@
             <label class="sanctuary-link parlor-likeness" title="Affix or change your likeness">Likeness
                 <input type="file" id="member-avatar-file" accept="image/jpeg,image/png,image/webp,image/gif">
             </label>
+            <span id="likeness-status" class="parlor-likeness-status" role="status"></span>
             <button type="button" id="sign-out" class="sub-head-meta parlor-signout">Sign out</button>
             <a class="sub-head-meta" href="index.html">Return home</a>
         </nav>
@@ -41,9 +42,9 @@
 
     <main id="parlor-main" class="relative z-10 max-w-6xl mx-auto px-6 py-10 hidden">
         <div class="text-center mb-10">
-            <span class="inline-block text-xs uppercase tracking-widest text-amber-500 font-semibold mb-3 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">Members' bulletin</span>
-            <h1 class="text-4xl md:text-5xl font-serif-custom text-zinc-100">The Parlor</h1>
-            <p class="text-zinc-400 text-sm mt-2 font-light">The house corkboard. Fellow members pin a word here.</p>
+            <span class="inline-block text-xs uppercase tracking-widest text-amber-500 font-semibold mb-3 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20" data-site="parlor.kicker">Members' bulletin</span>
+            <h1 class="text-4xl md:text-5xl font-serif-custom text-zinc-100" data-site="parlor.title">The Parlor</h1>
+            <p class="text-zinc-400 text-sm mt-2 font-light" data-site="parlor.blurb">The house corkboard. Fellow members pin a word here.</p>
         </div>
 
         <section class="cork-wall" data-drawer="all">
@@ -117,8 +118,8 @@
             <a href="forum.html" aria-current="page">Parlor</a>
         </nav>
         <div class="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center text-xs text-zinc-600 space-y-4 md:space-y-0 gap-4">
-            <p>Copyright © 2026 Talon T. Cherry. All Rights Reserved.</p>
-            <a href="https://venmo.com/Talon-Cherry" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 font-serif-custom text-sm tracking-[0.2em] uppercase text-[#d9ab55] hover:text-amber-300 transition" aria-label="Tip jar — Venmo Talon Cherry (opens in a new tab)">
+            <p class="js-copyright">Copyright © 2026 Talon T. Cherry. All Rights Reserved.</p>
+            <a href="https://venmo.com/Talon-Cherry" target="_blank" rel="noopener noreferrer" class="js-venmo inline-flex items-center gap-2 font-serif-custom text-sm tracking-[0.2em] uppercase text-[#d9ab55] hover:text-amber-300 transition" aria-label="Tip jar — Venmo Talon Cherry (opens in a new tab)">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 36" class="w-5 h-6" fill="none" aria-hidden="true">
                     <path d="M8 7h12" stroke="#c4a35a" stroke-width="1.6" stroke-linecap="round"/>
                     <path d="M9.5 7c0-1.6 2-2.6 4.5-2.6S18.5 5.4 18.5 7" stroke="#c4a35a" stroke-width="1.4"/>
@@ -128,15 +129,16 @@
                 </svg>
                 Tip Jar
             </a>
-            <p class="text-zinc-500">Built local. Hosted free via GitHub Pages.</p>
+            <p class="text-zinc-500 js-host-note">Built local. Hosted free via GitHub Pages.</p>
         </div>
         <p class="cookie-aside">We use Google Analytics just to see if anyone is reading this, or if I'm shouting into the void.</p>
     </footer>
 
+    <script src="site-content.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="parlor-config.js?v=5"></script>
-    <script src="parlor-auth.js?v=5"></script>
-    <script src="parlor-board.js?v=5"></script>
+    <script src="parlor-config.js?v=6"></script>
+    <script src="parlor-auth.js?v=6"></script>
+    <script src="parlor-board.js?v=6"></script>
     <script>
         function paintHeartButton(button, liked, count) {
             const safeCount = Math.max(0, Number(count) || 0);
@@ -288,6 +290,7 @@
             article.style.setProperty('--tilt', TILTS[pinCount % TILTS.length]);
             pinCount += 1;
             if (recordId) article.dataset.recordId = recordId;
+            if (record.userId) article.dataset.userId = record.userId;
             article.dataset.category = noteDrawer(record);
             article.dataset.pinned = pinned ? '1' : '0';
 
@@ -642,6 +645,12 @@
             document.getElementById('parlor-main').classList.remove('hidden');
             document.getElementById('member-label').textContent = parlorDisplayName(currentUser) + (isAdmin ? ' · steward' : '');
             document.getElementById('pin-name').value = parlorDisplayName(currentUser);
+            try {
+                const fresh = await client.auth.getUser();
+                if (fresh.data && fresh.data.user) currentUser = fresh.data.user;
+            } catch (err) {
+                console.warn(err);
+            }
             paintMemberFace(parlorAvatarFromUser(currentUser));
             document.getElementById('pin-hold-wrap').hidden = !isAdmin;
             mountCategoryControls();
@@ -715,17 +724,52 @@
             setBoardDrawer(input.value || 'all');
         });
 
+        function applyOwnLikenessToBoard(url) {
+            if (!currentUser || !currentUser.id || !url) return;
+            corkboard.querySelectorAll('.pin-note').forEach(function (note) {
+                if (note.dataset.userId !== currentUser.id) return;
+                const byline = note.querySelector('.pin-byline');
+                if (!byline) return;
+                let face = byline.querySelector('.pin-avatar');
+                const fallback = byline.querySelector('.pin-avatar-fallback');
+                if (!face) {
+                    face = document.createElement('img');
+                    face.className = 'pin-avatar';
+                    face.alt = '';
+                    if (fallback) fallback.replaceWith(face);
+                    else byline.prepend(face);
+                }
+                face.src = url;
+            });
+        }
+
         document.getElementById('member-avatar-file').addEventListener('change', async function () {
             const file = this.files && this.files[0];
             if (!file) return;
+            const status = document.getElementById('likeness-status');
             pinError.textContent = '';
+            if (status) status.textContent = 'Affixing…';
+            let preview = '';
             try {
+                preview = URL.createObjectURL(file);
+                paintMemberFace(preview);
                 const url = await parlorSaveAvatar(file);
                 currentUser = (await client.auth.getUser()).data.user || currentUser;
+                avatarMap[currentUser.id] = {
+                    username: parlorDisplayName(currentUser),
+                    avatar_url: url
+                };
                 paintMemberFace(url);
-                this.value = '';
+                applyOwnLikenessToBoard(url);
+                if (status) status.textContent = '';
             } catch (err) {
-                pinError.textContent = err.message || 'The likeness would not take.';
+                const message = err.message || 'The likeness would not take.';
+                pinError.textContent = message;
+                if (status) status.textContent = message;
+                paintMemberFace(parlorAvatarFromUser(currentUser));
+            } finally {
+                if (preview) URL.revokeObjectURL(preview);
+                this.value = '';
             }
         });
 

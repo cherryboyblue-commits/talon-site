@@ -64,15 +64,38 @@
     return match ? match.label : "General";
   };
 
+  window.parlorPublicMediaUrl = function (objectPath) {
+    const base = String(cfg().supabaseUrl || "").replace(/\/$/, "");
+    const bucket = window.parlorMediaBucket();
+    const encoded = String(objectPath || "")
+      .replace(/^\/+/, "")
+      .split("/")
+      .filter(Boolean)
+      .map(encodeURIComponent)
+      .join("/");
+    return base + "/storage/v1/object/public/" + encodeURIComponent(bucket) + "/" + encoded;
+  };
+
   window.parlorSafeMediaUrl = function (value) {
     const raw = String(value || "").trim();
     if (!raw) return "";
     try {
       const parsed = new URL(raw);
-      const origin = new URL(String(cfg().supabaseUrl || ""));
       if (parsed.protocol !== "https:") return "";
-      if (parsed.hostname !== origin.hostname) return "";
-      if (parsed.pathname.indexOf("/storage/v1/object/public/" + window.parlorMediaBucket() + "/") < 0) return "";
+      const origin = new URL(String(cfg().supabaseUrl || ""));
+      const host = parsed.hostname.toLowerCase();
+      const expected = origin.hostname.toLowerCase();
+      const project = expected.split(".")[0];
+      const hostOk =
+        host === expected ||
+        host === project + ".supabase.co" ||
+        host === project + ".storage.supabase.co";
+      if (!hostOk) return "";
+      const bucket = window.parlorMediaBucket();
+      const path = decodeURIComponent(parsed.pathname);
+      const publicNeedle = "/object/public/" + bucket + "/";
+      const signedNeedle = "/object/sign/" + bucket + "/";
+      if (path.indexOf(publicNeedle) < 0 && path.indexOf(signedNeedle) < 0) return "";
       return parsed.href;
     } catch (err) {
       return "";
@@ -113,15 +136,53 @@
     const path = user.id + "/" + safeFolder + "/" + Date.now() + "." + imageExtension(file);
     const { error } = await client.storage.from(window.parlorMediaBucket()).upload(path, file, {
       cacheControl: "3600",
-      upsert: false,
+      upsert: true,
       contentType: file.type || "image/jpeg"
     });
-    if (error) throw error;
+    if (error) {
+      const msg = error.message || String(error);
+      if (/bucket/i.test(msg) && /not found|does not exist/i.test(msg)) {
+        throw new Error("The parlor-media shelf is missing. Run parlor_upgrade.sql in the Supabase SQL editor.");
+      }
+      throw error;
+    }
+    const built = window.parlorPublicMediaUrl(path);
     const { data } = client.storage.from(window.parlorMediaBucket()).getPublicUrl(path);
-    const url = window.parlorSafeMediaUrl(data && data.publicUrl);
-    if (!url) throw new Error("The likeness uploaded, but its public address could not be read.");
-    return url;
+    return window.parlorSafeMediaUrl(built) || window.parlorSafeMediaUrl(data && data.publicUrl) || built;
   };
+
+  async function parlorWriteProfileAvatar(user, url) {
+    const headers = await window.parlorRestHeaders();
+    const username = window.parlorDisplayName(user);
+    const payload = { avatar_url: url, username: username };
+    const patch = await fetch(
+      window.parlorProfilesUrl() + "?user_id=eq." + encodeURIComponent(user.id),
+      { method: "PATCH", headers: headers, body: JSON.stringify(payload) }
+    );
+    if (patch.ok) {
+      try {
+        const rows = await patch.json();
+        if (Array.isArray(rows) && rows.length) return;
+      } catch (err) {
+        return;
+      }
+    }
+    const insertHeaders = Object.assign({}, headers, {
+      Prefer: "return=representation,resolution=merge-duplicates"
+    });
+    const ins = await fetch(window.parlorProfilesUrl() + "?on_conflict=user_id", {
+      method: "POST",
+      headers: insertHeaders,
+      body: JSON.stringify({
+        user_id: user.id,
+        username: username,
+        avatar_url: url
+      })
+    });
+    if (!ins.ok) {
+      console.warn("Profile likeness could not be written to parlor_profiles.", await ins.text());
+    }
+  }
 
   window.parlorSaveAvatar = async function (file) {
     const url = await window.parlorUploadMedia(file, "avatars");
@@ -129,16 +190,11 @@
     const { data: sessionData } = await client.auth.getSession();
     const user = sessionData && sessionData.session && sessionData.session.user;
     if (!user) throw new Error("Sign in before affixing a likeness.");
-    await client.auth.updateUser({ data: { avatar_url: url } });
-    const headers = await window.parlorRestHeaders();
-    const body = JSON.stringify({ avatar_url: url });
-    const res = await fetch(
-      window.parlorProfilesUrl() + "?user_id=eq." + encodeURIComponent(user.id),
-      { method: "PATCH", headers: headers, body: body }
-    );
-    if (!res.ok) {
-      console.warn("Profile likeness could not be written to parlor_profiles.", await res.text());
-    }
+    const meta = user.user_metadata || {};
+    await client.auth.updateUser({
+      data: Object.assign({}, meta, { avatar_url: url })
+    });
+    await parlorWriteProfileAvatar(user, url);
     return url;
   };
 
@@ -250,11 +306,11 @@
       return user;
     }
     const { data, error } = await client.auth.updateUser({
-      data: {
+      data: Object.assign({}, meta, {
         username: window.PARLOR_ADMIN_HANDLE,
         display_name: window.PARLOR_ADMIN_HANDLE,
         name: window.PARLOR_ADMIN_HANDLE
-      }
+      })
     });
     if (error) {
       console.warn(error);

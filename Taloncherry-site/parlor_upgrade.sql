@@ -38,7 +38,15 @@ create policy "parlor_notes_admin_update"
   using (public.is_parlor_admin())
   with check (public.is_parlor_admin());
 
-grant select, update on table public.parlor_profiles to authenticated;
+-- Members with no trigger row still need to store a likeness.
+drop policy if exists "parlor_profiles_self_insert" on public.parlor_profiles;
+create policy "parlor_profiles_self_insert"
+  on public.parlor_profiles
+  for insert
+  to authenticated
+  with check (auth.uid() = user_id);
+
+grant select, insert, update on table public.parlor_profiles to authenticated;
 grant select, insert, update, delete on table public.parlor_notes to authenticated;
 
 -- Public bucket parlor-media: members may write only inside their own folder.

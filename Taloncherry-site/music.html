@@ -72,13 +72,13 @@
         
         <!-- Header Banner -->
         <div class="text-center mb-10">
-            <span class="inline-block text-xs uppercase tracking-widest text-amber-500 font-semibold mb-3 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20 tracking-widest">
+            <span class="inline-block text-xs uppercase tracking-widest text-amber-500 font-semibold mb-3 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20 tracking-widest" data-site="music.kicker">
                 FM 19.86 • Midnight Porch Broadcast
             </span>
-            <h1 class="text-4xl md:text-6xl font-serif-custom text-zinc-100 tracking-tight mb-2">
+            <h1 class="text-4xl md:text-6xl font-serif-custom text-zinc-100 tracking-tight mb-2" data-site="music.title">
                 The Campfire Radio Session
             </h1>
-            <p class="text-zinc-400 text-sm max-w-md mx-auto font-light">
+            <p class="text-zinc-400 text-sm max-w-md mx-auto font-light" data-site="music.blurb">
                 Click or turn the analog dial below to switch stations. Full curated audio broadcasts from the pines to the plains.
             </p>
         </div>
@@ -102,7 +102,7 @@
                         <div class="flex items-center space-x-4">
                             <div class="text-right hidden sm:block">
                                 <span class="text-[10px] font-mono text-zinc-500 block uppercase">Turn Dial</span>
-                                <span class="text-[10px] text-amber-500 font-mono">3 Stations</span>
+                                <span id="dial-hint" class="text-[10px] text-amber-500 font-mono">3 Stations</span>
                             </div>
                             <!-- Rotatable Physical Knob -->
                             <div id="tuner-knob" class="radio-knob" onclick="rotateKnob()" title="Click to turn dial"></div>
@@ -120,7 +120,7 @@
                             <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
                             <span id="broadcast-status">Live Signal Locked</span>
                         </span>
-                        <a href="https://www.youtube.com/@TalonCherry" target="_blank" class="hover:text-amber-400 transition">Talon Cherry Channel ↗</a>
+                        <a id="radio-channel" href="https://www.youtube.com/@TalonCherry" target="_blank" class="hover:text-amber-400 transition" data-site="music.channel_label" data-site-href="identity.youtube_channel">Talon Cherry Channel ↗</a>
                     </div>
                 </div>
             </div>
@@ -136,7 +136,7 @@
 
                     <div>
                         <div class="flex justify-between items-center mb-4 pb-3 border-b border-zinc-800/80">
-                            <span class="font-serif-custom text-xs uppercase tracking-[0.2em] text-amber-500/90 font-semibold">Station Log & Notes</span>
+                            <span class="font-serif-custom text-xs uppercase tracking-[0.2em] text-amber-500/90 font-semibold" data-site="music.journal_kicker">Station Log & Notes</span>
                             <span id="journal-date" class="text-[10px] font-mono text-zinc-500">ARCHIVE 01</span>
                         </div>
 
@@ -150,7 +150,7 @@
                     </div>
 
                     <div class="mt-8 pt-4 border-t border-zinc-900 text-center">
-                        <p class="text-[11px] text-zinc-600 font-mono tracking-wider">
+                        <p class="text-[11px] text-zinc-600 font-mono tracking-wider" data-site="music.broadcast_note">
                             Broadcasted from the desk by the window. Click knob to tune.
                         </p>
                     </div>
@@ -184,8 +184,8 @@
             <a href="forum.html">Parlor</a>
         </nav>
         <div class="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center text-xs text-zinc-600 space-y-4 md:space-y-0 gap-4">
-            <p>Copyright © 2026 Talon T. Cherry. All Rights Reserved.</p>
-            <a href="https://venmo.com/Talon-Cherry" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 font-serif-custom text-sm tracking-[0.2em] uppercase text-[#d9ab55] hover:text-amber-300 transition" aria-label="Tip jar — Venmo Talon Cherry (opens in a new tab)">
+            <p class="js-copyright">Copyright © 2026 Talon T. Cherry. All Rights Reserved.</p>
+            <a href="https://venmo.com/Talon-Cherry" target="_blank" rel="noopener noreferrer" class="js-venmo inline-flex items-center gap-2 font-serif-custom text-sm tracking-[0.2em] uppercase text-[#d9ab55] hover:text-amber-300 transition" aria-label="Tip jar — Venmo Talon Cherry (opens in a new tab)">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 36" class="w-5 h-6" fill="none" aria-hidden="true">
                     <path d="M8 7h12" stroke="#c4a35a" stroke-width="1.6" stroke-linecap="round"/>
                     <path d="M9.5 7c0-1.6 2-2.6 4.5-2.6S18.5 5.4 18.5 7" stroke="#c4a35a" stroke-width="1.4"/>
@@ -193,60 +193,77 @@
                     <path d="M8.2 10.4h11.6l1.4 18.2c.1 1.4-1 2.6-2.4 2.6H9.2c-1.4 0-2.5-1.2-2.4-2.6L8.2 10.4Z" fill="#3a2418" stroke="#c4a35a" stroke-width="1.2"/>
                     <path d="M10 16h8M10 21h8M10 26h6" stroke="#d9ab55" stroke-width="0.9" stroke-linecap="round" opacity="0.7"/>
                 </svg>
-                Tip Jar
+                <span class="js-venmo-label">Tip Jar</span>
             </a>
-            <p class="text-zinc-500">Built local. Hosted free via GitHub Pages.</p>
+            <p class="text-zinc-500 js-host-note">Built local. Hosted free via GitHub Pages.</p>
         </div>
         <p class="cookie-aside">We use Google Analytics just to see if anyone is reading this, or if I'm shouting into the void.</p>
     </footer>
 
-    <!-- Interactive Analog Knob & Radio Tuner Engine -->
+    <script src="site-content.js"></script>
     <script>
-        const stations = [
+        let stations = [
             {
                 freq: '88.5 MHz [ORIGINALS]',
                 title: 'Original Studio & Acoustic Sessions',
                 embedUrl: 'https://www.youtube-nocookie.com/embed/videoseries?list=PLBdtLFHJumFRVJ8E4Ho45ta27in43jgOT',
                 date: 'PRIMARY COLLECTION',
-                notes: '"Original songwriting capturing the transition from the crisp mountain pines of Oregon down into the wide-open skies of West Texas. Recorded live with an honest heart."'
+                notes: 'Original songwriting capturing the transition from the crisp mountain pines of Oregon down into the wide-open skies of West Texas. Recorded live with an honest heart.'
             },
             {
                 freq: '94.3 MHz [ACOUSTIC COVERS]',
                 title: 'Live Acoustic Covers Archive',
                 embedUrl: 'https://www.youtube-nocookie.com/embed/videoseries?list=PLBdtLFHJumFT7clrjH-dQZIrex0Ha87fd',
                 date: 'LIVE SESSIONS',
-                notes: '"Raw, stripped-down interpretations of timeless tracks. Just a mahogany acoustic guitar, live vocal stems, and an open window."'
+                notes: 'Raw, stripped-down interpretations of timeless tracks. Just a mahogany acoustic guitar, live vocal stems, and an open window.'
             },
             {
                 freq: '101.9 MHz [CHRISTMAS ALBUM]',
                 title: 'Holiday & Seasonal Sessions',
                 embedUrl: 'https://www.youtube-nocookie.com/embed/videoseries?list=PLBdtLFHJumFTS0oKkRWQmKB1CrXDMV4nx',
                 date: 'SPECIAL RELEASE',
-                notes: '"Warm acoustic renditions of classic holiday songs recorded for the winter season. Cozy fireside guitar arrangements and quiet reflections."'
+                notes: 'Warm acoustic renditions of classic holiday songs recorded for the winter season. Cozy fireside guitar arrangements and quiet reflections.'
             }
         ];
 
         let currentStationIndex = 0;
-        const knobRotations = [0, 120, 240];
 
-        function rotateKnob() {
-            currentStationIndex = (currentStationIndex + 1) % stations.length;
+        function knobAngle(index, count) {
+            if (count < 2) return 0;
+            return (360 / count) * index;
+        }
+
+        function paintStation(index) {
+            if (!stations.length) return;
+            currentStationIndex = ((index % stations.length) + stations.length) % stations.length;
             const station = stations[currentStationIndex];
-            const rotationDegree = knobRotations[currentStationIndex];
-
             const knob = document.getElementById('tuner-knob');
-            knob.style.transform = `rotate(${rotationDegree}deg)`;
-
-            document.getElementById('broadcast-status').innerText = 'Tuning Frequency...';
+            if (knob) knob.style.transform = 'rotate(' + knobAngle(currentStationIndex, stations.length) + 'deg)';
             document.getElementById('radio-iframe').src = station.embedUrl;
-            document.getElementById('frequency-display').innerText = `FREQ: ${station.freq}`;
+            document.getElementById('frequency-display').innerText = 'FREQ: ' + station.freq;
             document.getElementById('journal-title').innerText = station.title;
             document.getElementById('journal-text').innerText = station.notes;
             document.getElementById('journal-date').innerText = station.date;
+            const hint = document.getElementById('dial-hint');
+            if (hint) {
+                hint.textContent = stations.length + (stations.length === 1 ? ' Station' : ' Stations');
+            }
+        }
 
-            setTimeout(() => {
+        function rotateKnob() {
+            if (!stations.length) return;
+            document.getElementById('broadcast-status').innerText = 'Tuning Frequency...';
+            paintStation(currentStationIndex + 1);
+            setTimeout(function () {
                 document.getElementById('broadcast-status').innerText = 'Live Signal Locked';
             }, 600);
+        }
+
+        if (window.siteContentReady) {
+            window.siteContentReady.then(function () {
+                if (window.SITE_STATIONS && window.SITE_STATIONS.length) stations = window.SITE_STATIONS;
+                paintStation(0);
+            });
         }
     </script>
 </body>

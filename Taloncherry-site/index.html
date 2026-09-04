@@ -85,27 +85,27 @@
     <div class="home-veil" aria-hidden="true"></div>
 
     <div class="home-portrait" aria-hidden="true">
-        <img src="Images/Me1.jpg" alt="" width="128" height="128">
+        <img src="Images/Me1.jpg" alt="" width="128" height="128" data-site-src="identity.portrait">
     </div>
 
     <main class="home-stage">
-        <p class="home-mono" aria-hidden="true">Tc</p>
-        <h1 class="home-name">Talon T. Cherry</h1>
-        <p class="home-tagline">Time can only take the joy you never shared<button type="button" class="home-study-mark" id="study-trigger" aria-hidden="true" tabindex="-1">.</button></p>
-        <nav class="home-nav" aria-label="Primary">
+        <p class="home-mono" aria-hidden="true" data-site="identity.short_name">Tc</p>
+        <h1 class="home-name" data-site="identity.name">Talon T. Cherry</h1>
+        <p class="home-tagline"><span data-site="identity.tagline">Time can only take the joy you never shared</span><button type="button" class="home-study-mark" id="study-trigger" aria-hidden="true" tabindex="-1">.</button></p>
+        <nav class="home-nav" aria-label="Primary" data-site-nav="nav">
             <a href="music.html">Music</a>
             <a href="writings.html">Writing</a>
             <a href="life.html">Life</a>
             <a href="social.html">Social</a>
             <a href="forum.html">Parlor</a>
         </nav>
-        <a class="home-mail-cue" href="#mail-bag">The Mail Bag</a>
+        <a class="home-mail-cue" href="#mail-bag" data-site="home.mail_cue">The Mail Bag</a>
     </main>
 
     <section id="mail-bag" class="mail-bag">
-        <p class="mail-bag-kicker">The Mail Bag</p>
-        <h2>Leave a word</h2>
-        <p class="mail-bag-blurb">Notes, hellos, and honest mail. I’ll read what you send.</p>
+        <p class="mail-bag-kicker" data-site="home.mail_kicker">The Mail Bag</p>
+        <h2 data-site="home.mail_title">Leave a word</h2>
+        <p class="mail-bag-blurb" data-site="home.mail_blurb">Notes, hellos, and honest mail. I’ll read what you send.</p>
         <form id="mail-bag-form" action="https://formspree.io/f/mdeoeaze" method="POST" class="mail-bag-form">
             <label>
                 <span class="sr-only">Name</span>
@@ -120,7 +120,7 @@
                 <textarea name="message" required rows="5" placeholder="Message"></textarea>
             </label>
             <div class="mail-bag-full">
-                <button type="submit" id="mail-bag-submit">Send to the mail bag</button>
+                <button type="submit" id="mail-bag-submit" data-site="home.mail_submit">Send to the mail bag</button>
             </div>
         </form>
     </section>
@@ -129,13 +129,13 @@
         <div class="mail-postcard">
             <div class="mail-stamp">Dispatched<br>West Texas</div>
             <p class="mail-postcard-kicker">The Mail Bag</p>
-            <p id="mail-success-note" class="mail-hand">Your letter has been dispatched into the mail bag. Thank you for writing.</p>
-            <button type="button" class="mail-success-close" id="mail-success-close">Seal the envelope</button>
+            <p id="mail-success-note" class="mail-hand" data-site="home.mail_success">Your letter has been dispatched into the mail bag. Thank you for writing.</p>
+            <button type="button" class="mail-success-close" id="mail-success-close" data-site="home.mail_close">Seal the envelope</button>
         </div>
     </div>
 
     <footer class="home-foot home-foot--flow">
-        <p>Copyright © 2026 Talon T. Cherry. All Rights Reserved.</p>
+        <p class="js-copyright">Copyright © 2026 Talon T. Cherry. All Rights Reserved.</p>
         <p class="cookie-aside">We use Google Analytics just to see if anyone is reading this, or if I'm shouting into the void.</p>
     </footer>
 
@@ -150,6 +150,7 @@
         mailForm.addEventListener('submit', async function (event) {
             event.preventDefault();
             mailSubmit.disabled = true;
+            mailSubmit.dataset.idle = mailSubmit.dataset.idle || mailSubmit.textContent;
             mailSubmit.textContent = 'Posting the letter…';
             try {
                 const response = await fetch(mailForm.action, {
@@ -166,7 +167,7 @@
                 alert('The letter did not go through. Please try again in a moment.');
             } finally {
                 mailSubmit.disabled = false;
-                mailSubmit.textContent = 'Send to the mail bag';
+                mailSubmit.textContent = mailSubmit.dataset.idle || 'Send to the mail bag';
             }
         });
         document.getElementById('mail-success-close').addEventListener('click', closeMailSuccess);
@@ -177,6 +178,7 @@
             if (event.key === 'Escape' && mailModal.classList.contains('is-open')) closeMailSuccess();
         });
     </script>
+    <script src="site-content.js"></script>
     <script src="admin/gate.js"></script>
     <script>
         document.getElementById('study-trigger').addEventListener('click', function (event) {
@@ -190,7 +192,8 @@
             if (!host || host.querySelector('.cookiebot-aside-note')) return;
             var note = document.createElement('p');
             note.className = 'cookiebot-aside-note';
-            note.textContent = 'We use Google Analytics just to see if anyone is reading this, or if I\'m shouting into the void.';
+            note.textContent = (window.SITE_COPY && window.SITE_COPY.identity && window.SITE_COPY.identity.cookie_note)
+                || 'We use Google Analytics just to see if anyone is reading this, or if I\'m shouting into the void.';
             var title = document.getElementById('CybotCookiebotDialogBodyContentTitle');
             if (title && title.parentNode === host) {
                 title.insertAdjacentElement('afterend', note);

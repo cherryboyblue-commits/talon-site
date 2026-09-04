@@ -31,7 +31,7 @@
 
     <main class="relative z-10 max-w-lg mx-auto px-6 py-16 parlor-shell">
         <div class="text-center mb-8">
-            <span class="inline-block text-xs uppercase tracking-widest text-amber-500 font-semibold mb-3 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">The Parlor</span>
+            <span class="inline-block text-xs uppercase tracking-widest text-amber-500 font-semibold mb-3 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20" data-site="parlor.title">The Parlor</span>
             <h1 id="parlor-title" class="text-4xl font-serif-custom text-zinc-100">Present your credentials</h1>
             <p id="parlor-blurb" class="text-zinc-400 text-sm mt-2 font-light">Members only beyond this door. Sign in with your email.</p>
         </div>
@@ -71,8 +71,8 @@
             <a href="forum.html" aria-current="page">Parlor</a>
         </nav>
         <div class="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center text-xs text-zinc-600 space-y-4 md:space-y-0 gap-4">
-            <p>Copyright © 2026 Talon T. Cherry. All Rights Reserved.</p>
-            <a href="https://venmo.com/Talon-Cherry" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 font-serif-custom text-sm tracking-[0.2em] uppercase text-[#d9ab55] hover:text-amber-300 transition" aria-label="Tip jar — Venmo Talon Cherry (opens in a new tab)">
+            <p class="js-copyright">Copyright © 2026 Talon T. Cherry. All Rights Reserved.</p>
+            <a href="https://venmo.com/Talon-Cherry" target="_blank" rel="noopener noreferrer" class="js-venmo inline-flex items-center gap-2 font-serif-custom text-sm tracking-[0.2em] uppercase text-[#d9ab55] hover:text-amber-300 transition" aria-label="Tip jar — Venmo Talon Cherry (opens in a new tab)">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 36" class="w-5 h-6" fill="none" aria-hidden="true">
                     <path d="M8 7h12" stroke="#c4a35a" stroke-width="1.6" stroke-linecap="round"/>
                     <path d="M9.5 7c0-1.6 2-2.6 4.5-2.6S18.5 5.4 18.5 7" stroke="#c4a35a" stroke-width="1.4"/>
@@ -82,11 +82,12 @@
                 </svg>
                 Tip Jar
             </a>
-            <p class="text-zinc-500">Built local. Hosted free via GitHub Pages.</p>
+            <p class="text-zinc-500 js-host-note">Built local. Hosted free via GitHub Pages.</p>
         </div>
         <p class="cookie-aside">We use Google Analytics just to see if anyone is reading this, or if I'm shouting into the void.</p>
     </footer>
 
+    <script src="site-content.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="parlor-config.js"></script>
     <script src="parlor-auth.js"></script>

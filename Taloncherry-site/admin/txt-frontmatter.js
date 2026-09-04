@@ -41,6 +41,7 @@
         return {
             title: meta.title || "",
             subtitle: meta.subtitle || "",
+            date: meta.date || "",
             body: source.slice(close + 5)
         };
     }
@@ -48,10 +49,14 @@
     function toFile(data) {
         const title = data && data.title != null ? data.title : "";
         const subtitle = data && data.subtitle != null ? data.subtitle : "";
+        const date = data && data.date != null ? data.date : "";
         const body = data && data.body != null ? data.body : "";
         let head = "---\ntitle: " + yamlScalar(title) + "\n";
         if (String(subtitle).trim()) {
             head += "subtitle: " + yamlScalar(subtitle) + "\n";
+        }
+        if (String(date).trim()) {
+            head += "date: " + yamlScalar(date) + "\n";
         }
         head += "---\n";
         return head + String(body).replace(/^\n/, "");

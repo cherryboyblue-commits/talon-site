@@ -1,0 +1,109 @@
+{
+  "identity": {
+    "name": "Talon T. Cherry",
+    "person_name": "Talon Cherry",
+    "short_name": "Tc",
+    "tagline": "Time can only take the joy you never shared",
+    "description": "Official site of Talon Cherry, an Oregon-born singer-songwriter, poet, and memoirist now writing and recording from West Texas. Not affiliated with any tobacco brand.",
+    "portrait": "Images/Me1.jpg",
+    "copyright": "Copyright © 2026 Talon T. Cherry. All Rights Reserved.",
+    "host_note": "Built local. Hosted free via GitHub Pages.",
+    "cookie_note": "We use Google Analytics just to see if anyone is reading this, or if I'm shouting into the void.",
+    "venmo_url": "https://venmo.com/Talon-Cherry",
+    "venmo_label": "Tip Jar",
+    "youtube_channel": "https://www.youtube.com/@TalonCherry"
+  },
+  "nav": [
+    { "label": "Music", "href": "music.html" },
+    { "label": "Writing", "href": "writings.html" },
+    { "label": "Life", "href": "life.html" },
+    { "label": "Social", "href": "social.html" },
+    { "label": "Parlor", "href": "forum.html" }
+  ],
+  "footer_nav": [
+    { "label": "Music", "href": "music.html" },
+    { "label": "Writing", "href": "writings.html" },
+    { "label": "Life", "href": "life.html" },
+    { "label": "Parlor", "href": "forum.html" }
+  ],
+  "home": {
+    "mail_cue": "The Mail Bag",
+    "mail_kicker": "The Mail Bag",
+    "mail_title": "Leave a word",
+    "mail_blurb": "Notes, hellos, and honest mail. I’ll read what you send.",
+    "mail_submit": "Send to the mail bag",
+    "mail_success": "Your letter has been dispatched into the mail bag. Thank you for writing.",
+    "mail_close": "Seal the envelope"
+  },
+  "social": {
+    "title": "Social",
+    "tagline": "The songs live on YouTube. Come sit with them there.",
+    "links": [
+      { "label": "YouTube", "url": "https://www.youtube.com/@TalonCherry" },
+      { "label": "Facebook", "url": "https://www.facebook.com/share/1F99uSGJkq/" },
+      { "label": "Instagram", "url": "https://www.instagram.com/mr_jones_86" }
+    ]
+  },
+  "music": {
+    "kicker": "FM 19.86 • Midnight Porch Broadcast",
+    "title": "The Campfire Radio Session",
+    "blurb": "Click or turn the analog dial below to switch stations. Full curated audio broadcasts from the pines to the plains.",
+    "channel_label": "Talon Cherry Channel ↗",
+    "dial_hint": "3 Stations",
+    "journal_kicker": "Station Log & Notes",
+    "broadcast_note": "Broadcasted from the desk by the window. Click knob to tune.",
+    "stations": [
+      {
+        "freq": "88.5 MHz [ORIGINALS]",
+        "title": "Original Studio & Acoustic Sessions",
+        "playlist_id": "PLBdtLFHJumFRVJ8E4Ho45ta27in43jgOT",
+        "date": "PRIMARY COLLECTION",
+        "notes": "Original songwriting capturing the transition from the crisp mountain pines of Oregon down into the wide-open skies of West Texas. Recorded live with an honest heart."
+      },
+      {
+        "freq": "94.3 MHz [ACOUSTIC COVERS]",
+        "title": "Live Acoustic Covers Archive",
+        "playlist_id": "PLBdtLFHJumFT7clrjH-dQZIrex0Ha87fd",
+        "date": "LIVE SESSIONS",
+        "notes": "Raw, stripped-down interpretations of timeless tracks. Just a mahogany acoustic guitar, live vocal stems, and an open window."
+      },
+      {
+        "freq": "101.9 MHz [CHRISTMAS ALBUM]",
+        "title": "Holiday & Seasonal Sessions",
+        "playlist_id": "PLBdtLFHJumFTS0oKkRWQmKB1CrXDMV4nx",
+        "date": "SPECIAL RELEASE",
+        "notes": "Warm acoustic renditions of classic holiday songs recorded for the winter season. Cozy fireside guitar arrangements and quiet reflections."
+      }
+    ]
+  },
+  "writing": {
+    "kicker": "The Gilded Study • Pull a volume from the shelf",
+    "title": "Collected Writings",
+    "blurb": "Four leather-bound books. Click one to draw it from the case and open it on the desk.",
+    "hint": "Hover a volume • Click to open • Swipe or ← → to turn pages"
+  },
+  "life": {
+    "kicker": "Memoir • Oregon Pines to West Texas Soil",
+    "title": "The Life",
+    "blurb": "Choose a chapter",
+    "index_kicker": "The Life",
+    "index_heading": "Chapters",
+    "index_sub": "A paper roll. Pick a title."
+  },
+  "parlor": {
+    "kicker": "Members' bulletin",
+    "title": "The Parlor",
+    "blurb": "The house corkboard. Fellow members pin a word here.",
+    "signin_title": "Present your credentials",
+    "signin_blurb": "Members only beyond this door. Sign in with your email.",
+    "signin_submit": "Enter the parlor",
+    "signup_title": "Sign the guest book",
+    "signup_blurb": "Give a real email, a parlor username, and a word only you know. A likeness is optional. Then the parlor door opens.",
+    "signup_submit": "Create my membership"
+  },
+  "tip_jar": {
+    "kicker": "A coin for the road",
+    "line": "If these words found a home in you, drop a coin in the jar.",
+    "brass": "Author's Tip Jar"
+  }
+}

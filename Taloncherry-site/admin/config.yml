@@ -5,8 +5,8 @@ backend:
   repo: cherryboyblue-commits/talon-site
   branch: main
 
-site_url: https://cherryboyblue-commits.github.io/talon-site/
-display_url: https://cherryboyblue-commits.github.io/talon-site/
+site_url: https://www.taloncherry.com/
+display_url: https://www.taloncherry.com/
 logo_url: ../Images/Me1.jpg
 
 media_folder: Taloncherry-site/Images
@@ -18,6 +18,145 @@ slug:
   sanitize_replacement: "_"
 
 collections:
+  - name: house
+    label: House copy
+    label_singular: Page
+    description: Words, links, radio stations, and the mail bag on every public page. Chapters and writings are their own shelves. Parlor notes live in the house ledger, not here.
+    files:
+      - name: site
+        label: All pages
+        file: Taloncherry-site/cms/site.json
+        editor:
+          preview: false
+        fields:
+          - name: identity
+            label: Identity
+            widget: object
+            collapsed: false
+            fields:
+              - { name: name, label: Display name, widget: string, hint: "Home heading, for example Talon T. Cherry" }
+              - { name: person_name, label: Person name, widget: string, hint: "Search name without the middle initial" }
+              - { name: short_name, label: Monogram, widget: string, hint: "Tc in the header" }
+              - { name: tagline, label: Home tagline, widget: string }
+              - { name: description, label: Site description, widget: text }
+              - { name: portrait, label: Home portrait, widget: image }
+              - { name: copyright, label: Copyright line, widget: string }
+              - { name: host_note, label: Host note, widget: string }
+              - { name: cookie_note, label: Analytics aside, widget: text }
+              - { name: venmo_url, label: Venmo URL, widget: string }
+              - { name: venmo_label, label: Tip jar label, widget: string }
+              - { name: youtube_channel, label: YouTube channel URL, widget: string }
+          - name: nav
+            label: Home navigation
+            label_singular: Link
+            widget: list
+            summary: "{{fields.label}}"
+            fields:
+              - { name: label, label: Label, widget: string }
+              - { name: href, label: Page, widget: string }
+          - name: footer_nav
+            label: Crossroads
+            label_singular: Link
+            widget: list
+            summary: "{{fields.label}}"
+            fields:
+              - { name: label, label: Label, widget: string }
+              - { name: href, label: Page, widget: string }
+          - name: home
+            label: Home — Mail Bag
+            widget: object
+            collapsed: true
+            fields:
+              - { name: mail_cue, label: Mail cue link, widget: string }
+              - { name: mail_kicker, label: Mail kicker, widget: string }
+              - { name: mail_title, label: Mail heading, widget: string }
+              - { name: mail_blurb, label: Mail blurb, widget: text }
+              - { name: mail_submit, label: Send button, widget: string }
+              - { name: mail_success, label: Success note, widget: text }
+              - { name: mail_close, label: Close button, widget: string }
+          - name: social
+            label: Social page
+            widget: object
+            collapsed: true
+            fields:
+              - { name: title, label: Title, widget: string }
+              - { name: tagline, label: Tagline, widget: string }
+              - name: links
+                label: Links
+                label_singular: Link
+                widget: list
+                summary: "{{fields.label}}"
+                fields:
+                  - { name: label, label: Label, widget: string }
+                  - { name: url, label: URL, widget: string }
+          - name: music
+            label: Music / radio
+            widget: object
+            collapsed: true
+            fields:
+              - { name: kicker, label: Kicker, widget: string }
+              - { name: title, label: Title, widget: string }
+              - { name: blurb, label: Blurb, widget: text }
+              - { name: channel_label, label: Channel link label, widget: string }
+              - { name: dial_hint, label: Dial hint, widget: string }
+              - { name: journal_kicker, label: Station log kicker, widget: string }
+              - { name: broadcast_note, label: Broadcast note, widget: string }
+              - name: stations
+                label: Stations
+                label_singular: Station
+                widget: list
+                summary: "{{fields.freq}} — {{fields.title}}"
+                min: 1
+                fields:
+                  - { name: freq, label: Frequency label, widget: string }
+                  - { name: title, label: Station title, widget: string }
+                  - { name: playlist_id, label: YouTube playlist ID, widget: string, hint: "The PL… id, or paste a playlist URL" }
+                  - { name: date, label: Log date / collection, widget: string }
+                  - { name: notes, label: Journal notes, widget: text }
+          - name: writing
+            label: Writing page
+            widget: object
+            collapsed: true
+            fields:
+              - { name: kicker, label: Kicker, widget: string }
+              - { name: title, label: Title, widget: string }
+              - { name: blurb, label: Blurb, widget: text }
+              - { name: hint, label: Shelf hint, widget: string }
+          - name: life
+            label: Life page
+            widget: object
+            collapsed: true
+            fields:
+              - { name: kicker, label: Kicker, widget: string }
+              - { name: title, label: Title, widget: string }
+              - { name: blurb, label: Blurb, widget: string }
+              - { name: index_kicker, label: Paper kicker, widget: string }
+              - { name: index_heading, label: Paper heading, widget: string }
+              - { name: index_sub, label: Paper sub, widget: string }
+          - name: parlor
+            label: Parlor door
+            widget: object
+            collapsed: true
+            hint: Member notes on the corkboard are not edited here.
+            fields:
+              - { name: kicker, label: Board kicker, widget: string }
+              - { name: title, label: Board title, widget: string }
+              - { name: blurb, label: Board blurb, widget: text }
+              - { name: signin_title, label: Sign-in title, widget: string }
+              - { name: signin_blurb, label: Sign-in blurb, widget: text }
+              - { name: signin_submit, label: Sign-in button, widget: string }
+              - { name: signup_title, label: Sign-up title, widget: string }
+              - { name: signup_blurb, label: Sign-up blurb, widget: text }
+              - { name: signup_submit, label: Sign-up button, widget: string }
+          - name: tip_jar
+            label: Author tip jar
+            widget: object
+            collapsed: true
+            fields:
+              - { name: kicker, label: Kicker, widget: string }
+              - { name: line, label: Line, widget: text }
+              - { name: brass, label: Brass label, widget: string }
+
   - name: categories
     label: Categories
     label_singular: Category
@@ -44,6 +183,7 @@ collections:
     format: txt-frontmatter
     identifier_field: title
     create: true
+    delete: true
     slug: "{{slug}}"
     summary: "{{title}}"
     editor:
@@ -51,6 +191,7 @@ collections:
     fields:
       - { name: title, label: Title, widget: string }
       - { name: subtitle, label: Subtitle, widget: string, required: false }
+      - { name: date, label: Date, widget: string, required: false }
       - { name: body, label: Body, widget: text }
 
   - name: entries_cultural
@@ -60,12 +201,14 @@ collections:
     format: txt-frontmatter
     identifier_field: title
     create: true
+    delete: true
     slug: "{{slug}}"
     summary: "{{title}}"
     editor:
       preview: false
     fields:
       - { name: title, label: Title, widget: string }
+      - { name: date, label: Date, widget: string, required: false }
       - { name: body, label: Body, widget: text }
 
   - name: entries_poetry
@@ -75,12 +218,14 @@ collections:
     format: txt-frontmatter
     identifier_field: title
     create: true
+    delete: true
     slug: "{{slug}}"
     summary: "{{title}}"
     editor:
       preview: false
     fields:
       - { name: title, label: Title, widget: string }
+      - { name: date, label: Date, widget: string, required: false }
       - { name: body, label: Body, widget: text }
 
   - name: entries_lyrics
@@ -90,12 +235,14 @@ collections:
     format: txt-frontmatter
     identifier_field: title
     create: true
+    delete: true
     slug: "{{slug}}"
     summary: "{{title}}"
     editor:
       preview: false
     fields:
       - { name: title, label: Title, widget: string }
+      - { name: date, label: Date, widget: string, required: false }
       - { name: body, label: Body, widget: text }
 
   - name: entries_stories
@@ -105,10 +252,12 @@ collections:
     format: txt-frontmatter
     identifier_field: title
     create: true
+    delete: true
     slug: "{{slug}}"
     summary: "{{title}}"
     editor:
       preview: false
     fields:
       - { name: title, label: Title, widget: string }
+      - { name: date, label: Date, widget: string, required: false }
       - { name: body, label: Body, widget: text }

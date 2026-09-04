@@ -20,6 +20,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Rebuild writing and life from the archive
+        run: node Taloncherry-site/build-content.mjs
+
       - name: Upload page artifact
         uses: actions/upload-pages-artifact@v3
         with:

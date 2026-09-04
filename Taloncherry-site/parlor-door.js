@@ -1,18 +1,27 @@
 (function () {
-  function setMode(mode) {
-    const isSignUp = mode === "signup";
-    document.body.dataset.parlorMode = isSignUp ? "signup" : "signin";
-    const title = document.getElementById("parlor-title");
-    const blurb = document.getElementById("parlor-blurb");
-    const submit = document.getElementById("parlor-submit");
-    const signInTab = document.getElementById("tab-signin");
-    const signUpTab = document.getElementById("tab-signup");
-    const username = document.getElementById("parlor-username");
-    if (title) title.textContent = isSignUp ? "Sign the guest book" : "Present your credentials";
-    if (blurb) blurb.textContent = isSignUp
-      ? "Give a real email, a parlor username, and a word only you know. A likeness is optional. Then the parlor door opens."
-      : "Members only beyond this door. Sign in with your email.";
-    if (submit) submit.textContent = isSignUp ? "Create my membership" : "Enter the parlor";
+    function doorCopy() {
+      return (window.SITE_COPY && window.SITE_COPY.parlor) || {};
+    }
+
+    function setMode(mode) {
+      const isSignUp = mode === "signup";
+      document.body.dataset.parlorMode = isSignUp ? "signup" : "signin";
+      const copy = doorCopy();
+      const title = document.getElementById("parlor-title");
+      const blurb = document.getElementById("parlor-blurb");
+      const submit = document.getElementById("parlor-submit");
+      const signInTab = document.getElementById("tab-signin");
+      const signUpTab = document.getElementById("tab-signup");
+      const username = document.getElementById("parlor-username");
+      if (title) title.textContent = isSignUp
+        ? (copy.signup_title || "Sign the guest book")
+        : (copy.signin_title || "Present your credentials");
+      if (blurb) blurb.textContent = isSignUp
+        ? (copy.signup_blurb || "Give a real email, a parlor username, and a word only you know. A likeness is optional. Then the parlor door opens.")
+        : (copy.signin_blurb || "Members only beyond this door. Sign in with your email.");
+      if (submit) submit.textContent = isSignUp
+        ? (copy.signup_submit || "Create my membership")
+        : (copy.signin_submit || "Enter the parlor");
     if (signInTab) {
       signInTab.classList.toggle("is-active", !isSignUp);
       signInTab.setAttribute("aria-selected", String(!isSignUp));
@@ -49,6 +58,9 @@
     if (!form) return;
 
     setMode(params.get("mode") === "signup" ? "signup" : "signin");
+    document.addEventListener("sitecopy", function () {
+      setMode(document.body.dataset.parlorMode === "signup" ? "signup" : "signin");
+    });
 
     document.getElementById("tab-signin").addEventListener("click", function () {
       errorEl.textContent = "";

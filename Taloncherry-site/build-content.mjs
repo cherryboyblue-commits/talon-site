@@ -126,23 +126,63 @@ const libraryData = {
   },
 };
 
-const lifeOrder = [
-  ["old", "The old life.txt", "The Old Life", "From Oregon childhood through the years that made the man."],
-  ["new", "The New Life.txt", "The New Life", "Texas soil, the farm, and the faith that followed."],
-  ["faith", "Faith.txt", "Faith", "Prayer, the fall, the climb, and the Christian life."],
-  ["family", "Family and Friends.txt", "Family and Friends", "Parents, siblings, and the friends who stayed."],
+const LIFE_PREFERRED = [
+  ["The old life.txt", "old", "The Old Life", "From Oregon childhood through the years that made the man."],
+  ["The New Life.txt", "new", "The New Life", "Texas soil, the farm, and the faith that followed."],
+  ["Faith.txt", "faith", "Faith", "Prayer, the fall, the climb, and the Christian life."],
+  ["Family and Friends.txt", "family", "Family and Friends", "Parents, siblings, and the friends who stayed."],
+  ["Jayden.txt", "jayden", "Jayden", ""],
+  ["Katelyn.txt", "katelyn", "Katelyn", ""],
+  ["Britanny.txt", "britanny", "Britanny", ""],
+  ["Truitt.txt", "truitt", "Truitt", ""],
 ];
 
+function lifeKeyFor(filename) {
+  const known = LIFE_PREFERRED.find(
+    ([file]) => file.toLowerCase() === String(filename).toLowerCase()
+  );
+  if (known) return known[1];
+  return String(filename)
+    .replace(/\.txt$/i, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "") || "chapter";
+}
+
+function lifeFallback(filename) {
+  const known = LIFE_PREFERRED.find(
+    ([file]) => file.toLowerCase() === String(filename).toLowerCase()
+  );
+  if (known) return { title: known[2], subtitle: known[3] };
+  return { title: titleFromFilename(filename), subtitle: "" };
+}
+
+const lifeDir = path.join(root, "His Life");
+const lifeFiles = fs
+  .readdirSync(lifeDir)
+  .filter((f) => f.toLowerCase().endsWith(".txt"))
+  .sort((a, b) => {
+    const ia = LIFE_PREFERRED.findIndex(([file]) => file.toLowerCase() === a.toLowerCase());
+    const ib = LIFE_PREFERRED.findIndex(([file]) => file.toLowerCase() === b.toLowerCase());
+    if (ia !== -1 && ib !== -1) return ia - ib;
+    if (ia !== -1) return -1;
+    if (ib !== -1) return 1;
+    return a.localeCompare(b, "en", { sensitivity: "base" });
+  });
+
 const lifeData = {};
-for (const [key, file, title, subtitle] of lifeOrder) {
-  const raw = fs.readFileSync(path.join(root, "His Life", file), "utf8");
+for (const file of lifeFiles) {
+  const key = lifeKeyFor(file);
+  const fallback = lifeFallback(file);
+  const raw = fs.readFileSync(path.join(lifeDir, file), "utf8");
   const split = splitFrontmatter(raw);
-  const resolvedTitle = String(split.meta.title || title).trim() || title;
+  const resolvedTitle = String(split.meta.title || fallback.title).trim() || fallback.title;
   const cleaned = cleanBody(split.body);
   lifeData[key] = {
     title: resolvedTitle,
-    subtitle: String(split.meta.subtitle || subtitle).trim() || subtitle,
+    subtitle: String(split.meta.subtitle || fallback.subtitle).trim() || fallback.subtitle,
     text: stripTitleAndMeta(cleaned, resolvedTitle),
+    filename: file,
   };
 }
 

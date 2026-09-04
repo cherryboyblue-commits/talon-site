@@ -139,6 +139,19 @@
       console.warn(err);
     }
     applyLikes(notes, likeRows, currentUser);
+    if (currentUser && window.parlorAvatarFromUser) {
+      const selfUrl = window.parlorAvatarFromUser(currentUser);
+      if (selfUrl) {
+        const prior = avatarMap[currentUser.id] || {};
+        avatarMap[currentUser.id] = {
+          username: prior.username || (window.parlorDisplayName ? window.parlorDisplayName(currentUser) : ""),
+          avatar_url: prior.avatar_url || selfUrl
+        };
+        notes.forEach(function (note) {
+          if (note.userId === currentUser.id && !note.avatarUrl) note.avatarUrl = selfUrl;
+        });
+      }
+    }
     return {
       notes: notes,
       avatars: avatarMap,

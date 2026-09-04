@@ -176,6 +176,21 @@
         return Array.from(names);
     }
 
+    function uniqueTxtNames(names) {
+        const seen = {};
+        const out = [];
+        (names || []).forEach(function (name) {
+            const key = String(name).toLowerCase();
+            if (seen[key]) return;
+            seen[key] = true;
+            const preferred = CHAPTER_FILES.find(function (row) {
+                return row.file.toLowerCase() === key;
+            });
+            out.push(preferred ? preferred.file : name);
+        });
+        return out;
+    }
+
     async function fetchText(folder, filename) {
         const res = await fetch(encodePath(folder, filename) + "?t=" + Date.now());
         if (!res.ok) throw new Error(filename);
@@ -199,7 +214,13 @@
 
     async function loadChapters(bundled) {
         const data = bundled && typeof bundled === "object" ? bundled : {};
-        const names = sortChapterNames(await listTxt("His Life", CHAPTER_FILES.map(function (row) { return row.file; })));
+        const bundledNames = Object.keys(data).map(function (key) {
+            return data[key] && data[key].filename;
+        }).filter(Boolean);
+        const names = uniqueTxtNames(sortChapterNames(await listTxt(
+            "His Life",
+            CHAPTER_FILES.map(function (row) { return row.file; }).concat(bundledNames)
+        )));
         const order = [];
         const fetched = await Promise.all(names.map(function (filename) {
             const key = slugFromFilename(filename);
@@ -229,7 +250,7 @@
                 text: parsed.text,
                 filename: parsed.filename
             };
-            order.push(key);
+            if (order.indexOf(key) === -1) order.push(key);
         });
         return { data: data, order: order };
     }

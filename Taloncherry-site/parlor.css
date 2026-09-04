@@ -87,6 +87,13 @@ body[data-parlor-mode="signin"] #parlor-avatar-wrap {
     opacity: 0;
     cursor: pointer;
 }
+.parlor-likeness-status {
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #f0d9a8;
+    max-width: 14rem;
+}
 .parlor-file {
     display: flex;
     align-items: center;
