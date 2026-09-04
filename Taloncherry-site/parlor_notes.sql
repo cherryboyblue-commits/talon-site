@@ -37,6 +37,25 @@ create policy "parlor_notes_member_read"
   to authenticated
   using (true);
 
+-- If the corkboard is empty but the table still has rows, a tighter SELECT
+-- policy is hiding them. This drops every SELECT policy on parlor_notes
+-- and leaves only the member-wide read above.
+do $$
+declare
+  r record;
+begin
+  for r in
+    select policyname
+    from pg_policies
+    where schemaname = 'public'
+      and tablename = 'parlor_notes'
+      and cmd = 'SELECT'
+      and policyname <> 'parlor_notes_member_read'
+  loop
+    execute format('drop policy if exists %I on public.parlor_notes', r.policyname);
+  end loop;
+end $$;
+
 drop policy if exists "parlor_notes_member_post" on public.parlor_notes;
 create policy "parlor_notes_member_post"
   on public.parlor_notes

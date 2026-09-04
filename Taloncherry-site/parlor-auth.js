@@ -261,11 +261,23 @@
     let token = config.supabaseAnonKey;
     if (client) {
       const { data } = await client.auth.getSession();
-      if (data && data.session && data.session.access_token) token = data.session.access_token;
+      if (data && data.session && data.session.access_token) {
+        token = data.session.access_token;
+      } else {
+        try {
+          const fresh = await client.auth.getUser();
+          const { data: again } = await client.auth.getSession();
+          if (again && again.session && again.session.access_token) {
+            token = again.session.access_token;
+          }
+          void fresh;
+        } catch (err) { /* stay on anon key */ }
+      }
     }
     return Object.assign({
       apikey: config.supabaseAnonKey,
       Authorization: "Bearer " + token,
+      Accept: "application/json",
       "Content-Type": "application/json",
       Prefer: "return=representation"
     }, extra || {});

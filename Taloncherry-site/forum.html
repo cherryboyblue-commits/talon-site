@@ -136,9 +136,9 @@
 
     <script src="site-content.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="parlor-config.js?v=6"></script>
-    <script src="parlor-auth.js?v=6"></script>
-    <script src="parlor-board.js?v=6"></script>
+    <script src="parlor-config.js?v=7"></script>
+    <script src="parlor-auth.js?v=7"></script>
+    <script src="parlor-board.js?v=7"></script>
     <script>
         function paintHeartButton(button, liked, count) {
             const safeCount = Math.max(0, Number(count) || 0);
@@ -428,6 +428,10 @@
             const records = ledger.notes || [];
             if (!records.length) {
                 showEmptyState();
+                if (boardError) {
+                    boardError.hidden = false;
+                    boardError.textContent = 'No pins came back from parlor_notes. If they still show in the Supabase table, a read policy is hiding them. Run parlor_notes.sql in the SQL editor, then refresh.';
+                }
             } else {
                 records.forEach(function (record) {
                     try {

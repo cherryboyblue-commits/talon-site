@@ -1,21 +1,33 @@
 (function () {
+  function noteAuthor(row) {
+    return (row && (row.author || row.username || row.name)) || "A member";
+  }
+
+  function noteBody(row) {
+    return (row && (row.note || row.message || row.body)) || "";
+  }
+
+  function noteCreated(row) {
+    return (row && (row.created_at || row.created || row.inserted_at)) || "";
+  }
+
   function mapNote(row, avatarMap, currentUser) {
-    const userId = row.user_id || "";
+    const userId = (row && (row.user_id || row.userId)) || "";
     const category = typeof window.parlorDrawerFor === "function"
       ? window.parlorDrawerFor(row)
       : (typeof window.parlorNormalizeCategory === "function"
         ? window.parlorNormalizeCategory(row && row.category)
         : "general");
     return {
-      id: row.id,
+      id: row && row.id,
       userId: userId,
-      author: row.author || "A member",
-      note: row.note || "",
-      created: row.created_at || "",
-      imageUrl: window.parlorSafeMediaUrl ? window.parlorSafeMediaUrl(row.image_url) : "",
+      author: noteAuthor(row),
+      note: noteBody(row),
+      created: noteCreated(row),
+      imageUrl: window.parlorSafeMediaUrl ? window.parlorSafeMediaUrl(row && row.image_url) : "",
       category: category || "general",
-      pinned: row.is_pinned === true,
-      avatarUrl: window.parlorResolveAvatar ? window.parlorResolveAvatar(userId, row.author, avatarMap, currentUser) : "",
+      pinned: row && (row.is_pinned === true || row.is_pinned === "true" || row.is_pinned === 1),
+      avatarUrl: window.parlorResolveAvatar ? window.parlorResolveAvatar(userId, noteAuthor(row), avatarMap, currentUser) : "",
       likeCount: 0,
       liked: false
     };
@@ -98,21 +110,50 @@
     });
   }
 
-  window.parlorLoadNotes = async function (currentUser) {
-    const avatarMap = await window.parlorLoadAvatarMap();
-    let res = await fetch(window.parlorRestUrl() + "?select=*&order=is_pinned.desc,created_at.desc", {
-      method: "GET",
-      headers: await window.parlorRestHeaders()
+  async function readHeaders() {
+    return window.parlorRestHeaders({
+      Prefer: "count=exact"
     });
-    if (!res.ok) {
-      res = await fetch(window.parlorRestUrl() + "?select=*&order=created_at.desc", {
-        method: "GET",
-        headers: await window.parlorRestHeaders()
-      });
+  }
+
+  async function fetchParlorNoteRows() {
+    const headers = await readHeaders();
+    const base = window.parlorRestUrl();
+    const attempts = [
+      "?select=id,user_id,author,note,created_at,image_url,category,is_pinned&order=is_pinned.desc,created_at.desc",
+      "?select=id,user_id,author,note,created_at,category,is_pinned&order=created_at.desc",
+      "?select=id,user_id,author,note,created_at&order=created_at.desc",
+      "?select=*&order=created_at.desc",
+      "?select=*"
+    ];
+    let lastDetail = "";
+    for (let i = 0; i < attempts.length; i += 1) {
+      const res = await fetch(base + attempts[i], { method: "GET", headers: headers });
+      if (res.ok) {
+        const rows = await res.json();
+        return Array.isArray(rows) ? rows : [];
+      }
+      lastDetail = (await res.text()) || ("HTTP " + res.status);
     }
-    if (!res.ok) throw new Error("The ledger could not be opened.");
-    const rows = await res.json();
-    const list = Array.isArray(rows) ? rows : [];
+    throw new Error(lastDetail || "The ledger could not be opened.");
+  }
+
+  window.parlorLoadNotes = async function (currentUser) {
+    const notesPromise = fetchParlorNoteRows();
+    const avatarsPromise = window.parlorLoadAvatarMap ? window.parlorLoadAvatarMap() : Promise.resolve({});
+    let list = [];
+    let avatarMap = {};
+    try {
+      list = await notesPromise;
+    } catch (err) {
+      throw err;
+    }
+    try {
+      avatarMap = await avatarsPromise;
+    } catch (err) {
+      console.warn(err);
+      avatarMap = {};
+    }
     const notes = sortNotes(list.map(function (row) {
       try {
         return mapNote(row, avatarMap, currentUser);
@@ -120,9 +161,10 @@
         console.warn(err);
         return {
           id: row && row.id,
-          author: (row && row.author) || "A member",
-          note: (row && row.note) || "",
-          created: (row && row.created_at) || "",
+          userId: row && (row.user_id || ""),
+          author: noteAuthor(row),
+          note: noteBody(row),
+          created: noteCreated(row),
           imageUrl: "",
           category: "general",
           pinned: false,

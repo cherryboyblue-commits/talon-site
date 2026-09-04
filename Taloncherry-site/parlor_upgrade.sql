@@ -49,6 +49,14 @@ create policy "parlor_profiles_self_insert"
 grant select, insert, update on table public.parlor_profiles to authenticated;
 grant select, insert, update, delete on table public.parlor_notes to authenticated;
 
+-- Corkboard: every signed-in member may read every pin.
+drop policy if exists "parlor_notes_member_read" on public.parlor_notes;
+create policy "parlor_notes_member_read"
+  on public.parlor_notes
+  for select
+  to authenticated
+  using (true);
+
 -- Public bucket parlor-media: members may write only inside their own folder.
 insert into storage.buckets (id, name, public)
 values ('parlor-media', 'parlor-media', true)
