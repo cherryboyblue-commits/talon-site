@@ -3,28 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Talon T. Cherry</title>
+    <title>Talon Cherry | Official Site of Musician &amp; Writer Talon T. Cherry</title>
     <link rel="canonical" href="https://www.taloncherry.com/">
-    <meta name="description" content="Official site of Talon Cherry, an Oregon-born singer-songwriter, poet, and memoirist now writing and recording from West Texas. Not affiliated with any tobacco brand.">
-    <script type="application/ld+json">
+    <meta name="description" content="Official website of Talon Cherry (Talon T. Cherry): Oregon-born musician, writer, and artist in Texas. Acoustic originals including The Keeper of Her Shadow, poetry, and memoir. This is the person Talon Cherry, not a tobacco brand.">
+    <meta name="author" content="Talon T. Cherry">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <link rel="me" href="https://www.youtube.com/@TalonCherry">
+    <link rel="me" href="https://www.instagram.com/mr_jones_86">
+    <link rel="me" href="https://www.facebook.com/share/1F99uSGJkq/">
+    <meta property="og:type" content="profile">
+    <meta property="og:site_name" content="Talon Cherry">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:title" content="Talon Cherry | Official Site of Talon T. Cherry">
+    <meta property="og:description" content="Musician, writer, and artist Talon T. Cherry. Official site. Not affiliated with any tobacco brand.">
+    <meta property="og:url" content="https://www.taloncherry.com/">
+    <meta property="og:image" content="https://www.taloncherry.com/Images/Me1.jpg">
+    <meta property="og:image:alt" content="Portrait of Talon T. Cherry, musician and writer">
+    <meta property="profile:first_name" content="Talon">
+    <meta property="profile:last_name" content="Cherry">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Talon Cherry | Official Site of Talon T. Cherry">
+    <meta name="twitter:description" content="Official site of musician and writer Talon T. Cherry. Not a tobacco brand.">
+    <meta name="twitter:image" content="https://www.taloncherry.com/Images/Me1.jpg">
+    <script id="site-jsonld" type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "Person",
-      "@id": "https://www.taloncherry.com/#person",
-      "name": "Talon Cherry",
-      "alternateName": ["Talon T. Cherry", "Talon Truitt Cherry"],
-      "givenName": "Talon",
-      "familyName": "Cherry",
-      "url": "https://www.taloncherry.com",
-      "image": "https://www.taloncherry.com/Images/Me1.jpg",
-      "jobTitle": "Singer-songwriter and writer",
-      "description": "Oregon-born musician, poet, and memoirist living in West Texas. Acoustic originals, poetry, faith, and family.",
-      "disambiguatingDescription": "The person Talon Cherry: singer-songwriter and writer. Not the tobacco product brand.",
-      "knowsAbout": ["acoustic music", "songwriting", "poetry", "memoir", "Christian faith"],
-      "sameAs": [
-        "https://www.facebook.com/share/1F99uSGJkq/",
-        "https://www.instagram.com/mr_jones_86",
-        "https://www.youtube.com/@TalonCherry"
+      "@graph": [
+        {
+          "@type": "Person",
+          "@id": "https://www.taloncherry.com/#person",
+          "name": "Talon T. Cherry",
+          "alternateName": ["Talon Cherry", "Talon Truitt Cherry"],
+          "givenName": "Talon",
+          "additionalName": "T.",
+          "familyName": "Cherry",
+          "url": "https://www.taloncherry.com/",
+          "image": "https://www.taloncherry.com/Images/Me1.jpg",
+          "jobTitle": ["Musician", "Writer", "Artist"],
+          "hasOccupation": [
+            { "@type": "Occupation", "name": "Musician" },
+            { "@type": "Occupation", "name": "Writer" },
+            { "@type": "Occupation", "name": "Artist" }
+          ],
+          "description": "Oregon-born musician, writer, and artist living in Texas. Acoustic originals, poetry, faith, and family.",
+          "disambiguatingDescription": "The person Talon T. Cherry: musician, writer, and artist. Not the tobacco product brand.",
+          "homeLocation": {
+            "@type": "Place",
+            "name": "Texas",
+            "address": {
+              "@type": "PostalAddress",
+              "addressRegion": "TX",
+              "addressCountry": "US"
+            }
+          },
+          "knowsAbout": ["acoustic music", "songwriting", "poetry", "memoir", "Christian faith"],
+          "sameAs": [
+            "https://www.youtube.com/@TalonCherry",
+            "https://www.facebook.com/share/1F99uSGJkq/",
+            "https://www.instagram.com/mr_jones_86"
+          ],
+          "mainEntityOfPage": { "@id": "https://www.taloncherry.com/#webpage" },
+          "performerIn": { "@id": "https://www.taloncherry.com/#musicgroup" }
+        },
+        {
+          "@type": "MusicGroup",
+          "@id": "https://www.taloncherry.com/#musicgroup",
+          "name": "Talon T. Cherry",
+          "alternateName": "Talon Cherry",
+          "url": "https://www.taloncherry.com/music.html",
+          "image": "https://www.taloncherry.com/Images/Me1.jpg",
+          "genre": ["Acoustic", "Singer-songwriter", "Folk"],
+          "member": { "@id": "https://www.taloncherry.com/#person" },
+          "sameAs": [
+            "https://www.youtube.com/@TalonCherry",
+            "https://www.facebook.com/share/1F99uSGJkq/",
+            "https://www.instagram.com/mr_jones_86"
+          ],
+          "album": { "@id": "https://www.taloncherry.com/#keeper-of-her-shadow" }
+        },
+        {
+          "@type": "MusicAlbum",
+          "@id": "https://www.taloncherry.com/#keeper-of-her-shadow",
+          "name": "The Keeper of Her Shadow",
+          "albumReleaseType": "AlbumRelease",
+          "genre": ["Acoustic", "Singer-songwriter"],
+          "url": "https://www.taloncherry.com/music.html",
+          "byArtist": { "@id": "https://www.taloncherry.com/#musicgroup" },
+          "track": {
+            "@type": "MusicRecording",
+            "@id": "https://www.taloncherry.com/#keeper-of-her-shadow-title-track",
+            "name": "The Keeper of Her Shadow",
+            "byArtist": { "@id": "https://www.taloncherry.com/#musicgroup" },
+            "url": "https://www.taloncherry.com/music.html"
+          }
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://www.taloncherry.com/#website",
+          "url": "https://www.taloncherry.com/",
+          "name": "Talon Cherry",
+          "alternateName": ["Talon T. Cherry", "Talon Truitt Cherry", "Official site of Talon Cherry"],
+          "description": "Official website of the person Talon Cherry: musician, writer, and artist. Not a tobacco brand.",
+          "inLanguage": "en-US",
+          "publisher": { "@id": "https://www.taloncherry.com/#person" },
+          "about": { "@id": "https://www.taloncherry.com/#person" }
+        },
+        {
+          "@type": "ProfilePage",
+          "@id": "https://www.taloncherry.com/#webpage",
+          "url": "https://www.taloncherry.com/",
+          "name": "Talon Cherry | Official Site of Talon T. Cherry",
+          "isPartOf": { "@id": "https://www.taloncherry.com/#website" },
+          "about": { "@id": "https://www.taloncherry.com/#person" },
+          "mainEntity": { "@id": "https://www.taloncherry.com/#person" },
+          "inLanguage": "en-US",
+          "primaryImageOfPage": {
+            "@type": "ImageObject",
+            "url": "https://www.taloncherry.com/Images/Me1.jpg",
+            "caption": "Talon T. Cherry"
+          }
+        }
       ]
     }
     </script>

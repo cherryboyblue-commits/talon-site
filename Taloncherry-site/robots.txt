@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin/
+Disallow: /admin
+Disallow: /sky-preview.html
+Disallow: /login.html
+Disallow: /signup.html
+
+Sitemap: https://www.taloncherry.com/sitemap.xml

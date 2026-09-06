@@ -108,18 +108,32 @@
     });
     const meta = document.querySelector('meta[name="description"]');
     if (meta && ident.description) meta.setAttribute("content", ident.description);
-    const ld = document.querySelector('script[type="application/ld+json"]');
+    const ld = document.getElementById("site-jsonld") || document.querySelector('script[type="application/ld+json"]');
     if (ld && ident.name) {
       try {
         const schema = JSON.parse(ld.textContent);
-        if (ident.person_name) schema.name = ident.person_name;
-        if (ident.name) schema.alternateName = [ident.name];
-        if (ident.description) schema.description = ident.description;
-        if (ident.portrait) {
-          schema.image = "https://www.taloncherry.com/" + mediaSrc(ident.portrait);
-        }
-        if (data.social && data.social.links) {
-          schema.sameAs = data.social.links.map(function (link) { return link.url; }).filter(Boolean);
+        const nodes = Array.isArray(schema["@graph"]) ? schema["@graph"] : [schema];
+        const person = nodes.find(function (node) {
+          if (!node) return false;
+          const type = node["@type"];
+          return type === "Person" || (Array.isArray(type) && type.indexOf("Person") >= 0);
+        });
+        if (person) {
+          if (ident.name) person.name = ident.name;
+          if (ident.person_name) {
+            const names = [ident.name, ident.person_name].filter(Boolean);
+            person.alternateName = names.filter(function (name, i) { return names.indexOf(name) === i && name !== person.name; });
+          }
+          if (ident.description) person.description = ident.description;
+          if (ident.portrait) {
+            person.image = "https://www.taloncherry.com/" + mediaSrc(ident.portrait);
+          }
+          if (data.social && data.social.links) {
+            person.sameAs = data.social.links.map(function (link) { return link.url; }).filter(Boolean);
+            nodes.forEach(function (node) {
+              if (node && node["@type"] === "MusicGroup") node.sameAs = person.sameAs;
+            });
+          }
         }
         ld.textContent = JSON.stringify(schema, null, 2);
       } catch (err) { /* leave bundled schema */ }
