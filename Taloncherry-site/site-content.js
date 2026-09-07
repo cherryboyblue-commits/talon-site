@@ -103,6 +103,17 @@
       a.target = "_blank";
       a.rel = "me noopener noreferrer";
     });
+    (data.social && data.social.links || []).forEach(function (link) {
+      if (!link || !link.url) return;
+      const already = Array.prototype.some.call(document.querySelectorAll('link[rel~="me"]'), function (el) {
+        return el.getAttribute("href") === link.url;
+      });
+      if (already) return;
+      const me = document.createElement("link");
+      me.rel = "me";
+      me.href = link.url;
+      document.head.appendChild(me);
+    });
     document.querySelectorAll("nav.crossroads").forEach(function (nav) {
       fillNav(nav, data.footer_nav);
     });
