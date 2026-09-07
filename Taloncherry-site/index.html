@@ -12,6 +12,8 @@
     <link rel="me" href="https://www.instagram.com/mr_jones_86">
     <link rel="me" href="https://www.facebook.com/share/1F99uSGJkq/">
     <link rel="me" href="https://github.com/cherryboyblue-commits">
+    <link rel="webmention" href="https://webmention.io/taloncherry.com/webmention">
+    <link rel="pingback" href="https://webmention.io/taloncherry.com/xmlrpc">
     <meta property="og:type" content="profile">
     <meta property="og:site_name" content="Talon Cherry">
     <meta property="og:locale" content="en_US">
@@ -141,6 +143,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="site-widgets.css?v=mail-cue">
+    <link rel="stylesheet" href="indieweb.css">
     <link rel="stylesheet" href="site-atmosphere.css">
     <link rel="stylesheet" href="admin/gate.css">
     <style>
@@ -189,9 +192,13 @@
         <img src="Images/Me1.jpg" alt="" width="128" height="128" data-site-src="identity.portrait">
     </div>
 
-    <main class="home-stage">
+    <main class="home-stage h-card">
         <p class="home-mono" aria-hidden="true" data-site="identity.short_name">Tc</p>
-        <h1 class="home-name" data-site="identity.name">Talon T. Cherry</h1>
+        <h1 class="home-name p-name" data-site="identity.name">Talon T. Cherry</h1>
+        <div class="indie-sr">
+            <a class="u-url" href="https://taloncherry.com/" tabindex="-1">https://taloncherry.com/</a>
+            <img class="u-photo" src="Images/Me1.jpg" alt="" width="1" height="1" data-site-src="identity.portrait">
+        </div>
         <p class="home-tagline"><span data-site="identity.tagline">Time can only take the joy you never shared</span><button type="button" class="home-study-mark" id="study-trigger" aria-hidden="true" tabindex="-1">.</button></p>
         <nav class="home-nav" aria-label="Primary" data-site-nav="nav">
             <a href="music.html">Music</a>
@@ -237,6 +244,7 @@
 
     <footer class="home-foot home-foot--flow">
         <p class="js-copyright">Copyright © 2026 Talon T. Cherry. All Rights Reserved.</p>
+        <aside id="webmentions" class="webmentions" hidden></aside>
         <p class="cookie-aside">We use Google Analytics just to see if anyone is reading this, or if I'm shouting into the void.</p>
     </footer>
 
@@ -280,6 +288,7 @@
         });
     </script>
     <script src="site-content.js"></script>
+    <script src="indieweb.js"></script>
     <script src="admin/gate.js"></script>
     <script>
         document.getElementById('study-trigger').addEventListener('click', function (event) {

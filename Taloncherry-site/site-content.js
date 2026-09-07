@@ -114,6 +114,23 @@
       me.href = link.url;
       document.head.appendChild(me);
     });
+    [
+      ["me", "https://github.com/cherryboyblue-commits"],
+      ["webmention", "https://webmention.io/taloncherry.com/webmention"],
+      ["pingback", "https://webmention.io/taloncherry.com/xmlrpc"]
+    ].forEach(function (pair) {
+      const rel = pair[0];
+      const href = pair[1];
+      const already = Array.prototype.some.call(document.querySelectorAll("link[rel]"), function (el) {
+        const rels = String(el.getAttribute("rel") || "").toLowerCase().split(/\s+/);
+        return rels.indexOf(rel) !== -1 && el.getAttribute("href") === href;
+      });
+      if (already) return;
+      const link = document.createElement("link");
+      link.rel = rel;
+      link.href = href;
+      document.head.appendChild(link);
+    });
     document.querySelectorAll("nav.crossroads").forEach(function (nav) {
       fillNav(nav, data.footer_nav);
     });

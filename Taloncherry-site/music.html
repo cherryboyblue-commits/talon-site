@@ -10,6 +10,8 @@
     <meta name="robots" content="index, follow, max-image-preview:large">
     <link rel="me" href="https://www.youtube.com/@TalonCherry">
     <link rel="me" href="https://github.com/cherryboyblue-commits">
+    <link rel="webmention" href="https://webmention.io/taloncherry.com/webmention">
+    <link rel="pingback" href="https://webmention.io/taloncherry.com/xmlrpc">
     <meta property="og:type" content="music.album">
     <meta property="og:site_name" content="Talon Cherry">
     <meta property="og:title" content="Music by Talon Cherry | The Keeper of Her Shadow">
@@ -77,6 +79,7 @@
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="site-widgets.css">
+    <link rel="stylesheet" href="indieweb.css">
     <link rel="stylesheet" href="site-atmosphere.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap');
@@ -140,16 +143,18 @@
     <main class="relative z-10 max-w-5xl mx-auto px-6 py-10">
         
         <!-- Header Banner -->
-        <div class="text-center mb-10">
+        <div class="text-center mb-10 h-entry">
             <span class="inline-block text-xs uppercase tracking-widest text-amber-500 font-semibold mb-3 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20 tracking-widest" data-site="music.kicker">
                 FM 19.86 • Midnight Porch Broadcast
             </span>
-            <h1 class="text-4xl md:text-6xl font-serif-custom text-zinc-100 tracking-tight mb-2" data-site="music.title">
+            <h1 class="text-4xl md:text-6xl font-serif-custom text-zinc-100 tracking-tight mb-2 p-name" data-site="music.title">
                 The Campfire Radio Session
             </h1>
-            <p class="text-zinc-400 text-sm max-w-md mx-auto font-light" data-site="music.blurb">
+            <p class="text-zinc-400 text-sm max-w-md mx-auto font-light e-content" data-site="music.blurb">
                 Click or turn the analog dial below to switch stations. Full curated audio broadcasts from the pines to the plains.
             </p>
+            <a class="u-url indie-sr" href="https://taloncherry.com/music.html" tabindex="-1">https://taloncherry.com/music.html</a>
+            <a class="p-author h-card indie-sr" href="https://taloncherry.com/" tabindex="-1">Talon T. Cherry</a>
         </div>
 
         <!-- Vintage Radio Console + Journal Split Layout -->
@@ -266,10 +271,12 @@
             </a>
             <p class="text-zinc-500 js-host-note">Built local. Hosted free via GitHub Pages.</p>
         </div>
+        <aside id="webmentions" class="webmentions" hidden></aside>
         <p class="cookie-aside">We use Google Analytics just to see if anyone is reading this, or if I'm shouting into the void.</p>
     </footer>
 
     <script src="site-content.js"></script>
+    <script src="indieweb.js"></script>
     <script>
         let stations = [
             {

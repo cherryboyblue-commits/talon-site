@@ -8,6 +8,9 @@
     <meta name="description" content="The life of Talon Cherry (Talon T. Cherry): Oregon childhood, Texas farm, faith, and family. Memoir of the person Talon Cherry, musician and writer — not a tobacco brand.">
     <meta name="author" content="Talon T. Cherry">
     <meta name="robots" content="index, follow, max-image-preview:large">
+    <link rel="me" href="https://github.com/cherryboyblue-commits">
+    <link rel="webmention" href="https://webmention.io/taloncherry.com/webmention">
+    <link rel="pingback" href="https://webmention.io/taloncherry.com/xmlrpc">
     <meta property="og:type" content="article">
     <meta property="og:site_name" content="Talon Cherry">
     <meta property="og:title" content="The Life of Talon Cherry | Memoir of Talon T. Cherry">
@@ -47,6 +50,7 @@
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="site-widgets.css">
+    <link rel="stylesheet" href="indieweb.css">
     <link rel="stylesheet" href="site-atmosphere.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600&family=Special+Elite&display=swap');
@@ -321,16 +325,18 @@
     </header>
 
     <main class="relative z-10 max-w-5xl mx-auto px-6 py-12">
-        <div class="text-center mb-14" id="life-header">
+        <div class="text-center mb-14 h-entry" id="life-header">
             <span class="inline-block text-xs uppercase tracking-widest text-amber-500 font-semibold mb-3 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20" data-site="life.kicker">
                 Memoir • Oregon Pines to West Texas Soil
             </span>
-            <h1 class="text-4xl md:text-6xl font-serif-custom text-zinc-100 tracking-tight mb-3" data-site="life.title">
+            <h1 class="text-4xl md:text-6xl font-serif-custom text-zinc-100 tracking-tight mb-3 p-name" data-site="life.title">
                 The Life
             </h1>
-            <p class="text-zinc-400 text-sm max-w-md mx-auto font-light" data-site="life.blurb">
+            <p class="text-zinc-400 text-sm max-w-md mx-auto font-light e-content" data-site="life.blurb">
                 Choose a chapter
             </p>
+            <a class="u-url indie-sr" href="https://taloncherry.com/life.html" tabindex="-1">https://taloncherry.com/life.html</a>
+            <a class="p-author h-card indie-sr" href="https://taloncherry.com/" tabindex="-1">Talon T. Cherry</a>
         </div>
 
         <div class="tw-stage" id="tw-stage">
@@ -371,11 +377,13 @@
                             </li>
                         </ol>
                     </div>
-                    <div id="tw-read" hidden>
+                    <div id="tw-read" class="h-entry" hidden>
+                        <a class="u-url indie-sr" href="https://taloncherry.com/life.html" tabindex="-1">https://taloncherry.com/life.html</a>
+                        <a class="p-author h-card indie-sr" href="https://taloncherry.com/" tabindex="-1">Talon T. Cherry</a>
                         <span class="tw-paper-kicker" data-site="life.index_kicker">The Life</span>
-                        <h2 id="tw-title"></h2>
+                        <h2 id="tw-title" class="p-name"></h2>
                         <p class="tw-paper-sub" id="tw-subtitle"></p>
-                        <div id="tw-body"></div>
+                        <div id="tw-body" class="e-content"></div>
                     </div>
                 </article>
             </div>
@@ -421,10 +429,12 @@
             </a>
             <p class="text-zinc-500 js-host-note">Built local. Hosted free via GitHub Pages.</p>
         </div>
+        <aside id="webmentions" class="webmentions" hidden></aside>
         <p class="cookie-aside">We use Google Analytics just to see if anyone is reading this, or if I'm shouting into the void.</p>
     </footer>
 
     <script src="site-content.js"></script>
+    <script src="indieweb.js"></script>
     <script src="life_data.js?v=life-2026-09-02b"></script>
     <script src="content-archive.js"></script>
     <script>

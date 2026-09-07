@@ -1,0 +1,53 @@
+/* Parser-only IndieWeb helpers. Does not restyle existing site classes. */
+.indie-sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+    pointer-events: none;
+}
+
+.webmentions[hidden],
+.webmentions:empty {
+    display: none !important;
+}
+
+.webmentions {
+    max-width: 36rem;
+    margin: 0.85rem auto 0;
+    padding: 0 1rem;
+    font-size: 0.68rem;
+    line-height: 1.45;
+    letter-spacing: 0.06em;
+    color: rgb(113 113 122);
+    text-align: center;
+}
+
+.webmentions-kicker {
+    margin: 0 0 0.35rem;
+    font-size: 0.62rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+}
+
+.webmentions ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.webmentions li + li {
+    margin-top: 0.28rem;
+}
+
+.webmentions a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}

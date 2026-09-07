@@ -8,6 +8,9 @@
     <meta name="description" content="Read writings by Talon Cherry (Talon T. Cherry): cultural essays, poetry archive, song lyrics, and short stories. Official library of the person Talon Cherry, not a tobacco brand.">
     <meta name="author" content="Talon T. Cherry">
     <meta name="robots" content="index, follow, max-image-preview:large">
+    <link rel="me" href="https://github.com/cherryboyblue-commits">
+    <link rel="webmention" href="https://webmention.io/taloncherry.com/webmention">
+    <link rel="pingback" href="https://webmention.io/taloncherry.com/xmlrpc">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Talon Cherry">
     <meta property="og:title" content="Writings by Talon Cherry | Poetry, Lyrics &amp; Stories">
@@ -47,6 +50,7 @@
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="site-widgets.css">
+    <link rel="stylesheet" href="indieweb.css">
     <link rel="stylesheet" href="site-atmosphere.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap');
@@ -466,14 +470,16 @@
     </header>
 
     <main class="relative z-10 max-w-6xl mx-auto px-4 md:px-6 py-8">
-        <div id="shelf-copy" class="text-center mb-8">
+        <div id="shelf-copy" class="text-center mb-8 h-entry">
             <span class="inline-block text-xs uppercase tracking-widest text-amber-500 font-semibold mb-3 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20" data-site="writing.kicker">
                 The Gilded Study • Pull a volume from the shelf
             </span>
-            <h1 class="text-4xl md:text-6xl font-serif-custom text-zinc-100 tracking-tight mb-3" data-site="writing.title">Collected Writings</h1>
-            <p class="text-zinc-400 text-sm max-w-lg mx-auto font-light" data-site="writing.blurb">
+            <h1 class="text-4xl md:text-6xl font-serif-custom text-zinc-100 tracking-tight mb-3 p-name" data-site="writing.title">Collected Writings</h1>
+            <p class="text-zinc-400 text-sm max-w-lg mx-auto font-light e-content" data-site="writing.blurb">
                 Four leather-bound books. Click one to draw it from the case and open it on the desk.
             </p>
+            <a class="u-url indie-sr" href="https://taloncherry.com/writings.html" tabindex="-1">https://taloncherry.com/writings.html</a>
+            <a class="p-author h-card indie-sr" href="https://taloncherry.com/" tabindex="-1">Talon T. Cherry</a>
         </div>
 
         <div class="library-scene">
@@ -497,14 +503,16 @@
         <p class="text-center text-[11px] font-mono text-zinc-500 mt-6 tracking-widest" data-site="writing.hint">Hover a volume • Click to open • Swipe or ← → to turn pages</p>
     </main>
 
-    <div class="open-book-layer" id="open-book-layer" aria-hidden="true">
+    <div class="open-book-layer h-entry" id="open-book-layer" aria-hidden="true">
         <div class="reader-bar">
             <button type="button" id="return-shelf" class="ctrl-btn">← Return to Shelf</button>
-            <p id="volume-label" class="font-serif-custom text-amber-200/90 text-lg md:text-xl">Volume</p>
+            <p id="volume-label" class="font-serif-custom text-amber-200/90 text-lg md:text-xl p-name">Volume</p>
+            <a class="u-url indie-sr" href="https://taloncherry.com/writings.html" tabindex="-1">https://taloncherry.com/writings.html</a>
+            <a class="p-author h-card indie-sr" href="https://taloncherry.com/" tabindex="-1">Talon T. Cherry</a>
             <span class="text-[10px] font-mono text-zinc-500 tracking-widest hidden sm:inline">ESC closes</span>
         </div>
 
-        <div class="folio" id="folio">
+        <div class="folio e-content" id="folio">
             <div class="folio-cover-edge"></div>
             <article class="folio-page left" id="page-left" title="Previous page"></article>
             <div class="folio-gutter"></div>
@@ -552,10 +560,12 @@
             </a>
             <p class="text-zinc-500 js-host-note">Built local. Hosted free via GitHub Pages.</p>
         </div>
+        <aside id="webmentions" class="webmentions" hidden></aside>
         <p class="cookie-aside">We use Google Analytics just to see if anyone is reading this, or if I'm shouting into the void.</p>
     </footer>
 
     <script src="site-content.js"></script>
+    <script src="indieweb.js"></script>
     <script src="library_data.js"></script>
     <script src="content-archive.js"></script>
     <script>
