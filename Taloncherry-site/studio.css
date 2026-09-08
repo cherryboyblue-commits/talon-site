@@ -492,11 +492,3 @@
     background: linear-gradient(180deg, #e2c36a, #8a6420);
     top: var(--cap, 55%);
 }
-
-.studio-note {
-    margin: 0.85rem 0 0;
-    font-size: 0.78rem;
-    line-height: 1.55;
-    color: #a8a29e;
-    max-width: 40rem;
-}
