@@ -1,0 +1,26 @@
+{
+  "subject": "acct:taloncherry.com@taloncherry.com",
+  "aliases": [
+    "https://taloncherry.com/",
+    "https://www.taloncherry.com/",
+    "https://web.brid.gy/taloncherry.com",
+    "https://web.brid.gy/ap/taloncherry.com"
+  ],
+  "links": [
+    {
+      "rel": "http://webfinger.net/rel/profile-page",
+      "type": "text/html",
+      "href": "https://taloncherry.com/"
+    },
+    {
+      "rel": "self",
+      "type": "application/activity+json",
+      "href": "https://web.brid.gy/ap/taloncherry.com"
+    },
+    {
+      "rel": "self",
+      "type": "application/ld+json; profile=\"https://www.w3.org/ns/activitystreams\"",
+      "href": "https://web.brid.gy/ap/taloncherry.com"
+    }
+  ]
+}

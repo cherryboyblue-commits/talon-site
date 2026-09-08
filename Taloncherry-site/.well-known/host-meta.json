@@ -1,0 +1,9 @@
+{
+  "links": [
+    {
+      "rel": "lrdd",
+      "type": "application/jrd+json",
+      "template": "https://fed.brid.gy/.well-known/webfinger?resource={uri}"
+    }
+  ]
+}

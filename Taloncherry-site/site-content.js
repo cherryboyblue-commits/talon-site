@@ -116,6 +116,7 @@
     });
     [
       ["me", "https://github.com/cherryboyblue-commits"],
+      ["me", "https://web.brid.gy/taloncherry.com"],
       ["webmention", "https://webmention.io/taloncherry.com/webmention"],
       ["pingback", "https://webmention.io/taloncherry.com/xmlrpc"]
     ].forEach(function (pair) {
