@@ -3,3 +3,6 @@ include:
   - .well-known/webfinger
   - .well-known/webfinger/index.json
   - .well-known/webfinger.json
+  - .well-known/host-meta
+  - .well-known/host-meta.json
+  - .well-known/host-meta.xml

@@ -34,6 +34,12 @@ jobs:
           dest.mkdir(parents=True, exist_ok=True)
           (dest / "index.json").write_bytes(data)
           (dest / "index.html").write_bytes(data)
+          host_meta = root / "host-meta.xml"
+          host_jrd = root / "host-meta.json"
+          host_dir = root / "host-meta"
+          host_dir.mkdir(parents=True, exist_ok=True)
+          (host_dir / "index.html").write_bytes(host_meta.read_bytes())
+          (host_dir / "index.json").write_bytes(host_jrd.read_bytes())
           PY
 
       - name: Upload page artifact
