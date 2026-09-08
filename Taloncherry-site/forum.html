@@ -46,10 +46,12 @@
     </header>
 
     <main id="parlor-main" class="relative z-10 max-w-6xl mx-auto px-6 py-10 hidden">
-        <div class="text-center mb-10">
+        <div class="text-center mb-10 h-entry">
             <span class="inline-block text-xs uppercase tracking-widest text-amber-500 font-semibold mb-3 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20" data-site="parlor.kicker">Members' bulletin</span>
-            <h1 class="text-4xl md:text-5xl font-serif-custom text-zinc-100" data-site="parlor.title">The Parlor</h1>
-            <p class="text-zinc-400 text-sm mt-2 font-light" data-site="parlor.blurb">The house corkboard. Fellow members pin a word here.</p>
+            <h1 class="text-4xl md:text-5xl font-serif-custom text-zinc-100 p-name" data-site="parlor.title">The Parlor</h1>
+            <p class="text-zinc-400 text-sm mt-2 font-light e-content" data-site="parlor.blurb">The house corkboard. Fellow members pin a word here.</p>
+            <a class="u-url indie-sr" href="https://taloncherry.com/forum.html" tabindex="-1">https://taloncherry.com/forum.html</a>
+            <a class="p-author h-card indie-sr" href="https://taloncherry.com/" tabindex="-1">Talon T. Cherry</a>
         </div>
 
         <section class="cork-wall" data-drawer="all">
@@ -76,7 +78,7 @@
                 </label>
             </div>
             <p id="board-error" class="parlor-error cork-board-error" hidden></p>
-            <div id="corkboard" class="corkboard" aria-live="polite"></div>
+            <div id="corkboard" class="corkboard h-feed" aria-live="polite"></div>
         </section>
 
         <form id="pin-form" class="parlor-ledger p-6 md:p-8 mt-10 max-w-2xl mx-auto">
@@ -296,10 +298,19 @@
             const recordId = record.id || '';
             const pinned = record.pinned === true;
             const article = document.createElement('article');
-            article.className = 'pin-note' + (pinned ? ' is-held' : '');
+            article.className = 'pin-note h-entry' + (pinned ? ' is-held' : '');
             article.style.setProperty('--tilt', TILTS[pinCount % TILTS.length]);
             pinCount += 1;
-            if (recordId) article.dataset.recordId = recordId;
+            if (recordId) {
+                article.dataset.recordId = recordId;
+                article.id = 'note-' + recordId;
+                const permalink = document.createElement('a');
+                permalink.className = 'u-url indie-sr';
+                permalink.href = 'https://taloncherry.com/forum.html#note-' + recordId;
+                permalink.tabIndex = -1;
+                permalink.textContent = 'note';
+                article.append(permalink);
+            }
             if (record.userId) article.dataset.userId = record.userId;
             article.dataset.category = noteDrawer(record);
             article.dataset.pinned = pinned ? '1' : '0';
@@ -322,7 +333,7 @@
                 byline.append(mark);
             }
             const by = document.createElement('span');
-            by.className = 'pin-author';
+            by.className = 'pin-author p-author';
             by.textContent = author;
             byline.append(by);
 
@@ -331,12 +342,19 @@
             tag.textContent = parlorCategoryLabel(record.category);
 
             const body = document.createElement('p');
-            body.className = 'pin-body';
+            body.className = 'pin-body e-content p-name';
             body.textContent = message;
 
             const when = document.createElement('span');
             when.className = 'pin-date';
             when.textContent = formatDate(created);
+            if (created) {
+                const published = document.createElement('time');
+                published.className = 'dt-published indie-sr';
+                published.dateTime = created;
+                published.textContent = created;
+                article.append(published);
+            }
 
             const foot = document.createElement('div');
             foot.className = 'pin-foot';
@@ -352,7 +370,7 @@
             article.append(byline, tag);
             if (record.imageUrl) {
                 const photo = document.createElement('img');
-                photo.className = 'pin-photo';
+                photo.className = 'pin-photo u-photo';
                 photo.src = record.imageUrl;
                 photo.alt = 'A print pinned with this note';
                 article.append(photo);

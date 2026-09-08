@@ -337,43 +337,56 @@
             </p>
             <a class="u-url indie-sr" href="https://taloncherry.com/life.html" tabindex="-1">https://taloncherry.com/life.html</a>
             <a class="p-author h-card indie-sr" href="https://taloncherry.com/" tabindex="-1">Talon T. Cherry</a>
+            <a class="indie-sr" href="https://fed.brid.gy/" tabindex="-1">https://fed.brid.gy/</a>
         </div>
 
         <div class="tw-stage" id="tw-stage">
-            <div class="tw-feed" id="tw-feed">
+            <div class="tw-feed h-feed" id="tw-feed">
                 <article class="tw-paper" id="tw-paper">
                     <div id="tw-index">
                         <span class="tw-paper-kicker" data-site="life.index_kicker">The Life</span>
                         <h2 data-site="life.index_heading">Chapters</h2>
                         <p class="tw-paper-sub" data-site="life.index_sub">A paper roll. Pick a title.</p>
                         <ol class="tw-toc" id="tw-toc">
-                            <li>
+                            <li class="h-entry" id="old">
                                 <button type="button" data-chapter="old">
                                     <span class="tw-toc-num">Chapter I</span>
-                                    <span class="tw-toc-title">The Old Life</span>
-                                    <span class="tw-toc-blurb">Oregon childhood, Colorado, fatherhood, and the years that made the man.</span>
+                                    <span class="tw-toc-title p-name">The Old Life</span>
+                                    <span class="tw-toc-blurb e-content">Oregon childhood, Colorado, fatherhood, and the years that made the man.</span>
                                 </button>
+                                <a class="u-url indie-sr" href="https://taloncherry.com/life.html#old" tabindex="-1">#old</a>
+                                <a class="p-author h-card indie-sr" href="https://taloncherry.com/" tabindex="-1">Talon T. Cherry</a>
+                                <a class="indie-sr" href="https://fed.brid.gy/" tabindex="-1">https://fed.brid.gy/</a>
                             </li>
-                            <li>
+                            <li class="h-entry" id="new">
                                 <button type="button" data-chapter="new">
                                     <span class="tw-toc-num">Chapter II</span>
-                                    <span class="tw-toc-title">The New Life</span>
-                                    <span class="tw-toc-blurb">How we became Texans, farm lessons, and the turn toward Christ.</span>
+                                    <span class="tw-toc-title p-name">The New Life</span>
+                                    <span class="tw-toc-blurb e-content">How we became Texans, farm lessons, and the turn toward Christ.</span>
                                 </button>
+                                <a class="u-url indie-sr" href="https://taloncherry.com/life.html#new" tabindex="-1">#new</a>
+                                <a class="p-author h-card indie-sr" href="https://taloncherry.com/" tabindex="-1">Talon T. Cherry</a>
+                                <a class="indie-sr" href="https://fed.brid.gy/" tabindex="-1">https://fed.brid.gy/</a>
                             </li>
-                            <li>
+                            <li class="h-entry" id="faith">
                                 <button type="button" data-chapter="faith">
                                     <span class="tw-toc-num">Chapter III</span>
-                                    <span class="tw-toc-title">Faith</span>
-                                    <span class="tw-toc-blurb">The fall, the climb, and baptism at Hamby Church of Christ.</span>
+                                    <span class="tw-toc-title p-name">Faith</span>
+                                    <span class="tw-toc-blurb e-content">The fall, the climb, and baptism at Hamby Church of Christ.</span>
                                 </button>
+                                <a class="u-url indie-sr" href="https://taloncherry.com/life.html#faith" tabindex="-1">#faith</a>
+                                <a class="p-author h-card indie-sr" href="https://taloncherry.com/" tabindex="-1">Talon T. Cherry</a>
+                                <a class="indie-sr" href="https://fed.brid.gy/" tabindex="-1">https://fed.brid.gy/</a>
                             </li>
-                            <li>
+                            <li class="h-entry" id="family">
                                 <button type="button" data-chapter="family">
                                     <span class="tw-toc-num">Chapter IV</span>
-                                    <span class="tw-toc-title">Family &amp; Friends</span>
-                                    <span class="tw-toc-blurb">Kent and Judi, Logan and Brandy, Tim, Sean, Jason, and the rest.</span>
+                                    <span class="tw-toc-title p-name">Family &amp; Friends</span>
+                                    <span class="tw-toc-blurb e-content">Kent and Judi, Logan and Brandy, Tim, Sean, Jason, and the rest.</span>
                                 </button>
+                                <a class="u-url indie-sr" href="https://taloncherry.com/life.html#family" tabindex="-1">#family</a>
+                                <a class="p-author h-card indie-sr" href="https://taloncherry.com/" tabindex="-1">Talon T. Cherry</a>
+                                <a class="indie-sr" href="https://fed.brid.gy/" tabindex="-1">https://fed.brid.gy/</a>
                             </li>
                         </ol>
                     </div>
@@ -651,15 +664,33 @@
                 const chapter = lifeData[key];
                 if (!chapter) return;
                 const li = document.createElement('li');
+                li.className = 'h-entry';
+                li.id = key;
                 const btn = document.createElement('button');
                 btn.type = 'button';
                 btn.setAttribute('data-chapter', key);
                 btn.innerHTML =
                     '<span class="tw-toc-num">Chapter ' + (window.ContentArchive ? ContentArchive.roman(i) : String(i + 1)) + '</span>' +
-                    '<span class="tw-toc-title">' + escapeHtml(chapter.title) + '</span>' +
-                    '<span class="tw-toc-blurb">' + escapeHtml(chapter.subtitle || '') + '</span>';
+                    '<span class="tw-toc-title p-name">' + escapeHtml(chapter.title) + '</span>' +
+                    '<span class="tw-toc-blurb e-content">' + escapeHtml(chapter.subtitle || '') + '</span>';
                 btn.addEventListener('click', function () { openChapter(key); });
                 li.appendChild(btn);
+                const url = document.createElement('a');
+                url.className = 'u-url indie-sr';
+                url.href = 'https://taloncherry.com/life.html#' + key;
+                url.tabIndex = -1;
+                url.textContent = '#' + key;
+                const author = document.createElement('a');
+                author.className = 'p-author h-card indie-sr';
+                author.href = 'https://taloncherry.com/';
+                author.tabIndex = -1;
+                author.textContent = 'Talon T. Cherry';
+                const bridgy = document.createElement('a');
+                bridgy.className = 'indie-sr';
+                bridgy.href = 'https://fed.brid.gy/';
+                bridgy.tabIndex = -1;
+                bridgy.textContent = 'https://fed.brid.gy/';
+                li.append(url, author, bridgy);
                 ol.appendChild(li);
             });
             const sub = document.querySelector('#tw-index .tw-paper-sub');

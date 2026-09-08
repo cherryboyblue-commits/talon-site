@@ -1,4 +1,8 @@
 /* Parser-only IndieWeb helpers. Does not restyle existing site classes. */
+.h-entry-host {
+    display: contents;
+}
+
 .indie-sr {
     position: absolute;
     width: 1px;
