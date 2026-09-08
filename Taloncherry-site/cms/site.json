@@ -14,7 +14,8 @@
     "youtube_channel": "https://www.youtube.com/@TalonCherry"
   },
   "nav": [
-    { "label": "Music", "href": "music.html" },
+    { "label": "Radio", "href": "music.html" },
+    { "label": "Studio", "href": "studio.html" },
     { "label": "Writing", "href": "writings.html" },
     { "label": "Life", "href": "life.html" },
     { "label": "Social", "href": "social.html" },
@@ -22,6 +23,7 @@
   ],
   "footer_nav": [
     { "label": "Music", "href": "music.html" },
+    { "label": "Studio", "href": "studio.html" },
     { "label": "Writing", "href": "writings.html" },
     { "label": "Life", "href": "life.html" },
     { "label": "Parlor", "href": "forum.html" }
