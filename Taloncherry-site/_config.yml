@@ -1,2 +1,5 @@
 include:
   - .well-known
+  - .well-known/webfinger
+  - .well-known/webfinger/index.json
+  - .well-known/webfinger.json

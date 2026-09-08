@@ -23,6 +23,19 @@ jobs:
       - name: Rebuild writing and life from the archive
         run: node Taloncherry-site/build-content.mjs
 
+      - name: Stage WebFinger as a static JSON directory
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          root = Path("Taloncherry-site/.well-known")
+          src = root / "webfinger.json"
+          data = src.read_bytes()
+          dest = root / "webfinger"
+          dest.mkdir(parents=True, exist_ok=True)
+          (dest / "index.json").write_bytes(data)
+          (dest / "index.html").write_bytes(data)
+          PY
+
       - name: Upload page artifact
         uses: actions/upload-pages-artifact@v5
         with:
