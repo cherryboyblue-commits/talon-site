@@ -603,7 +603,7 @@
 @media (max-width: 640px) {
     .mail-bag-form { grid-template-columns: 1fr; }
 }
-.home-foot--flow {
+.home-foot.home-foot--flow {
     position: relative;
     pointer-events: auto;
     padding-top: 0.5rem;
@@ -748,4 +748,63 @@
 }
 .home-foot .crossroads {
     margin-bottom: 1.1rem;
+}
+
+.site-crest-seal {
+    position: fixed;
+    top: 0.55rem;
+    left: 0.55rem;
+    z-index: 40;
+    display: block;
+    width: 4.65rem;
+    height: auto;
+    text-decoration: none;
+    color: inherit;
+    filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.55)) drop-shadow(0 0 14px rgba(212, 175, 55, 0.22));
+    transition: filter 0.35s ease, transform 0.35s ease;
+}
+@media (min-width: 768px) {
+    .site-crest-seal {
+        top: 0.75rem;
+        left: 0.75rem;
+        width: 6.15rem;
+    }
+}
+.site-crest-seal img {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    object-position: center top;
+    filter: sepia(0.12) saturate(0.95) brightness(0.96) contrast(1.05);
+}
+.site-crest-seal:hover,
+.site-crest-seal:focus-visible {
+    outline: none;
+    transform: translateY(-1px);
+    filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.6)) drop-shadow(0 0 18px rgba(212, 175, 55, 0.32));
+}
+.site-crest-seal:hover img,
+.site-crest-seal:focus-visible img {
+    filter: sepia(0.04) saturate(1) brightness(1) contrast(1.04);
+}
+html body:has(.site-crest-seal) header.sub-head {
+    padding-left: 5.75rem;
+}
+html body:has(.site-crest-seal) header.sub-head .sub-head-mark {
+    display: none;
+}
+@media (min-width: 768px) {
+    html body:has(.site-crest-seal) header.sub-head {
+        padding-left: 7.5rem;
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .site-crest-seal {
+        transition: none;
+    }
+    .site-crest-seal:hover,
+    .site-crest-seal:focus-visible {
+        transform: none;
+    }
 }
