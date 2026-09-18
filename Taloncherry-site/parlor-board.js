@@ -1,4 +1,34 @@
 (function () {
+  function parlorNoteTilt(id) {
+    const text = String(id == null ? "" : id);
+    let hash = 2166136261;
+    for (let i = 0; i < text.length; i += 1) {
+      hash ^= text.charCodeAt(i);
+      hash = Math.imul(hash, 16777619);
+    }
+    const deg = ((hash >>> 0) % 451) / 100 - 2.2;
+    return deg.toFixed(2) + "deg";
+  }
+
+  window.parlorNoteTilt = parlorNoteTilt;
+
+  window.parlorParseNoteMetadata = function (text) {
+    const raw = String(text || "");
+    const refs = [];
+    const pattern = /\[Ref:\s*([^\]]+)\]/gi;
+    let match;
+    while ((match = pattern.exec(raw))) {
+      const label = String(match[1] || "").trim();
+      if (label) refs.push(label);
+    }
+    const display = raw.replace(/\s*\[Ref:\s*[^\]]+\]/gi, "").trim();
+    return {
+      raw: raw,
+      display: display || raw,
+      refs: refs
+    };
+  };
+
   function noteAuthor(row) {
     return (row && (row.author || row.username || row.name)) || "A member";
   }
@@ -99,6 +129,120 @@
       throw new Error(detail || "The heart would not lift.");
     }
     return true;
+  };
+
+  function parlorCommentsTable() {
+    const cfg = window.PARLOR_CONFIG || {};
+    return String(cfg.parlorCommentsTable || "parlor_comments").replace(/\s+/g, "_");
+  }
+
+  window.parlorCommentsUrl = function () {
+    const cfg = window.PARLOR_CONFIG || {};
+    return String(cfg.supabaseUrl || "").replace(/\/$/, "") + "/rest/v1/" + parlorCommentsTable();
+  };
+
+  function mapComment(row) {
+    return {
+      id: row && row.id,
+      noteId: row && (row.note_id || row.noteId),
+      userId: row && (row.user_id || row.userId) || "",
+      author: (row && (row.author || row.username)) || "A member",
+      comment: (row && (row.comment || row.body || row.note)) || "",
+      created: (row && (row.created_at || row.created)) || ""
+    };
+  }
+
+  window.parlorGroupCommentsByNote = function (rows) {
+    const grouped = {};
+    (rows || []).forEach(function (row) {
+      const mapped = row && row.comment != null && row.noteId != null ? row : mapComment(row);
+      if (!mapped || mapped.noteId == null || mapped.noteId === "") return;
+      const key = String(mapped.noteId);
+      if (!grouped[key]) grouped[key] = [];
+      grouped[key].push(mapped);
+    });
+    Object.keys(grouped).forEach(function (key) {
+      grouped[key].sort(function (a, b) {
+        return (Date.parse(a.created) || 0) - (Date.parse(b.created) || 0);
+      });
+    });
+    return grouped;
+  };
+
+  window.parlorLoadComments = async function (noteIds) {
+    const ids = (noteIds || []).map(parlorCoerceNoteId).filter(function (id) {
+      return id != null && id !== "";
+    });
+    if (!ids.length) return [];
+    const headers = await window.parlorRestHeaders();
+    const chunks = [];
+    for (let i = 0; i < ids.length; i += 80) chunks.push(ids.slice(i, i + 80));
+    const collected = [];
+    for (let c = 0; c < chunks.length; c += 1) {
+      const encoded = chunks[c].map(function (id) { return encodeURIComponent(String(id)); }).join(",");
+      const res = await fetch(
+        window.parlorCommentsUrl() +
+          "?select=id,note_id,user_id,author,comment,created_at&note_id=in.(" + encoded + ")&order=created_at.asc",
+        { method: "GET", headers: headers }
+      );
+      if (!res.ok) {
+        console.warn("parlor_comments read failed", res.status);
+        return collected;
+      }
+      const rows = await res.json();
+      if (Array.isArray(rows)) collected.push.apply(collected, rows.map(mapComment));
+    }
+    return collected;
+  };
+
+  window.parlorCommentAuthorName = async function (user) {
+    if (!user || !user.id) return "Member";
+    try {
+      if (window.parlorProfilesUrl) {
+        const res = await fetch(
+          window.parlorProfilesUrl() + "?select=username&user_id=eq." + encodeURIComponent(user.id),
+          { method: "GET", headers: await window.parlorRestHeaders() }
+        );
+        if (res.ok) {
+          const rows = await res.json();
+          const name = String((rows && rows[0] && (rows[0].username || rows[0].author)) || "").trim();
+          if (name) return name;
+        }
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+    const prefix = String(user.email || "").split("@")[0].trim();
+    return prefix || "Member";
+  };
+
+  window.parlorPostComment = async function (noteId, commentText) {
+    const text = String(commentText || "").trim();
+    if (!text) throw new Error("Write a word before you pin the reply.");
+    const client = window.parlorClient && window.parlorClient();
+    if (!client) throw new Error("The parlor door is still shut.");
+    const { data } = await client.auth.getSession();
+    const user = data && data.session && data.session.user;
+    if (!user || !user.id) throw new Error("Sign in to leave a reply.");
+    const author = await window.parlorCommentAuthorName(user);
+    const body = {
+      note_id: parlorCoerceNoteId(noteId),
+      user_id: user.id,
+      author: author,
+      comment: text.slice(0, 280)
+    };
+    const res = await fetch(window.parlorCommentsUrl(), {
+      method: "POST",
+      headers: await window.parlorRestHeaders(),
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) {
+      const detail = await res.text();
+      throw new Error(detail || "The reply would not hold.");
+    }
+    const rows = await res.json();
+    const row = Array.isArray(rows) ? rows[0] : rows;
+    return mapComment(row || body);
   };
 
   function sortNotes(notes) {

@@ -18,7 +18,7 @@
     <link rel="apple-touch-icon" href="Images/crest-icon.png?v=tab">
     <link rel="stylesheet" href="site-widgets.css?v=crest-corner">
     <link rel="stylesheet" href="indieweb.css">
-    <link rel="stylesheet" href="parlor.css?v=7">
+    <link rel="stylesheet" href="parlor.css?v=10">
     <link rel="stylesheet" href="site-atmosphere.css">
     <style>
         .font-serif-custom { font-family: 'Instrument Serif', serif; }
@@ -105,6 +105,34 @@
                     <label><input type="radio" name="category" value="reflection"> Reflection</label>
                 </div>
             </fieldset>
+            <label class="block mb-4 text-left parlor-ref">
+                <span class="block text-[10px] font-mono tracking-[0.2em] uppercase text-[#7a4e18] mb-1">Reference (optional)</span>
+                <select class="parlor-field" id="pin-ref" name="reference">
+                    <option value="">No reference</option>
+                    <optgroup label="The Keeper of Her Shadow">
+                        <option value="Track: The Keeper of Her Shadow">Track: The Keeper of Her Shadow</option>
+                        <option value="Track: A Stranger With Your Face">Track: A Stranger With Your Face</option>
+                        <option value="Track: The Big Picture">Track: The Big Picture</option>
+                        <option value="Track: The Confession">Track: The Confession</option>
+                        <option value="Track: Cowboys Never Die">Track: Cowboys Never Die</option>
+                        <option value="Track: Finding Home">Track: Finding Home</option>
+                        <option value="Track: Free Men Get Louder">Track: Free Men Get Louder</option>
+                        <option value="Track: Glass House">Track: Glass House</option>
+                        <option value="Track: Goodnight Liberty">Track: Goodnight Liberty</option>
+                        <option value="Track: The Ides of Everything">Track: The Ides of Everything</option>
+                        <option value="Track: The Last in Line">Track: The Last in Line</option>
+                        <option value="Track: Rearview Heartache">Track: Rearview Heartache</option>
+                        <option value="Track: The Song of My Life">Track: The Song of My Life</option>
+                        <option value="Track: Sweet Memory">Track: Sweet Memory</option>
+                    </optgroup>
+                    <optgroup label="The library">
+                        <option value="Volume: Cultural">Volume: Cultural</option>
+                        <option value="Volume: Poetry">Volume: Poetry</option>
+                        <option value="Volume: Lyrics">Volume: Lyrics</option>
+                        <option value="Volume: Stories">Volume: Stories</option>
+                    </optgroup>
+                </select>
+            </label>
             <label class="block mb-4 text-left parlor-file">
                 <span class="block w-full text-[10px] font-mono tracking-[0.2em] uppercase text-[#7a4e18] mb-1">Photograph (optional)</span>
                 <input class="parlor-field" type="file" name="image" id="pin-image" accept="image/jpeg,image/png,image/webp,image/gif">
@@ -181,7 +209,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="parlor-config.js?v=7"></script>
     <script src="parlor-auth.js?v=7"></script>
-    <script src="parlor-board.js?v=7"></script>
+    <script src="parlor-board.js?v=10"></script>
     <script>
         function paintHeartButton(button, liked, count) {
             const safeCount = Math.max(0, Number(count) || 0);
@@ -322,15 +350,29 @@
             }
         }
 
+        function noteTiltFor(recordId) {
+            if (typeof parlorNoteTilt === 'function') return parlorNoteTilt(recordId);
+            return TILTS[pinCount % TILTS.length];
+        }
+
+        function isStewardPin(record) {
+            const author = String((record && record.author) || '').toLowerCase();
+            if (author === 'talon86') return true;
+            return Boolean(isAdmin && currentUser && record && record.userId && record.userId === currentUser.id);
+        }
+
         function createNoteElement(record) {
             const author = record.author || 'A member';
             const message = record.note || '';
             const created = record.created || '';
             const recordId = record.id || '';
             const pinned = record.pinned === true;
+            const parsed = typeof parlorParseNoteMetadata === 'function'
+                ? parlorParseNoteMetadata(message)
+                : { display: message, refs: [] };
             const article = document.createElement('article');
-            article.className = 'pin-note h-entry' + (pinned ? ' is-held' : '');
-            article.style.setProperty('--tilt', TILTS[pinCount % TILTS.length]);
+            article.className = 'pin-note h-entry' + (pinned ? ' is-held' : '') + (isStewardPin(record) ? ' is-steward-pin' : '');
+            article.style.setProperty('--tilt', noteTiltFor(recordId));
             pinCount += 1;
             if (recordId) {
                 article.dataset.recordId = recordId;
@@ -374,7 +416,7 @@
 
             const body = document.createElement('p');
             body.className = 'pin-body e-content p-name';
-            body.textContent = message;
+            body.textContent = parsed.display;
 
             const when = document.createElement('span');
             when.className = 'pin-date';
@@ -399,6 +441,17 @@
                 article.append(held);
             }
             article.append(byline, tag);
+            if (parsed.refs && parsed.refs.length) {
+                const refs = document.createElement('div');
+                refs.className = 'pin-refs';
+                parsed.refs.forEach(function (label) {
+                    const pill = document.createElement('span');
+                    pill.className = 'pin-ref';
+                    pill.textContent = label;
+                    refs.append(pill);
+                });
+                article.append(refs);
+            }
             if (record.imageUrl) {
                 const photo = document.createElement('img');
                 photo.className = 'pin-photo u-photo';
@@ -406,7 +459,7 @@
                 photo.alt = 'A print pinned with this note';
                 article.append(photo);
             }
-            article.append(body, foot);
+            article.append(body, foot, createCommentsBlock(record));
 
             if (isAdmin && recordId) {
                 const remove = document.createElement('button');
@@ -425,6 +478,81 @@
                 foot.append(hold);
             }
             return article;
+        }
+
+        function replyToggleLabel() {
+            return 'Replies';
+        }
+
+        function escapePinHtml(value) {
+            if (typeof parlorEscape === 'function') return parlorEscape(value);
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        function createCommentItem(comment) {
+            const item = document.createElement('li');
+            item.className = 'pin-comment-item';
+            if (comment && comment.id) item.dataset.commentId = comment.id;
+            const who = escapePinHtml((comment && comment.author) || 'Member');
+            const text = escapePinHtml((comment && comment.comment) || '');
+            item.innerHTML = '<span class="pin-comment-author">' + who + '</span>' +
+                '<p class="pin-comment-text">' + text + '</p>';
+            return item;
+        }
+
+        function fillReplyList(list, comments) {
+            if (!list) return;
+            list.replaceChildren();
+            (comments || []).forEach(function (item) {
+                list.append(createCommentItem(item));
+            });
+        }
+
+        async function refreshReplyList(noteEl, noteId) {
+            const list = noteEl && noteEl.querySelector('#replies-' + noteId);
+            if (!list || !noteId || typeof parlorLoadComments !== 'function') return;
+            const rows = await parlorLoadComments([noteId]);
+            fillReplyList(list, rows);
+        }
+
+        function createCommentsBlock(record) {
+            const comments = (record && record.comments) || [];
+            const noteId = String((record && record.id) || '');
+            const wrap = document.createElement('div');
+            wrap.className = 'pin-comments';
+            const toggle = document.createElement('button');
+            toggle.type = 'button';
+            toggle.className = 'pin-reply-toggle';
+            toggle.setAttribute('aria-expanded', 'false');
+            toggle.setAttribute('aria-controls', noteId ? ('replies-' + noteId) : '');
+            toggle.textContent = replyToggleLabel();
+            const drawer = document.createElement('div');
+            drawer.className = 'pin-reply-drawer';
+            const list = document.createElement('ul');
+            list.className = 'pin-comments-list';
+            if (noteId) list.id = 'replies-' + noteId;
+            fillReplyList(list, comments);
+            const form = document.createElement('form');
+            form.className = 'pin-comment-form';
+            const input = document.createElement('textarea');
+            input.name = 'reply';
+            input.className = 'pin-comment-input';
+            input.rows = 2;
+            input.maxLength = 280;
+            input.placeholder = 'A word in the margin…';
+            input.setAttribute('aria-label', 'Reply to this note');
+            const submit = document.createElement('button');
+            submit.type = 'submit';
+            submit.className = 'pin-comment-submit';
+            submit.textContent = 'Pin';
+            form.append(input, submit);
+            drawer.append(list, form);
+            wrap.append(toggle, drawer);
+            return wrap;
         }
 
         function clearEmptyState() {
@@ -485,6 +613,15 @@
             corkboard.replaceChildren();
             pinCount = 0;
             const records = ledger.notes || [];
+            try {
+                const commentRows = await parlorLoadComments(records.map(function (note) { return note.id; }));
+                const grouped = parlorGroupCommentsByNote(commentRows);
+                records.forEach(function (record) {
+                    record.comments = grouped[String(record.id)] || [];
+                });
+            } catch (err) {
+                console.warn(err);
+            }
             if (!records.length) {
                 showEmptyState();
                 if (boardError) {
@@ -743,7 +880,15 @@
             pinError.textContent = '';
             const data = new FormData(pinForm);
             const author = parlorDisplayName(currentUser);
-            const message = String(data.get('message') || '').trim();
+            let message = String(data.get('message') || '').trim();
+            const reference = String(data.get('reference') || '').trim();
+            if (reference) {
+                const tag = '\n[Ref: ' + reference + ']';
+                if (message.length + tag.length > 500) {
+                    message = message.slice(0, Math.max(0, 500 - tag.length)).trimEnd();
+                }
+                message += tag;
+            }
             const category = parlorNormalizeCategory(data.get('category'));
             const imageFile = document.getElementById('pin-image').files[0] || null;
             const pinned = isAdmin && document.getElementById('pin-hold').checked;
@@ -767,6 +912,8 @@
                 document.getElementById('pin-name').value = parlorDisplayName(currentUser);
                 document.getElementById('pin-hold').checked = false;
                 document.getElementById('pin-image-name').textContent = 'No print attached.';
+                const refField = document.getElementById('pin-ref');
+                if (refField) refField.value = '';
                 const firstCat = pinForm.querySelector('input[name="category"]');
                 if (firstCat) firstCat.checked = true;
             } catch (err) {
@@ -841,7 +988,48 @@
             if (like) like.classList.remove('is-pop');
         });
 
+        corkboard.addEventListener('submit', async function (event) {
+            const form = event.target.closest('.pin-comment-form');
+            if (!form) return;
+            event.preventDefault();
+            const noteEl = form.closest('.pin-note');
+            const noteId = noteEl && noteEl.dataset.recordId;
+            const input = form.querySelector('.pin-comment-input');
+            const submit = form.querySelector('.pin-comment-submit');
+            const text = input ? String(input.value || '').trim() : '';
+            if (!noteId || !text) return;
+            if (submit) submit.disabled = true;
+            const wrap = noteEl.querySelector('.pin-comments');
+            try {
+                await parlorPostComment(noteId, text);
+                await refreshReplyList(noteEl, noteId);
+                if (wrap) {
+                    wrap.classList.add('is-open');
+                    const toggle = wrap.querySelector('.pin-reply-toggle');
+                    if (toggle) toggle.setAttribute('aria-expanded', 'true');
+                }
+                if (input) input.value = '';
+            } catch (err) {
+                pinError.textContent = err.message || 'The reply would not hold.';
+            } finally {
+                if (submit) submit.disabled = false;
+            }
+        });
+
         corkboard.addEventListener('click', async function (event) {
+            const replyToggle = event.target.closest('.pin-reply-toggle');
+            if (replyToggle) {
+                const wrap = replyToggle.closest('.pin-comments');
+                if (!wrap) return;
+                const open = !wrap.classList.contains('is-open');
+                wrap.classList.toggle('is-open', open);
+                replyToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+                if (open) {
+                    const field = wrap.querySelector('.pin-comment-input');
+                    if (field) field.focus();
+                }
+                return;
+            }
             const like = event.target.closest('.pin-like');
             if (like) {
                 event.preventDefault();
