@@ -356,7 +356,7 @@
 
     var PREVIEW_PAGES = [
         { href: 'index.html', label: 'Home' },
-        { href: 'music.html', label: 'Music' },
+        { href: 'music.html', label: 'Radio' },
         { href: 'studio.html', label: 'Studio' },
         { href: 'writings.html', label: 'Writings' },
         { href: 'life.html', label: 'The Life' },

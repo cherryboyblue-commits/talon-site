@@ -1,8 +1,3 @@
-.directory-page {
-    background: #2c1a12;
-    color: #ead6ad;
-    min-height: 100vh;
-}
 .directory-wrap {
     position: relative;
     z-index: 10;

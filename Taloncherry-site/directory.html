@@ -14,17 +14,24 @@
     <link rel="icon" type="image/png" sizes="32x32" href="Images/favicon-32.png?v=tab">
     <link rel="apple-touch-icon" href="Images/crest-icon.png?v=tab">
     <link rel="stylesheet" href="site-widgets.css?v=crest-corner">
-    <link rel="stylesheet" href="parlor.css?v=12">
-    <link rel="stylesheet" href="directory.css?v=3">
+    <link rel="stylesheet" href="indieweb.css">
+    <link rel="stylesheet" href="parlor.css?v=13">
+    <link rel="stylesheet" href="directory.css?v=4">
+    <link rel="stylesheet" href="site-atmosphere.css">
     <style>
         .font-serif-custom { font-family: Georgia, 'Instrument Serif', serif; }
         .font-sans-custom { font-family: 'Plus Jakarta Sans', sans-serif; }
     </style>
 </head>
-<body class="directory-page font-sans-custom antialiased">
+<body class="bg-zinc-950 text-zinc-300 font-sans-custom antialiased selection:bg-amber-500 selection:text-zinc-950 overflow-x-hidden">
+    <div class="fixed inset-0 z-0 lake-background filter brightness-[0.5] contrast-125"></div>
+    <div id="rain-container" class="fixed inset-0 z-[1] pointer-events-none overflow-hidden h-full w-full"></div>
+    <script src="site-atmosphere.js"></script>
     <a class="site-crest-seal" href="index.html" title="The Talon Cherry Seal">
         <img src="Images/crest-emblem.png?v=cut" alt="The Talon Cherry Seal" width="96" height="128">
     </a>
+    <div class="fixed inset-0 z-0 pointer-events-none bg-gradient-to-b from-zinc-950/70 via-zinc-950/40 to-zinc-950/90"></div>
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[30rem] bg-amber-600/15 blur-[150px] pointer-events-none rounded-full"></div>
 
     <header class="parlor-bar" aria-label="The Parlor">
         <nav class="parlor-bar-links">
@@ -41,7 +48,7 @@
         </div>
     </header>
 
-    <p id="gate-msg" class="relative z-10 text-center font-serif-custom italic py-24" style="color:#ead6ad;">Checking the guest book…</p>
+    <p id="gate-msg" class="relative z-10 text-center text-zinc-400 font-serif-custom italic py-24">Checking the guest book…</p>
 
     <main id="directory-main" class="directory-wrap" hidden>
         <section class="directory-book">
@@ -63,21 +70,42 @@
         </section>
     </main>
 
-    <footer class="site-foot border-t border-zinc-900/80">
+    <footer class="site-foot border-t border-zinc-900/80 bg-zinc-950/40 backdrop-blur-md">
         <nav class="crossroads" aria-label="Crossroads">
             <span class="crossroads-kicker">Crossroads</span>
-            <a href="music.html">Music</a>
+            <a href="music.html">Radio</a>
+            <a href="studio.html">Studio</a>
             <a href="writings.html">Writing</a>
             <a href="life.html">Life</a>
-            <a href="forum.html">Parlor</a>
+            <a href="forum.html" aria-current="page">Parlor</a>
         </nav>
-        <p class="js-copyright text-center text-xs py-4" style="color:#d4b872;">Copyright © 2026 Talon T. Cherry. All Rights Reserved.</p>
+        <div class="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center text-xs text-zinc-600 space-y-4 md:space-y-0 gap-4">
+            <p class="js-copyright">Copyright © 2026 Talon T. Cherry. All Rights Reserved.</p>
+            <a href="https://venmo.com/Talon-Cherry" target="_blank" rel="noopener noreferrer" class="js-venmo inline-flex items-center gap-2 font-serif-custom text-sm tracking-[0.2em] uppercase text-[#d9ab55] hover:text-amber-300 transition" aria-label="Tip jar — Venmo Talon Cherry (opens in a new tab)">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 36" class="w-5 h-6" fill="none" aria-hidden="true">
+                    <path d="M8 7h12" stroke="#c4a35a" stroke-width="1.6" stroke-linecap="round"/>
+                    <path d="M9.5 7c0-1.6 2-2.6 4.5-2.6S18.5 5.4 18.5 7" stroke="#c4a35a" stroke-width="1.4"/>
+                    <rect x="7" y="7" width="14" height="3.2" rx="0.6" fill="#b08d57" stroke="#6e5a32" stroke-width="0.6"/>
+                    <path d="M8.2 10.4h11.6l1.4 18.2c.1 1.4-1 2.6-2.4 2.6H9.2c-1.4 0-2.5-1.2-2.4-2.6L8.2 10.4Z" fill="#3a2418" stroke="#c4a35a" stroke-width="1.2"/>
+                    <path d="M10 16h8M10 21h8M10 26h6" stroke="#d9ab55" stroke-width="0.9" stroke-linecap="round" opacity="0.7"/>
+                </svg>
+                Tip Jar
+            </a>
+            <p class="text-zinc-500 js-host-note">Built local. Hosted free via GitHub Pages.</p>
+        </div>
+        <div class="h-card indie-sr">
+            <a class="p-name u-url" href="https://taloncherry.com/" tabindex="-1">Talon T. Cherry</a>
+            <img class="u-photo" src="Images/Me1.jpg" alt="" width="1" height="1">
+        </div>
+        <p class="cookie-aside">We use Google Analytics just to see if anyone is reading this, or if I'm shouting into the void.</p>
     </footer>
+
+    <script src="site-content.js?v=radio"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="parlor-config.js?v=7"></script>
     <script src="parlor-auth.js?v=7"></script>
-    <script src="parlor-nav.js?v=12"></script>
+    <script src="parlor-nav.js?v=13"></script>
     <script src="directory.js?v=3"></script>
 </body>
 </html>

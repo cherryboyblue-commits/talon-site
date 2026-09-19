@@ -18,7 +18,7 @@
     <link rel="apple-touch-icon" href="Images/crest-icon.png?v=tab">
     <link rel="stylesheet" href="site-widgets.css?v=crest-corner">
     <link rel="stylesheet" href="indieweb.css">
-    <link rel="stylesheet" href="parlor.css?v=12">
+    <link rel="stylesheet" href="parlor.css?v=13">
     <link rel="stylesheet" href="site-atmosphere.css">
     <style>
         .font-serif-custom { font-family: 'Instrument Serif', serif; }
@@ -156,7 +156,8 @@
     <footer class="site-foot border-t border-zinc-900/80 bg-zinc-950/40 backdrop-blur-md">
         <nav class="crossroads" aria-label="Crossroads">
             <span class="crossroads-kicker">Crossroads</span>
-            <a href="music.html">Music</a>
+            <a href="music.html">Radio</a>
+            <a href="studio.html">Studio</a>
             <a href="writings.html">Writing</a>
             <a href="life.html">Life</a>
             <a href="forum.html" aria-current="page">Parlor</a>
@@ -207,12 +208,12 @@
         <p class="cookie-aside">We use Google Analytics just to see if anyone is reading this, or if I'm shouting into the void.</p>
     </footer>
 
-    <script src="site-content.js"></script>
+    <script src="site-content.js?v=radio"></script>
     <script src="indieweb.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="parlor-config.js?v=7"></script>
     <script src="parlor-auth.js?v=7"></script>
-    <script src="parlor-nav.js?v=12"></script>
+    <script src="parlor-nav.js?v=13"></script>
     <script src="parlor-board.js?v=11"></script>
     <script>
         function paintHeartButton(button, liked, count) {
@@ -802,27 +803,35 @@
 
         function mountAdminSanctuary() {
             if (!isAdmin) return;
-            const nav = document.querySelector('header nav');
-            const link = document.createElement('a');
-            link.id = 'sanctuary-link';
+            const nav = document.querySelector('.parlor-bar-links') || document.querySelector('header nav');
+            let link = document.getElementById('sanctuary-link');
+            if (!link) {
+                link = document.createElement('a');
+                link.id = 'sanctuary-link';
+                link.className = 'parlor-bar-link';
+                link.textContent = 'Admin Sanctuary';
+                if (nav) nav.append(link);
+            }
             link.href = '#sanctuary';
-            link.className = 'sanctuary-link';
-            link.textContent = 'Admin Sanctuary';
             link.addEventListener('click', function () {
                 panel.hidden = false;
                 loadRoster();
             });
 
-            const panel = document.createElement('section');
-            panel.id = 'admin-sanctuary';
-            panel.className = 'sanctuary-panel';
+            let panel = document.getElementById('admin-sanctuary');
+            if (!panel) {
+                panel = document.createElement('section');
+                panel.id = 'admin-sanctuary';
+                panel.className = 'sanctuary-panel';
+                panel.innerHTML = '<p class="text-[10px] font-mono tracking-[0.22em] uppercase text-amber-500 mb-2">Hidden room</p>' +
+                    '<h2 class="font-serif-custom text-2xl text-amber-100 mb-2">Admin Sanctuary</h2>' +
+                    '<p class="text-sm text-zinc-400 mb-4">Member roll. Removal strips posting rights and takes down their notes.</p>' +
+                    '<div id="roster-list"></div>' +
+                    '<p id="roster-error" class="parlor-error mt-3"></p>';
+                const main = document.getElementById('parlor-main');
+                if (main) main.append(panel);
+            }
             panel.hidden = location.hash !== '#sanctuary';
-            panel.innerHTML = '<p class="text-[10px] font-mono tracking-[0.22em] uppercase text-amber-500 mb-2">Hidden room</p>' +
-                '<h2 class="font-serif-custom text-2xl text-amber-100 mb-2">Admin Sanctuary</h2>' +
-                '<p class="text-sm text-zinc-400 mb-4">Member roll. Removal strips posting rights and takes down their notes.</p>' +
-                '<div id="roster-list"></div>' +
-                '<p id="roster-error" class="parlor-error mt-3"></p>';
-            document.getElementById('parlor-main').append(panel);
 
             panel.addEventListener('click', async function (event) {
                 const button = event.target.closest('.roster-revoke');

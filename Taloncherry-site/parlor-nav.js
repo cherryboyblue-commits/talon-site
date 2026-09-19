@@ -57,6 +57,19 @@
       if (on) link.setAttribute("aria-current", "page");
       else link.removeAttribute("aria-current");
     });
+    const nav = document.querySelector(".parlor-bar-links");
+    if (nav && window.parlorIsAdmin && window.parlorIsAdmin(user)) {
+      let sanctuary = document.getElementById("sanctuary-link");
+      if (!sanctuary) {
+        sanctuary = document.createElement("a");
+        sanctuary.id = "sanctuary-link";
+        sanctuary.className = "parlor-bar-link";
+        sanctuary.textContent = "Admin Sanctuary";
+        nav.append(sanctuary);
+      }
+      const onBoard = /forum\.html$/i.test(location.pathname) || /forum\.html$/i.test(location.href.split("?")[0]);
+      sanctuary.href = onBoard ? "#sanctuary" : "forum.html#sanctuary";
+    }
     return session;
   };
 })();

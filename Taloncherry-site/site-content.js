@@ -1,5 +1,5 @@
 (function () {
-  const PATH = "cms/site.json";
+  const PATH = "cms/site.json?v=radio";
 
   function get(data, path) {
     return String(path || "").split(".").reduce(function (obj, key) {

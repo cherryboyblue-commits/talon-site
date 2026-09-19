@@ -823,19 +823,9 @@ body[data-parlor-mode="signin"] #parlor-avatar-wrap {
     font-style: italic;
     padding: 4rem 1rem;
 }
-.sanctuary-link {
-    font-size: 0.62rem;
-    font-weight: 400;
-    letter-spacing: 0.28em;
-    text-transform: uppercase;
-    text-decoration: none;
-    color: rgba(217, 171, 85, 0.9);
+.sanctuary-link,
+.parlor-bar #sanctuary-link {
     white-space: nowrap;
-}
-.sanctuary-link:hover,
-.sanctuary-link:focus-visible {
-    color: #e8d5a3;
-    outline: none;
 }
 .sanctuary-panel {
     margin-top: 2.5rem;
@@ -848,6 +838,14 @@ body[data-parlor-mode="signin"] #parlor-avatar-wrap {
     border-radius: 8px;
 }
 .sanctuary-panel[hidden] { display: none !important; }
+.roster-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.55rem 0;
+    border-bottom: 1px dashed rgba(196, 163, 90, 0.28);
+}
 .roster-who {
     display: flex;
     align-items: center;
