@@ -20,6 +20,113 @@
     return String(cfg.supabaseUrl || "").replace(/\/$/, "") + "/rest/v1/member_work_comments";
   }
 
+  function likesUrl() {
+    const cfg = window.PARLOR_CONFIG || {};
+    return String(cfg.supabaseUrl || "").replace(/\/$/, "") + "/rest/v1/member_work_likes";
+  }
+
+  const HEART_MARK =
+    '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7.2-4.35-9.3-8.22C1.2 8.9 2.4 5.6 5.5 4.7c1.85-.54 3.7.18 4.7 1.7 1-1.52 2.85-2.24 4.7-1.7 3.1.9 4.3 4.2 2.8 7.08C19.2 15.65 12 20 12 20z"/></svg><span class="pin-like-count">0</span>';
+
+  function likesMissingMessage(detail) {
+    return /PGRST205|does not exist|schema cache|member_work_likes/i.test(String(detail || ""))
+      ? "Run member_work_likes.sql in the Supabase SQL editor, then refresh."
+      : "";
+  }
+
+  function paintHeartButton(button, liked, count) {
+    if (!button) return;
+    const safeCount = Math.max(0, Number(count) || 0);
+    button.dataset.liked = liked ? "1" : "0";
+    button.dataset.count = String(safeCount);
+    button.classList.toggle("is-liked", liked);
+    button.setAttribute("aria-pressed", liked ? "true" : "false");
+    button.setAttribute(
+      "aria-label",
+      liked ? "Unlike this work, " + safeCount + " likes" : "Like this work, " + safeCount + " likes"
+    );
+    const tally = button.querySelector(".pin-like-count");
+    if (tally) tally.textContent = String(safeCount);
+  }
+
+  function createHeartButton(row) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "pin-like";
+    if (row && row.id != null) button.dataset.entryId = String(row.id);
+    button.innerHTML = HEART_MARK;
+    paintHeartButton(button, Boolean(row && row.liked), Number(row && row.likeCount) || 0);
+    return button;
+  }
+
+  function paintHeartsFor(entryId, liked, count) {
+    document.querySelectorAll(".pin-like[data-entry-id]").forEach(function (button) {
+      if (String(button.dataset.entryId) === String(entryId)) {
+        paintHeartButton(button, liked, count);
+      }
+    });
+  }
+
+  function applyWorkLikes(rows, likeRows, userId) {
+    const counts = {};
+    const mine = {};
+    const selfId = String(userId || "");
+    (likeRows || []).forEach(function (row) {
+      if (!row || row.entry_id == null) return;
+      const key = String(row.entry_id);
+      counts[key] = (counts[key] || 0) + 1;
+      if (selfId && String(row.user_id) === selfId) mine[key] = true;
+    });
+    (rows || []).forEach(function (row) {
+      const key = String(row.id);
+      row.likeCount = counts[key] || 0;
+      row.liked = Boolean(mine[key]);
+    });
+    return rows;
+  }
+
+  async function loadWorkLikes(entryIds) {
+    const ids = (entryIds || []).filter(Boolean);
+    if (!ids.length) return [];
+    const encoded = ids.map(function (id) { return encodeURIComponent(String(id)); }).join(",");
+    const res = await fetch(
+      likesUrl() + "?select=entry_id,user_id&entry_id=in.(" + encoded + ")",
+      { method: "GET", headers: await window.parlorRestHeaders() }
+    );
+    if (!res.ok) {
+      const detail = await res.text();
+      if (likesMissingMessage(detail)) console.warn(likesMissingMessage(detail));
+      return [];
+    }
+    const rows = await res.json();
+    return Array.isArray(rows) ? rows : [];
+  }
+
+  async function likeWork(entryId, userId) {
+    const res = await fetch(likesUrl(), {
+      method: "POST",
+      headers: await window.parlorRestHeaders(),
+      body: JSON.stringify({ entry_id: entryId, user_id: userId })
+    });
+    if (res.ok || res.status === 409) return true;
+    const detail = await res.text();
+    throw new Error(likesMissingMessage(detail) || detail || "The heart would not hold.");
+  }
+
+  async function unlikeWork(entryId, userId) {
+    const res = await fetch(
+      likesUrl() +
+        "?entry_id=eq." + encodeURIComponent(String(entryId)) +
+        "&user_id=eq." + encodeURIComponent(userId),
+      { method: "DELETE", headers: await window.parlorRestHeaders() }
+    );
+    if (!res.ok) {
+      const detail = await res.text();
+      throw new Error(likesMissingMessage(detail) || detail || "The heart would not lift.");
+    }
+    return true;
+  }
+
   function escapeHtml(value) {
     if (typeof window.parlorEscape === "function") return window.parlorEscape(value);
     return String(value ?? "")
@@ -156,7 +263,9 @@
             title: row.title || row.name || "Untitled",
             body: row.body || row.content || row.note || row.text || "",
             created_at: row.created_at,
-            sort_order: Number(row.sort_order)
+            sort_order: Number(row.sort_order),
+            likeCount: 0,
+            liked: false
           };
         });
       }
@@ -274,6 +383,11 @@
     const listEl = document.getElementById("ledger-list");
     let tabRows = [];
     let openWork = null;
+    let workPages = [];
+    let workCursor = 0;
+    let workFlipping = false;
+    const workPhoneQuery = window.matchMedia("(max-width: 768px)");
+    const workCard = document.querySelector(".ledger-work-card");
 
     function commentsUrlLocal() {
       return commentsUrl();
@@ -343,6 +457,337 @@
       }
     }
 
+    function catLabel(id) {
+      const found = CATS.find(function (item) { return item.id === id; });
+      return found ? found.label : "The ledger";
+    }
+
+    function isPhoneReader() {
+      return workPhoneQuery.matches;
+    }
+
+    function pageStep() {
+      return isPhoneReader() ? 1 : 2;
+    }
+
+    function formatProseHtml(text, withDropCap) {
+      const paras = String(text || "")
+        .replace(/\r\n/g, "\n")
+        .split(/\n\s*\n/)
+        .map(function (p) { return p.replace(/\s+/g, " ").trim(); })
+        .filter(Boolean);
+      if (!paras.length) return "";
+      return paras.map(function (p, i) {
+        const lead = withDropCap && i === 0 && /[A-Za-z]/.test(p.charAt(0));
+        return '<p class="print-p' + (lead ? " is-lead" : "") + '">' + linkify(p) + "</p>";
+      }).join("");
+    }
+
+    function formatVerseHtml(text) {
+      return '<div class="print-verse">' + linkify(String(text || "").trim()) + "</div>";
+    }
+
+    function pageInnerHtml(page) {
+      if (!page || page.type === "blank") return "";
+      if (page.type === "title") {
+        return '<div class="title-plate"><p class="page-kicker">' + escapeHtml(page.kicker) +
+          "</p><h2>" + escapeHtml(page.title) + '</h2><div class="title-rule"></div><p>' +
+          escapeHtml(page.text) + "</p></div>";
+      }
+      const verse = page.layout === "verse";
+      const body = verse
+        ? formatVerseHtml(page.text)
+        : '<div class="print-prose">' + formatProseHtml(page.text, !page.continued) + "</div>";
+      return '<p class="page-kicker">' + escapeHtml(page.kicker) + '</p><h3 class="page-title">' +
+        escapeHtml(page.title) + "</h3>" + body;
+    }
+
+    function prepareMeasure() {
+      const sample = document.getElementById("work-page-left");
+      if (!sample) return false;
+      const rect = sample.getBoundingClientRect();
+      const width = Math.round(rect.width || sample.clientWidth || 460);
+      const height = Math.round(rect.height || sample.clientHeight || 520);
+      const innerH = Math.max(220, height - 40);
+      let el = document.getElementById("work-page-measure");
+      if (!el) {
+        el = document.createElement("div");
+        el.id = "work-page-measure";
+        el.setAttribute("aria-hidden", "true");
+        document.body.appendChild(el);
+      }
+      el.style.width = width + "px";
+      el.style.height = innerH + "px";
+      return innerH > 160 && width > 180;
+    }
+
+    function pageContentFits(page) {
+      const el = document.getElementById("work-page-measure");
+      const text = page && page.text ? String(page.text) : "";
+      const lines = text.split("\n").length;
+      if (!el || el.clientHeight < 120) {
+        if (page && page.layout === "verse") return lines <= 15;
+        return text.length <= 860;
+      }
+      el.innerHTML = pageInnerHtml(page);
+      return el.scrollHeight <= el.clientHeight;
+    }
+
+    function textUnits(text, layout) {
+      const raw = String(text || "").replace(/\r\n/g, "\n").replace(/^\s+|\s+$/g, "");
+      if (layout === "verse") return raw.split("\n");
+      const paras = raw.split(/\n\s*\n/).map(function (p) {
+        return p.replace(/[ \t]+/g, " ").trim();
+      }).filter(Boolean);
+      return paras.length ? paras : (raw ? [raw] : []);
+    }
+
+    function joinUnits(units, layout) {
+      return layout === "verse" ? units.join("\n") : units.join("\n\n");
+    }
+
+    function splitLongUnit(unit, layout, make) {
+      const words = String(unit).split(/\s+/).filter(Boolean);
+      if (words.length < 8) return [unit];
+      const parts = [];
+      let start = 0;
+      while (start < words.length) {
+        let lo = 1;
+        let hi = words.length - start;
+        let best = 1;
+        while (lo <= hi) {
+          const mid = Math.floor((lo + hi) / 2);
+          const trial = words.slice(start, start + mid).join(" ");
+          if (pageContentFits(make(trial))) {
+            best = mid;
+            lo = mid + 1;
+          } else {
+            hi = mid - 1;
+          }
+        }
+        if (best < 12 && words.length - start > 12) {
+          best = Math.min(120, words.length - start);
+        }
+        parts.push(words.slice(start, start + best).join(" "));
+        start += best;
+      }
+      return parts;
+    }
+
+    function paginateText(text, layout, meta) {
+      const units = textUnits(text, layout);
+      const out = [];
+      const make = function (chunk, cont) {
+        return {
+          type: "body",
+          layout: layout,
+          kicker: meta.kicker,
+          title: cont ? meta.baseTitle + " (cont.)" : meta.baseTitle,
+          text: chunk,
+          continued: cont
+        };
+      };
+      if (!units.length) {
+        out.push(make("", false));
+        return out;
+      }
+      let i = 0;
+      let continued = false;
+      while (i < units.length) {
+        let lo = 1;
+        let hi = units.length - i;
+        let best = 1;
+        while (lo <= hi) {
+          const mid = Math.floor((lo + hi) / 2);
+          const trial = joinUnits(units.slice(i, i + mid), layout);
+          if (pageContentFits(make(trial, continued))) {
+            best = mid;
+            lo = mid + 1;
+          } else {
+            hi = mid - 1;
+          }
+        }
+        if (best === 1 && !pageContentFits(make(units[i], continued))) {
+          if (layout === "verse" && units.length - i > 1) {
+            best = Math.min(15, units.length - i);
+            out.push(make(joinUnits(units.slice(i, i + best), layout), continued));
+            i += best;
+            continued = true;
+            continue;
+          }
+          if (String(units[i]).length > 220) {
+            splitLongUnit(units[i], layout, function (chunk) {
+              return make(chunk, continued);
+            }).forEach(function (piece, n) {
+              out.push(make(piece, continued || n > 0));
+            });
+            i += 1;
+            continued = true;
+            continue;
+          }
+        }
+        out.push(make(joinUnits(units.slice(i, i + best), layout), continued));
+        i += best;
+        continued = true;
+      }
+      return out;
+    }
+
+    function chunkText(text, limit) {
+      const cleaned = (text || "").replace(/\n{3,}/g, "\n\n").trim();
+      if (cleaned.length <= limit) return [cleaned];
+      const parts = [];
+      const paras = cleaned.split(/\n\n/);
+      let buf = "";
+      const pushBuf = function () {
+        if (buf.trim()) parts.push(buf.trim());
+        buf = "";
+      };
+      for (let p = 0; p < paras.length; p += 1) {
+        const para = paras[p];
+        if (para.length > limit) {
+          pushBuf();
+          const words = para.split(/\s+/);
+          let line = "";
+          for (let w = 0; w < words.length; w += 1) {
+            if ((line + " " + words[w]).trim().length > limit && line) {
+              parts.push(line.trim());
+              line = words[w];
+            } else {
+              line = (line + " " + words[w]).trim();
+            }
+          }
+          if (line) buf = line;
+        } else if ((buf + "\n\n" + para).trim().length > limit && buf) {
+          pushBuf();
+          buf = para;
+        } else {
+          buf = buf ? buf + "\n\n" + para : para;
+        }
+      }
+      pushBuf();
+      return parts.length ? parts : [cleaned];
+    }
+
+    function buildWorkPages(row) {
+      const writing = row.body || row.content || "";
+      const layout = active === "poetry" ? "verse" : "prose";
+      const author = document.getElementById("ledger-name").textContent || "Member";
+      const dated = formatDate(row.created_at);
+      const kicker = catLabel(active);
+      const title = row.title || "Untitled";
+      const built = [{
+        type: "title",
+        kicker: kicker,
+        title: title,
+        text: author + (dated ? "\n\n" + dated : "")
+      }];
+      const canMeasure = prepareMeasure();
+      const meta = { kicker: kicker, baseTitle: title };
+      const pieces = canMeasure
+        ? paginateText(writing, layout, meta)
+        : chunkText(writing, layout === "verse" ? 720 : 980).map(function (chunk, n) {
+          return {
+            type: "body",
+            layout: layout,
+            kicker: kicker,
+            title: n === 0 ? title : title + " (cont.)",
+            text: chunk,
+            continued: n > 0
+          };
+        });
+      built.push.apply(built, pieces);
+      if (!isPhoneReader() && built.length % 2 === 1) {
+        built.push({ type: "blank" });
+      }
+      return built;
+    }
+
+    function renderWorkPage(el, page, pageNumber) {
+      if (!el) return;
+      if (!page || page.type === "blank") {
+        el.innerHTML = '<div class="page-inner"></div><div class="page-num">' + (pageNumber || "") + "</div>";
+        return;
+      }
+      el.innerHTML = '<div class="page-inner">' + pageInnerHtml(page) + '</div><div class="page-num">' + pageNumber + "</div>";
+    }
+
+    function viewIndex() {
+      if (isPhoneReader()) return workCursor;
+      return workCursor - (workCursor % 2);
+    }
+
+    function renderWorkSpread() {
+      const leftN = viewIndex();
+      workCursor = leftN;
+      const rightN = leftN + 1;
+      renderWorkPage(document.getElementById("work-page-left"), workPages[leftN], leftN + 1);
+      const rightEl = document.getElementById("work-page-right");
+      const indicator = document.getElementById("work-page-indicator");
+      if (isPhoneReader()) {
+        rightEl.innerHTML = "";
+        indicator.textContent = (leftN + 1) + " / " + workPages.length;
+      } else {
+        renderWorkPage(rightEl, workPages[rightN], rightN + 1);
+        const last = Math.min(rightN + 1, workPages.length);
+        indicator.textContent = (leftN + 1) + "–" + last + " / " + workPages.length;
+      }
+      document.getElementById("work-prev-page").disabled = leftN <= 0;
+      document.getElementById("work-next-page").disabled = leftN + pageStep() >= workPages.length;
+    }
+
+    function runWorkFlip(direction) {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      const folio = document.getElementById("work-folio");
+      const sheet = document.createElement("div");
+      sheet.className = "flip-sheet " + (direction === "next" ? "next" : "prev");
+      sheet.innerHTML = '<div class="flip-face"></div>';
+      folio.appendChild(sheet);
+      setTimeout(function () { sheet.remove(); }, isPhoneReader() ? 280 : 620);
+    }
+
+    function goWorkSpread(nextCursor, direction) {
+      if (workFlipping) return;
+      let next = nextCursor;
+      if (!isPhoneReader()) next = next - (next % 2);
+      if (next < 0 || next >= workPages.length || next === viewIndex()) return;
+      workFlipping = true;
+      runWorkFlip(direction);
+      setTimeout(function () {
+        workCursor = next;
+        renderWorkSpread();
+        workFlipping = false;
+      }, isPhoneReader() ? 140 : 280);
+    }
+
+    function turnWork(direction) {
+      const step = pageStep();
+      const next = viewIndex() + (direction === "next" ? step : -step);
+      goWorkSpread(next, direction);
+    }
+
+    async function paintWorkBook(row) {
+      workCursor = 0;
+      workPages = [];
+      if (document.fonts && document.fonts.ready) {
+        try { await document.fonts.ready; } catch (err) {}
+      }
+      await new Promise(function (resolve) {
+        requestAnimationFrame(function () { requestAnimationFrame(resolve); });
+      });
+      workPages = buildWorkPages(row);
+      renderWorkSpread();
+    }
+
+    function closeWorkModal() {
+      document.getElementById("work-modal").hidden = true;
+      if (workCard) workCard.classList.remove("is-reading");
+      document.getElementById("work-reader").hidden = true;
+      openWork = null;
+      workPages = [];
+      workCursor = 0;
+    }
+
     function openWorkModal(row) {
       openWork = row;
       const canEdit = isOwn;
@@ -352,8 +797,7 @@
       const body = document.getElementById("work-body");
       const titleEdit = document.getElementById("work-title-edit");
       const bodyEdit = document.getElementById("work-body-edit");
-      const titleRead = document.getElementById("work-title-read");
-      const bodyRead = document.getElementById("work-body-read");
+      const reader = document.getElementById("work-reader");
       title.value = row.title || "";
       body.value = writing;
       title.required = canEdit;
@@ -362,17 +806,21 @@
       body.readOnly = !canEdit;
       titleEdit.hidden = !canEdit;
       bodyEdit.hidden = !canEdit;
-      titleRead.hidden = canEdit;
-      bodyRead.hidden = canEdit;
-      titleRead.textContent = row.title || "Untitled";
-      bodyRead.innerHTML = linkify(writing);
+      reader.hidden = canEdit;
+      if (workCard) workCard.classList.toggle("is-reading", !canEdit);
       document.getElementById("work-save").hidden = !canEdit;
       document.getElementById("work-delete").hidden = !canEdit;
       document.getElementById("work-date").textContent = formatDate(row.created_at);
+      const modalHeart = document.getElementById("work-like");
+      modalHeart.dataset.entryId = String(row.id);
+      paintHeartButton(modalHeart, Boolean(row.liked), Number(row.likeCount) || 0);
+      const likeNote = document.getElementById("work-like-error");
+      if (likeNote) likeNote.textContent = "";
       document.getElementById("work-comment-input").value = "";
       document.getElementById("work-modal").hidden = false;
       loadWorkComments(row.id);
       if (canEdit) title.focus();
+      else paintWorkBook(row);
     }
 
     function renderWorks() {
@@ -422,7 +870,7 @@
         meta.className = "ledger-work-meta";
         meta.textContent = (isOwn ? "Open to edit · " : "Open to read · ") + formatDate(row.created_at);
         main.append(title, meta);
-        item.append(main);
+        item.append(main, createHeartButton(row));
         listEl.append(item);
       });
     }
@@ -455,6 +903,7 @@
           if (ao !== bo) return ao - bo;
           return String(a.created_at || "").localeCompare(String(b.created_at || ""));
         });
+        await applyWorkLikes(tabRows, await loadWorkLikes(tabRows.map(function (row) { return row.id; })), currentUser && currentUser.id);
         renderWorks();
       } catch (err) {
         listEl.replaceChildren();
@@ -530,7 +979,54 @@
       }
     });
 
+    async function toggleWorkHeart(button) {
+      const entryId = button && button.dataset.entryId;
+      if (!entryId || !currentUser || !currentUser.id) return;
+      if (button.dataset.busy === "1") return;
+      const liked = button.dataset.liked === "1";
+      const count = Number(button.dataset.count || 0) || 0;
+      const nextLiked = !liked;
+      const nextCount = Math.max(0, count + (nextLiked ? 1 : -1));
+      const note = document.getElementById("work-like-error");
+      if (note) note.textContent = "";
+      if (errorEl && document.getElementById("work-modal").hidden) errorEl.textContent = "";
+      button.dataset.busy = "1";
+      paintHeartsFor(entryId, nextLiked, nextCount);
+      if (nextLiked) {
+        button.classList.remove("is-pop");
+        void button.offsetWidth;
+        button.classList.add("is-pop");
+      }
+      try {
+        if (nextLiked) await likeWork(entryId, currentUser.id);
+        else await unlikeWork(entryId, currentUser.id);
+        const row = tabRows.find(function (item) { return String(item.id) === String(entryId); });
+        if (row) {
+          row.liked = nextLiked;
+          row.likeCount = nextCount;
+        }
+        if (openWork && String(openWork.id) === String(entryId)) {
+          openWork.liked = nextLiked;
+          openWork.likeCount = nextCount;
+        }
+      } catch (err) {
+        paintHeartsFor(entryId, liked, count);
+        const msg = err.message || "The heart would not hold.";
+        if (note) note.textContent = msg;
+        if (errorEl && document.getElementById("work-modal").hidden) errorEl.textContent = msg;
+      } finally {
+        button.dataset.busy = "0";
+      }
+    }
+
     listEl.addEventListener("click", async function (event) {
+      const heart = event.target.closest(".pin-like");
+      if (heart) {
+        event.preventDefault();
+        event.stopPropagation();
+        await toggleWorkHeart(heart);
+        return;
+      }
       const mover = event.target.closest("[data-move]");
       if (mover && isOwn) {
         event.preventDefault();
@@ -545,6 +1041,10 @@
 
     let dragId = "";
     listEl.addEventListener("dragstart", function (event) {
+      if (event.target.closest(".pin-like")) {
+        event.preventDefault();
+        return;
+      }
       const item = event.target.closest(".ledger-work");
       if (!isOwn || !item) return;
       dragId = item.dataset.id;
@@ -602,15 +1102,59 @@
         submit.disabled = false;
       }
     });
-    document.getElementById("work-close").addEventListener("click", function () {
-      workModal.hidden = true;
-      openWork = null;
+    document.getElementById("work-close").addEventListener("click", closeWorkModal);
+    document.getElementById("work-like").addEventListener("click", async function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+      await toggleWorkHeart(event.currentTarget);
     });
     workModal.addEventListener("click", function (event) {
-      if (event.target === workModal) {
-        workModal.hidden = true;
-        openWork = null;
-      }
+      if (event.target === workModal) closeWorkModal();
+    });
+    document.getElementById("work-prev-page").addEventListener("click", function () { turnWork("prev"); });
+    document.getElementById("work-next-page").addEventListener("click", function () { turnWork("next"); });
+    document.getElementById("work-page-left").addEventListener("click", function () {
+      if (isPhoneReader()) return;
+      turnWork("prev");
+    });
+    document.getElementById("work-page-right").addEventListener("click", function () {
+      if (isPhoneReader()) return;
+      turnWork("next");
+    });
+    (function bindWorkSwipe() {
+      const folio = document.getElementById("work-folio");
+      let startX = 0;
+      let startY = 0;
+      folio.addEventListener("touchstart", function (e) {
+        if (!e.changedTouches[0]) return;
+        startX = e.changedTouches[0].clientX;
+        startY = e.changedTouches[0].clientY;
+      }, { passive: true });
+      folio.addEventListener("touchend", function (e) {
+        if (!workCard || !workCard.classList.contains("is-reading")) return;
+        const touch = e.changedTouches[0];
+        if (!touch) return;
+        const dx = touch.clientX - startX;
+        const dy = touch.clientY - startY;
+        if (Math.abs(dx) < 48 || Math.abs(dx) < Math.abs(dy)) return;
+        if (dx < 0) turnWork("next");
+        else turnWork("prev");
+      }, { passive: true });
+    })();
+    window.addEventListener("keydown", function (e) {
+      if (document.getElementById("work-modal").hidden) return;
+      if (!workCard || !workCard.classList.contains("is-reading")) return;
+      const tag = (e.target && e.target.tagName) || "";
+      if (tag === "TEXTAREA" || tag === "INPUT") return;
+      if (e.key === "ArrowRight") { e.preventDefault(); turnWork("next"); }
+      if (e.key === "ArrowLeft") { e.preventDefault(); turnWork("prev"); }
+      if (e.key === "Escape") { e.preventDefault(); closeWorkModal(); }
+    });
+    let workReflowTimer = null;
+    workPhoneQuery.addEventListener("change", function () {
+      if (!openWork || !workCard || !workCard.classList.contains("is-reading")) return;
+      clearTimeout(workReflowTimer);
+      workReflowTimer = setTimeout(function () { paintWorkBook(openWork); }, 180);
     });
     document.getElementById("work-form").addEventListener("submit", async function (event) {
       event.preventDefault();
@@ -626,8 +1170,7 @@
           body: body.slice(0, 12000),
           content: body.slice(0, 12000)
         });
-        workModal.hidden = true;
-        openWork = null;
+        closeWorkModal();
         await showTab(active);
       } catch (err) {
         if (errorEl) errorEl.textContent = err.message || "The page would not hold.";
@@ -646,8 +1189,7 @@
         if (errorEl) errorEl.textContent = (await res.text()) || "The page would not come out.";
         return;
       }
-      workModal.hidden = true;
-      openWork = null;
+      closeWorkModal();
       await showTab(active);
     });
 

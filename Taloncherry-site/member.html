@@ -9,14 +9,14 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="icon" href="favicon.ico" sizes="any">
     <link rel="icon" type="image/png" sizes="32x32" href="Images/favicon-32.png?v=tab">
     <link rel="apple-touch-icon" href="Images/crest-icon.png?v=tab">
     <link rel="stylesheet" href="site-widgets.css?v=crest-corner">
     <link rel="stylesheet" href="indieweb.css">
     <link rel="stylesheet" href="parlor.css?v=14">
-    <link rel="stylesheet" href="member.css?v=5">
+    <link rel="stylesheet" href="member.css?v=7">
     <link rel="stylesheet" href="site-atmosphere.css">
     <style>
         .font-serif-custom { font-family: 'Instrument Serif', serif; }
@@ -90,21 +90,41 @@
         <div class="ledger-modal-card ledger-work-card">
             <form id="work-form">
                 <p id="work-mode" class="ledger-compose-kicker">The page</p>
-                <label id="work-title-edit" class="block mb-3 text-left">
+                <label id="work-title-edit" class="work-edit-block">
                     <span class="block text-[10px] font-mono tracking-[0.2em] uppercase text-[#7a4e18] mb-1">Title</span>
                     <input class="parlor-field" id="work-title" name="title" maxlength="160">
                 </label>
-                <h2 id="work-title-read" class="ledger-entry-title" hidden></h2>
-                <label id="work-body-edit" class="block mb-3 text-left">
+                <label id="work-body-edit" class="work-edit-block">
                     <span class="block text-[10px] font-mono tracking-[0.2em] uppercase text-[#7a4e18] mb-1">The writing</span>
                     <textarea class="parlor-field" id="work-body" name="body" maxlength="12000" rows="10"></textarea>
                 </label>
-                <div id="work-body-read" class="ledger-entry-body work-body-read" hidden></div>
-                <p id="work-date" class="ledger-entry-date"></p>
-                <div class="ledger-modal-actions">
-                    <button type="button" id="work-delete" class="ledger-cancel" hidden>Take down</button>
-                    <button type="button" id="work-close" class="ledger-cancel">Close</button>
-                    <button type="submit" id="work-save" class="ledger-write" hidden>Save changes</button>
+                <div id="work-reader" class="work-reader" hidden>
+                    <div class="folio" id="work-folio">
+                        <div class="folio-cover-edge"></div>
+                        <article class="folio-page left" id="work-page-left" title="Previous page"></article>
+                        <div class="folio-gutter"></div>
+                        <article class="folio-page right" id="work-page-right" title="Next page"></article>
+                    </div>
+                    <div class="work-reader-controls">
+                        <button type="button" id="work-prev-page" class="ctrl-btn">← Previous</button>
+                        <span id="work-page-indicator" class="work-page-indicator">1–2</span>
+                        <button type="button" id="work-next-page" class="ctrl-btn">Next →</button>
+                    </div>
+                </div>
+                <div class="work-form-chrome">
+                    <div class="work-heart-row">
+                        <p id="work-date" class="ledger-entry-date"></p>
+                        <button type="button" id="work-like" class="pin-like" data-entry-id="">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7.2-4.35-9.3-8.22C1.2 8.9 2.4 5.6 5.5 4.7c1.85-.54 3.7.18 4.7 1.7 1-1.52 2.85-2.24 4.7-1.7 3.1.9 4.3 4.2 2.8 7.08C19.2 15.65 12 20 12 20z"/></svg>
+                            <span class="pin-like-count">0</span>
+                        </button>
+                    </div>
+                    <p id="work-like-error" class="ledger-error"></p>
+                    <div class="ledger-modal-actions">
+                        <button type="button" id="work-delete" class="ledger-cancel" hidden>Take down</button>
+                        <button type="button" id="work-close" class="ledger-cancel">Close</button>
+                        <button type="submit" id="work-save" class="ledger-write" hidden>Save changes</button>
+                    </div>
                 </div>
             </form>
             <section class="work-comments" aria-label="Encouragement">
@@ -195,6 +215,6 @@
     <script src="parlor-config.js?v=7"></script>
     <script src="parlor-auth.js?v=9"></script>
     <script src="parlor-nav.js?v=14"></script>
-    <script src="member.js?v=22"></script>
+    <script src="member.js?v=24"></script>
 </body>
 </html>
