@@ -80,7 +80,8 @@ begin
       lower(btrim(category)) in (
         'memories', 'memory',
         'dreams', 'dream',
-        'poetry', 'lyrics', 'poetry_lyrics', 'poetry-lyrics'
+        'poetry', 'lyrics', 'poetry_lyrics', 'poetry-lyrics',
+        'stories', 'story', 'short_stories', 'short-stories'
       )
     );
 exception

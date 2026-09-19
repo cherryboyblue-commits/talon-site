@@ -2,7 +2,8 @@
   const CATS = [
     { id: "memories", label: "Memories" },
     { id: "dreams", label: "Dreams" },
-    { id: "poetry", label: "Poetry & Lyrics" }
+    { id: "poetry", label: "Poetry & Lyrics" },
+    { id: "stories", label: "Short Stories" }
   ];
 
   function uuidLike(value) {
@@ -83,6 +84,7 @@
     if (value === "memory") return "memories";
     if (value === "dream") return "dreams";
     if (value === "lyrics" || value === "poetry_lyrics" || value === "poetry-lyrics") return "poetry";
+    if (value === "story" || value === "short_stories" || value === "short-stories" || value === "shortstories") return "stories";
     return CATS.some(function (item) { return item.id === value; }) ? value : "memories";
   }
 
@@ -91,6 +93,7 @@
     if (id === "memories") return ["memories", "memory"];
     if (id === "dreams") return ["dreams", "dream"];
     if (id === "poetry") return ["poetry", "lyrics", "poetry_lyrics", "poetry-lyrics"];
+    if (id === "stories") return ["stories", "story", "short_stories", "short-stories"];
     return [id];
   }
 
