@@ -24,6 +24,9 @@ begin
   if new.badge is not null and btrim(new.badge) = '' then
     new.badge := null;
   end if;
+  if current_setting('parlor.allow_badge', true) = '1' then
+    return new;
+  end if;
   if tg_op = 'UPDATE' and new.badge is distinct from old.badge and not public.is_parlor_admin() then
     new.badge := old.badge;
   end if;
@@ -47,6 +50,38 @@ create policy "parlor_profiles_admin_update"
   using (public.is_parlor_admin())
   with check (public.is_parlor_admin());
 
+create or replace function public.admin_set_member_badge(target_user uuid, badge_text text)
+returns text
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  cleaned text;
+begin
+  if not public.is_parlor_admin() then
+    raise exception 'not authorized';
+  end if;
+  if target_user is null then
+    raise exception 'member not on the roll';
+  end if;
+  cleaned := nullif(btrim(coalesce(badge_text, '')), '');
+  if cleaned is not null and char_length(cleaned) > 24 then
+    raise exception 'badge too long';
+  end if;
+  perform set_config('parlor.allow_badge', '1', true);
+  update public.parlor_profiles
+     set badge = cleaned
+   where user_id = target_user;
+  if not found then
+    raise exception 'member not on the roll';
+  end if;
+  return coalesce(cleaned, '');
+end;
+$$;
+
+revoke all on function public.admin_set_member_badge(uuid, text) from public;
+grant execute on function public.admin_set_member_badge(uuid, text) to authenticated;
 grant select, insert, update on table public.parlor_profiles to authenticated;
 
 notify pgrst, 'reload schema';

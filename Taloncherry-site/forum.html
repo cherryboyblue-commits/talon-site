@@ -212,9 +212,9 @@
     <script src="indieweb.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="parlor-config.js?v=7"></script>
-    <script src="parlor-auth.js?v=8"></script>
+    <script src="parlor-auth.js?v=9"></script>
     <script src="parlor-nav.js?v=14"></script>
-    <script src="parlor-board.js?v=12"></script>
+    <script src="parlor-board.js?v=13"></script>
     <script>
         function paintHeartButton(button, liked, count) {
             const safeCount = Math.max(0, Number(count) || 0);
@@ -804,27 +804,53 @@
             }
         }
 
+        function rpcBadgeEndpoint() {
+            const config = window.PARLOR_CONFIG || {};
+            return String(config.supabaseUrl || '').replace(/\/$/, '') + '/rest/v1/rpc/admin_set_member_badge';
+        }
+
         async function setMemberBadge(userId, button) {
             if (!isAdmin || !userId) return;
             const row = button && button.closest('.roster-row');
             const field = row && row.querySelector('.roster-badge-field');
             const badge = (window.parlorFormatBadge ? window.parlorFormatBadge(field && field.value) : String(field && field.value || '').trim()).slice(0, 24);
-            const response = await fetch(
-                profilesEndpoint() + '?user_id=eq.' + encodeURIComponent(userId),
-                {
-                    method: 'PATCH',
-                    headers: await notesHeaders(),
-                    body: JSON.stringify({ badge: badge || null })
+            const headers = await notesHeaders();
+            let saved = null;
+            const rpc = await fetch(rpcBadgeEndpoint(), {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify({ target_user: userId, badge_text: badge || null })
+            });
+            if (rpc.ok) {
+                saved = await rpc.json();
+            } else {
+                const rpcDetail = await rpc.text();
+                const patch = await fetch(
+                    profilesEndpoint() + '?user_id=eq.' + encodeURIComponent(userId),
+                    {
+                        method: 'PATCH',
+                        headers: headers,
+                        body: JSON.stringify({ badge: badge || null })
+                    }
+                );
+                if (!patch.ok) {
+                    const detail = rpcDetail + ' ' + (await patch.text());
+                    throw new Error(/does not exist|PGRST202|PGRST204|badge/i.test(detail)
+                        ? 'Run parlor_badges.sql in the Supabase SQL editor, then refresh.'
+                        : (detail || 'The badge would not take.'));
                 }
-            );
-            if (!response.ok) {
-                const detail = await response.text();
-                const missing = /PGRST204|badge/i.test(detail);
-                throw new Error(missing
-                    ? 'Run parlor_badges.sql in the Supabase SQL editor, then refresh.'
-                    : (detail || 'The badge would not take.'));
+                const rows = await patch.json();
+                saved = Array.isArray(rows) && rows[0] ? rows[0].badge : null;
+                if (Array.isArray(rows) && !rows.length) {
+                    throw new Error('Run parlor_badges.sql in the Supabase SQL editor, then refresh.');
+                }
             }
-            if (field) field.value = badge;
+            const held = window.parlorFormatBadge ? window.parlorFormatBadge(saved) : String(saved || '');
+            if (badge && held !== badge) {
+                throw new Error('Run parlor_badges.sql in the Supabase SQL editor, then refresh.');
+            }
+            if (field) field.value = held || badge;
+            if (typeof fetchExistingNotes === 'function') await fetchExistingNotes();
         }
 
         async function revokeMember(userId, button) {

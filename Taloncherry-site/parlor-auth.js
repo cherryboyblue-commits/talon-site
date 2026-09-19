@@ -210,6 +210,29 @@
     if (handle && handle === adminHandle) return "steward";
     return "";
   };
+  window.parlorResolveBadge = function (userId, author, avatarMap) {
+    const key = String(userId || "");
+    if (avatarMap) {
+      const row = avatarMap[userId] || avatarMap[key];
+      if (row && window.parlorBadgeForProfile) {
+        const mark = window.parlorBadgeForProfile(row);
+        if (mark) return mark;
+      }
+      if (author) {
+        const name = window.parlorNormalizeUsername(author).toLowerCase();
+        const keys = Object.keys(avatarMap);
+        for (let i = 0; i < keys.length; i += 1) {
+          const item = avatarMap[keys[i]];
+          if (window.parlorNormalizeUsername(item && item.username).toLowerCase() === name) {
+            const mark = window.parlorBadgeForProfile(item);
+            if (mark) return mark;
+          }
+        }
+      }
+    }
+    return window.parlorBadgeForProfile ? window.parlorBadgeForProfile({ username: author }) : "";
+  };
+
   window.parlorLoadAvatarMap = async function () {
     const map = {};
     try {
@@ -229,11 +252,13 @@
       rows = await res.json();
       (rows || []).forEach(function (row) {
         if (!row || !row.user_id) return;
-        map[row.user_id] = {
+        const key = String(row.user_id);
+        map[key] = {
           username: row.username || "",
           avatar_url: window.parlorSafeMediaUrl(row.avatar_url),
-          badge: window.parlorBadgeForProfile(row)
+          badge: row.badge || ""
         };
+        map[row.user_id] = map[key];
       });
     } catch (err) {
       console.warn(err);

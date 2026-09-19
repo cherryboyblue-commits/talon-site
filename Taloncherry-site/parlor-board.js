@@ -62,9 +62,11 @@
       category: category || "general",
       pinned: row && (row.is_pinned === true || row.is_pinned === "true" || row.is_pinned === 1),
       avatarUrl: window.parlorResolveAvatar ? window.parlorResolveAvatar(userId, noteAuthor(row), avatarMap, currentUser) : "",
-      badge: window.parlorBadgeForProfile
-        ? window.parlorBadgeForProfile((avatarMap && avatarMap[userId]) || { username: noteAuthor(row) })
-        : "",
+      badge: window.parlorResolveBadge
+        ? window.parlorResolveBadge(userId, noteAuthor(row), avatarMap)
+        : (window.parlorBadgeForProfile
+          ? window.parlorBadgeForProfile((avatarMap && (avatarMap[userId] || avatarMap[String(userId || "")])) || { username: noteAuthor(row) })
+          : ""),
       likeCount: 0,
       liked: false
     };
