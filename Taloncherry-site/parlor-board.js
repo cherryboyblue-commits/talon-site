@@ -12,6 +12,10 @@
 
   window.parlorNoteTilt = parlorNoteTilt;
 
+  window.parlorMemberHref = window.parlorMemberHref || function (username) {
+    return "member.html?user=" + encodeURIComponent(String(username || "").trim());
+  };
+
   window.parlorParseNoteMetadata = function (text) {
     const raw = String(text || "");
     const refs = [];

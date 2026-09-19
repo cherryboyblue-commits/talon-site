@@ -18,7 +18,7 @@
     <link rel="apple-touch-icon" href="Images/crest-icon.png?v=tab">
     <link rel="stylesheet" href="site-widgets.css?v=crest-corner">
     <link rel="stylesheet" href="indieweb.css">
-    <link rel="stylesheet" href="parlor.css?v=10">
+    <link rel="stylesheet" href="parlor.css?v=12">
     <link rel="stylesheet" href="site-atmosphere.css">
     <style>
         .font-serif-custom { font-family: 'Instrument Serif', serif; }
@@ -35,9 +35,13 @@
     <div class="fixed inset-0 z-0 pointer-events-none bg-gradient-to-b from-zinc-950/70 via-zinc-950/40 to-zinc-950/90"></div>
     <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[30rem] bg-amber-600/15 blur-[150px] pointer-events-none rounded-full"></div>
 
-    <header class="sub-head parlor-head">
-        <a class="sub-head-mark" href="index.html" aria-label="Home">Tc</a>
-        <nav class="parlor-head-nav" aria-label="Parlor">
+    <header class="parlor-bar" aria-label="The Parlor">
+        <nav class="parlor-bar-links">
+            <a class="parlor-bar-link" data-parlor-nav="board" href="forum.html">The Board</a>
+            <a class="parlor-bar-link" data-parlor-nav="directory" href="directory.html">Members Directory</a>
+            <a class="parlor-bar-link" data-parlor-nav="ledger" id="parlor-nav-ledger" href="member.html">Your Ledger</a>
+        </nav>
+        <div class="parlor-bar-user">
             <span class="parlor-member-chip">
                 <img id="member-avatar" class="parlor-member-face is-empty" alt="">
                 <span id="member-label" class="parlor-member"></span>
@@ -46,9 +50,8 @@
                 <input type="file" id="member-avatar-file" accept="image/jpeg,image/png,image/webp,image/gif">
             </label>
             <span id="likeness-status" class="parlor-likeness-status" role="status"></span>
-            <button type="button" id="sign-out" class="sub-head-meta parlor-signout">Sign out</button>
-            <a class="sub-head-meta" href="index.html">Return home</a>
-        </nav>
+            <button type="button" id="sign-out" class="parlor-signout">Sign out</button>
+        </div>
     </header>
 
     <main id="parlor-main" class="relative z-10 max-w-6xl mx-auto px-6 py-10 hidden">
@@ -209,7 +212,8 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="parlor-config.js?v=7"></script>
     <script src="parlor-auth.js?v=7"></script>
-    <script src="parlor-board.js?v=10"></script>
+    <script src="parlor-nav.js?v=12"></script>
+    <script src="parlor-board.js?v=11"></script>
     <script>
         function paintHeartButton(button, liked, count) {
             const safeCount = Math.max(0, Number(count) || 0);
@@ -391,11 +395,15 @@
             const pin = document.createElement('span');
             pin.className = 'pin-head';
 
-            const byline = document.createElement('div');
-            byline.className = 'pin-byline';
+            const profileHref = (typeof parlorMemberHref === 'function')
+                ? parlorMemberHref(author)
+                : ('member.html?user=' + encodeURIComponent(author));
+            const byline = document.createElement('a');
+            byline.className = 'pin-byline pin-byline-link p-author h-card';
+            byline.href = profileHref;
             if (record.avatarUrl) {
                 const face = document.createElement('img');
-                face.className = 'pin-avatar';
+                face.className = 'pin-avatar u-photo';
                 face.src = record.avatarUrl;
                 face.alt = '';
                 byline.append(face);
@@ -406,7 +414,7 @@
                 byline.append(mark);
             }
             const by = document.createElement('span');
-            by.className = 'pin-author p-author';
+            by.className = 'pin-author p-name';
             by.textContent = author;
             byline.append(by);
 
@@ -843,7 +851,7 @@
             isAdmin = Boolean(gate.isAdmin || gate.session.isAdmin);
             document.getElementById('gate-msg').classList.add('hidden');
             document.getElementById('parlor-main').classList.remove('hidden');
-            document.getElementById('member-label').textContent = parlorDisplayName(currentUser) + (isAdmin ? ' · steward' : '');
+            await parlorMountChrome(currentUser, 'board');
             document.getElementById('pin-name').value = parlorDisplayName(currentUser);
             try {
                 const fresh = await client.auth.getUser();

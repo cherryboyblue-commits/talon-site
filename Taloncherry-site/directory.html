@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Members Directory | Talon T. Cherry</title>
+    <link rel="canonical" href="https://www.taloncherry.com/directory.html">
+    <meta name="robots" content="noindex, nofollow">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="icon" href="favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="Images/favicon-32.png?v=tab">
+    <link rel="apple-touch-icon" href="Images/crest-icon.png?v=tab">
+    <link rel="stylesheet" href="site-widgets.css?v=crest-corner">
+    <link rel="stylesheet" href="parlor.css?v=12">
+    <link rel="stylesheet" href="directory.css?v=3">
+    <style>
+        .font-serif-custom { font-family: Georgia, 'Instrument Serif', serif; }
+        .font-sans-custom { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="directory-page font-sans-custom antialiased">
+    <a class="site-crest-seal" href="index.html" title="The Talon Cherry Seal">
+        <img src="Images/crest-emblem.png?v=cut" alt="The Talon Cherry Seal" width="96" height="128">
+    </a>
+
+    <header class="parlor-bar" aria-label="The Parlor">
+        <nav class="parlor-bar-links">
+            <a class="parlor-bar-link" data-parlor-nav="board" href="forum.html">The Board</a>
+            <a class="parlor-bar-link" data-parlor-nav="directory" href="directory.html">Members Directory</a>
+            <a class="parlor-bar-link" data-parlor-nav="ledger" id="parlor-nav-ledger" href="member.html">Your Ledger</a>
+        </nav>
+        <div class="parlor-bar-user">
+            <span class="parlor-member-chip">
+                <img id="member-avatar" class="parlor-member-face is-empty" alt="">
+                <span id="member-label" class="parlor-member"></span>
+            </span>
+            <button type="button" id="sign-out" class="parlor-signout">Sign out</button>
+        </div>
+    </header>
+
+    <p id="gate-msg" class="relative z-10 text-center font-serif-custom italic py-24" style="color:#ead6ad;">Checking the guest book…</p>
+
+    <main id="directory-main" class="directory-wrap" hidden>
+        <section class="directory-book">
+            <p class="directory-kicker">The Parlor</p>
+            <h1 class="directory-title">Members Directory</h1>
+            <p class="directory-blurb">The house roll. Open a ledger to read what a member has bound.</p>
+            <div class="directory-tools">
+                <label class="directory-search">
+                    <span class="directory-search-label">Look for a member</span>
+                    <input class="parlor-field" id="directory-query" type="search" maxlength="80" placeholder="Name or a word from their bio…" autocomplete="off">
+                </label>
+                <div class="directory-sort" role="group" aria-label="Sort the roll">
+                    <button type="button" class="directory-sort-btn is-active" id="directory-sort-name" aria-pressed="true">By name</button>
+                    <button type="button" class="directory-sort-btn" id="directory-sort-recent" aria-pressed="false">Most recent</button>
+                </div>
+            </div>
+            <p id="directory-error" class="directory-error" hidden></p>
+            <div id="directory-grid" class="directory-grid" aria-live="polite"></div>
+        </section>
+    </main>
+
+    <footer class="site-foot border-t border-zinc-900/80">
+        <nav class="crossroads" aria-label="Crossroads">
+            <span class="crossroads-kicker">Crossroads</span>
+            <a href="music.html">Music</a>
+            <a href="writings.html">Writing</a>
+            <a href="life.html">Life</a>
+            <a href="forum.html">Parlor</a>
+        </nav>
+        <p class="js-copyright text-center text-xs py-4" style="color:#d4b872;">Copyright © 2026 Talon T. Cherry. All Rights Reserved.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="parlor-config.js?v=7"></script>
+    <script src="parlor-auth.js?v=7"></script>
+    <script src="parlor-nav.js?v=12"></script>
+    <script src="directory.js?v=3"></script>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Member Ledger | Talon T. Cherry</title>
+    <link rel="canonical" href="https://www.taloncherry.com/member.html">
+    <meta name="robots" content="noindex, nofollow">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="icon" href="favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="Images/favicon-32.png?v=tab">
+    <link rel="apple-touch-icon" href="Images/crest-icon.png?v=tab">
+    <link rel="stylesheet" href="site-widgets.css?v=crest-corner">
+    <link rel="stylesheet" href="parlor.css?v=12">
+    <link rel="stylesheet" href="member.css?v=3">
+    <style>
+        .font-serif-custom { font-family: 'Instrument Serif', serif; }
+        .font-sans-custom { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="ledger-page font-sans-custom antialiased">
+    <a class="site-crest-seal" href="index.html" title="The Talon Cherry Seal">
+        <img src="Images/crest-emblem.png?v=cut" alt="The Talon Cherry Seal" width="96" height="128">
+    </a>
+
+    <header class="parlor-bar" aria-label="The Parlor">
+        <nav class="parlor-bar-links">
+            <a class="parlor-bar-link" data-parlor-nav="board" href="forum.html">The Board</a>
+            <a class="parlor-bar-link" data-parlor-nav="directory" href="directory.html">Members Directory</a>
+            <a class="parlor-bar-link" data-parlor-nav="ledger" id="parlor-nav-ledger" href="member.html">Your Ledger</a>
+        </nav>
+        <div class="parlor-bar-user">
+            <span class="parlor-member-chip">
+                <img id="member-avatar" class="parlor-member-face is-empty" alt="">
+                <span id="member-label" class="parlor-member"></span>
+            </span>
+            <button type="button" id="sign-out" class="parlor-signout">Sign out</button>
+        </div>
+    </header>
+
+    <p id="gate-msg" class="relative z-10 text-center font-serif-custom italic py-24" style="color:#ead6ad;">Checking the guest book…</p>
+
+    <main id="ledger-main" class="ledger-wrap" hidden>
+        <section class="ledger-book" aria-label="Member ledger">
+            <div id="ledger-banner" class="ledger-banner">
+                <img id="ledger-face" class="ledger-face" alt="">
+            </div>
+            <div class="ledger-identity">
+                <h1 id="ledger-name" class="ledger-name">Member</h1>
+                <p id="ledger-bio" class="ledger-bio"></p>
+            </div>
+            <div id="ledger-tabs" class="ledger-tabs" role="tablist" aria-label="Ledger drawers">
+                <button type="button" class="ledger-tab is-active" role="tab" data-category="memories" aria-selected="true">Memories</button>
+                <button type="button" class="ledger-tab" role="tab" data-category="dreams" aria-selected="false">Dreams</button>
+                <button type="button" class="ledger-tab" role="tab" data-category="poetry" aria-selected="false">Poetry &amp; Lyrics</button>
+            </div>
+            <div class="ledger-toolbar">
+                <button type="button" id="ledger-edit" class="ledger-write" hidden>Edit profile</button>
+            </div>
+            <p id="ledger-error" class="ledger-error"></p>
+            <form id="ledger-compose" class="ledger-compose" hidden>
+                <p class="ledger-compose-kicker">A new page in this drawer</p>
+                <label class="block mb-3 text-left">
+                    <span class="block text-[10px] font-mono tracking-[0.2em] uppercase text-[#7a4e18] mb-1">Title</span>
+                    <input class="parlor-field" id="compose-title" name="title" maxlength="160" required placeholder="Name this piece…">
+                </label>
+                <label class="block mb-3 text-left">
+                    <span class="block text-[10px] font-mono tracking-[0.2em] uppercase text-[#7a4e18] mb-1">The writing</span>
+                    <textarea class="parlor-field" id="compose-body" name="body" maxlength="12000" rows="7" required placeholder="Ink for this drawer…"></textarea>
+                </label>
+                <button type="submit" id="compose-submit" class="ledger-write">Save to this tab</button>
+            </form>
+            <div id="ledger-list" class="ledger-list" aria-live="polite"></div>
+        </section>
+    </main>
+
+    <div id="work-modal" class="ledger-modal" hidden>
+        <div class="ledger-modal-card ledger-work-card">
+            <form id="work-form">
+                <p id="work-mode" class="ledger-compose-kicker">The page</p>
+                <label id="work-title-edit" class="block mb-3 text-left">
+                    <span class="block text-[10px] font-mono tracking-[0.2em] uppercase text-[#7a4e18] mb-1">Title</span>
+                    <input class="parlor-field" id="work-title" name="title" maxlength="160">
+                </label>
+                <h2 id="work-title-read" class="ledger-entry-title" hidden></h2>
+                <label id="work-body-edit" class="block mb-3 text-left">
+                    <span class="block text-[10px] font-mono tracking-[0.2em] uppercase text-[#7a4e18] mb-1">The writing</span>
+                    <textarea class="parlor-field" id="work-body" name="body" maxlength="12000" rows="10"></textarea>
+                </label>
+                <div id="work-body-read" class="ledger-entry-body work-body-read" hidden></div>
+                <p id="work-date" class="ledger-entry-date"></p>
+                <div class="ledger-modal-actions">
+                    <button type="button" id="work-delete" class="ledger-cancel" hidden>Take down</button>
+                    <button type="button" id="work-close" class="ledger-cancel">Close</button>
+                    <button type="submit" id="work-save" class="ledger-write" hidden>Save changes</button>
+                </div>
+            </form>
+            <section class="work-comments" aria-label="Encouragement">
+                <p class="ledger-compose-kicker">Encouragement</p>
+                <ul id="work-comment-list" class="work-comment-list"></ul>
+                <form id="work-comment-form" class="work-comment-form">
+                    <label class="block text-left" style="flex:1;min-width:0;">
+                        <span class="sr-only">A word of encouragement</span>
+                        <textarea class="parlor-field" id="work-comment-input" maxlength="280" rows="2" required placeholder="A word of encouragement…"></textarea>
+                    </label>
+                    <button type="submit" id="work-comment-submit" class="ledger-write">Pin word</button>
+                </form>
+                <p id="work-comment-error" class="ledger-error"></p>
+            </section>
+        </div>
+    </div>
+
+    <div id="profile-modal" class="ledger-modal" hidden>
+        <form id="profile-form" class="ledger-modal-card">
+            <h2>Edit profile</h2>
+            <label class="block mb-3 text-left">
+                <span class="block text-[10px] font-mono tracking-[0.2em] uppercase text-[#7a4e18] mb-1">Bio</span>
+                <textarea class="parlor-field" id="profile-bio" name="bio" maxlength="480" rows="4" placeholder="A line for the house…"></textarea>
+            </label>
+            <div class="profile-media-block">
+                <span class="block text-[10px] font-mono tracking-[0.2em] uppercase text-[#7a4e18] mb-1">Avatar</span>
+                <div class="profile-media-row">
+                    <img id="profile-avatar-preview" class="profile-avatar-preview is-empty" alt="">
+                    <div class="profile-media-fields">
+                        <label class="parlor-file">
+                            <span class="block w-full text-[10px] font-mono tracking-[0.12em] uppercase text-[#7a4e18]">Upload from this device</span>
+                            <input class="parlor-field" type="file" id="profile-avatar-file" accept="image/jpeg,image/png,image/webp,image/gif">
+                        </label>
+                        <input class="parlor-field" id="profile-avatar" name="avatar_url" maxlength="500" placeholder="or paste a URL (https://…)">
+                    </div>
+                </div>
+            </div>
+            <div class="profile-media-block">
+                <span class="block text-[10px] font-mono tracking-[0.2em] uppercase text-[#7a4e18] mb-1">Banner</span>
+                <div id="profile-banner-preview" class="profile-banner-preview" aria-hidden="true"></div>
+                <label class="parlor-file">
+                    <span class="block w-full text-[10px] font-mono tracking-[0.12em] uppercase text-[#7a4e18]">Upload from this device</span>
+                    <input class="parlor-field" type="file" id="profile-banner-file" accept="image/jpeg,image/png,image/webp,image/gif">
+                </label>
+                <input class="parlor-field" id="profile-banner" name="background_url" maxlength="500" placeholder="or paste a URL (https://…)">
+            </div>
+            <p id="profile-error" class="ledger-error" role="status"></p>
+            <div class="ledger-modal-actions">
+                <button type="button" id="profile-cancel" class="ledger-cancel">Close</button>
+                <button type="submit" id="profile-submit" class="ledger-write">Save likeness</button>
+            </div>
+        </form>
+    </div>
+
+    <footer class="site-foot border-t border-zinc-900/80">
+        <nav class="crossroads" aria-label="Crossroads">
+            <span class="crossroads-kicker">Crossroads</span>
+            <a href="music.html">Music</a>
+            <a href="writings.html">Writing</a>
+            <a href="life.html">Life</a>
+            <a href="forum.html">Parlor</a>
+        </nav>
+        <p class="js-copyright text-center text-xs text-zinc-600 py-4">Copyright © 2026 Talon T. Cherry. All Rights Reserved.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="parlor-config.js?v=7"></script>
+    <script src="parlor-auth.js?v=7"></script>
+    <script src="parlor-nav.js?v=12"></script>
+    <script src="member.js?v=20"></script>
+</body>
+</html>

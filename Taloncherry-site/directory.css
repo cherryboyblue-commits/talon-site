@@ -1,0 +1,178 @@
+.directory-page {
+    background: #2c1a12;
+    color: #ead6ad;
+    min-height: 100vh;
+}
+.directory-wrap {
+    position: relative;
+    z-index: 10;
+    max-width: 64rem;
+    margin: 0 auto;
+    padding: 2.25rem 1.25rem 4rem;
+}
+.directory-book {
+    background: #fdf6e3;
+    color: #2c1a12;
+    border: 2px solid #c4a35a;
+    box-shadow: 0 22px 48px rgba(0, 0, 0, 0.45);
+    padding: 1.5rem 1.35rem 1.75rem;
+}
+.directory-kicker {
+    margin: 0 0 0.35rem;
+    font-family: ui-monospace, monospace;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #8a6420;
+}
+.directory-title {
+    margin: 0 0 0.4rem;
+    font-family: Georgia, 'Instrument Serif', serif;
+    font-size: 2rem;
+    font-weight: 400;
+    color: #2c1a12;
+}
+.directory-blurb {
+    margin: 0 0 1rem;
+    font-family: Georgia, 'Instrument Serif', serif;
+    font-style: italic;
+    color: #5c3310;
+}
+.directory-tools {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 0.75rem 1rem;
+    margin: 0 0 1.15rem;
+}
+.directory-search {
+    flex: 1 1 14rem;
+    text-align: left;
+}
+.directory-search-label {
+    display: block;
+    margin-bottom: 0.28rem;
+    font-family: ui-monospace, monospace;
+    font-size: 9px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #8a6420;
+}
+.directory-search .parlor-field {
+    width: 100%;
+}
+.directory-sort {
+    display: flex;
+    gap: 0.4rem;
+}
+.directory-sort-btn {
+    appearance: none;
+    border: 1px solid #8a6238;
+    background: #ead6ad;
+    color: #5c3310;
+    font-family: ui-monospace, monospace;
+    font-size: 8px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 0.48rem 0.7rem;
+    cursor: pointer;
+}
+.directory-sort-btn.is-active {
+    background: linear-gradient(180deg, #f3e4c4, #c4a35a);
+    color: #2c1a12;
+    box-shadow: inset 0 1px 0 rgba(255, 248, 230, 0.75);
+}
+.directory-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 1rem;
+}
+.directory-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 1.15rem 0.9rem 1rem;
+    background: #faf3df;
+    border: 1px solid #d4b872;
+    box-shadow: inset 0 1px 0 rgba(255, 248, 230, 0.85), 0 6px 14px rgba(44, 26, 18, 0.12);
+}
+.directory-face {
+    width: 4.4rem;
+    height: 4.4rem;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #c4a35a;
+    background: #ead6ad;
+    margin-bottom: 0.45rem;
+}
+.directory-posted {
+    margin: 0 0 0.45rem;
+    max-width: 12.5rem;
+    font-family: Georgia, 'Instrument Serif', serif;
+    font-size: 0.78rem;
+    line-height: 1.35;
+    font-style: italic;
+    color: #8a6420;
+}
+.directory-mono {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: ui-monospace, monospace;
+    font-size: 0.95rem;
+    letter-spacing: 0.1em;
+    color: #7a4e18;
+}
+.directory-handle {
+    margin: 0 0 0.35rem;
+    font-family: ui-monospace, monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #2c1a12;
+}
+.directory-bio {
+    margin: 0 0 0.85rem;
+    min-height: 2.6rem;
+    font-family: Georgia, 'Instrument Serif', serif;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    color: #5c3310;
+    font-style: italic;
+}
+.directory-visit {
+    display: inline-block;
+    margin-top: auto;
+    padding: 0.35rem 0.7rem;
+    border: 1px solid #c4a35a;
+    background: linear-gradient(180deg, #f3e4c4, #c4a35a);
+    color: #2c1a12;
+    font-family: ui-monospace, monospace;
+    font-size: 8px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    text-decoration: none;
+    box-shadow: inset 0 1px 0 rgba(255, 248, 230, 0.75);
+}
+.directory-visit:hover,
+.directory-visit:focus-visible {
+    background: linear-gradient(180deg, #f7e7b8, #d4b872);
+    outline: none;
+}
+.directory-empty,
+.directory-error {
+    font-family: Georgia, 'Instrument Serif', serif;
+    font-style: italic;
+    color: #5c3310;
+    text-align: center;
+    padding: 2rem 0.5rem;
+}
+.directory-error {
+    color: #7f1d1d;
+}
+@media (max-width: 768px) {
+    .directory-grid {
+        grid-template-columns: 1fr;
+    }
+}
