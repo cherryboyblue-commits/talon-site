@@ -18,7 +18,7 @@
     <link rel="apple-touch-icon" href="Images/crest-icon.png?v=tab">
     <link rel="stylesheet" href="site-widgets.css?v=crest-corner">
     <link rel="stylesheet" href="indieweb.css">
-    <link rel="stylesheet" href="parlor.css?v=13">
+    <link rel="stylesheet" href="parlor.css?v=14">
     <link rel="stylesheet" href="site-atmosphere.css">
     <style>
         .font-serif-custom { font-family: 'Instrument Serif', serif; }
@@ -212,9 +212,9 @@
     <script src="indieweb.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="parlor-config.js?v=7"></script>
-    <script src="parlor-auth.js?v=7"></script>
-    <script src="parlor-nav.js?v=13"></script>
-    <script src="parlor-board.js?v=11"></script>
+    <script src="parlor-auth.js?v=8"></script>
+    <script src="parlor-nav.js?v=14"></script>
+    <script src="parlor-board.js?v=12"></script>
     <script>
         function paintHeartButton(button, liked, count) {
             const safeCount = Math.max(0, Number(count) || 0);
@@ -418,6 +418,12 @@
             by.className = 'pin-author p-name';
             by.textContent = author;
             byline.append(by);
+            if (record.badge) {
+                const mark = document.createElement('span');
+                mark.className = 'parlor-badge pin-badge';
+                mark.textContent = record.badge;
+                byline.append(mark);
+            }
 
             const tag = document.createElement('span');
             tag.className = 'pin-tag';
@@ -709,6 +715,20 @@
                 name.textContent = row.username + (row.revoked ? ' (revoked)' : '');
                 who.append(name);
                 item.append(who);
+                const tools = document.createElement('div');
+                tools.className = 'roster-tools';
+                const badgeField = document.createElement('input');
+                badgeField.className = 'parlor-field roster-badge-field';
+                badgeField.maxLength = 24;
+                badgeField.placeholder = 'Badge';
+                badgeField.value = row.badge || '';
+                badgeField.setAttribute('aria-label', 'Name badge for ' + row.username);
+                const badgeBtn = document.createElement('button');
+                badgeBtn.type = 'button';
+                badgeBtn.className = 'roster-badge-save';
+                badgeBtn.dataset.userId = row.user_id;
+                badgeBtn.textContent = 'Set badge';
+                tools.append(badgeField, badgeBtn);
                 const selfId = currentUser && currentUser.id;
                 const isSteward = String(row.username || '').toLowerCase() === 'talon86';
                 if (allowRevoke && !isSteward && row.user_id !== selfId && !row.revoked) {
@@ -717,8 +737,9 @@
                     btn.className = 'roster-revoke';
                     btn.dataset.userId = row.user_id;
                     btn.textContent = 'Remove Member / Revoke Access';
-                    item.append(btn);
+                    tools.append(btn);
                 }
+                item.append(tools);
                 list.append(item);
             });
         }
@@ -734,7 +755,7 @@
             let profilesOk = false;
             const headers = await notesHeaders();
             let response = await fetch(
-                profilesEndpoint() + '?select=user_id,username,avatar_url,revoked,created_at&order=created_at.desc',
+                profilesEndpoint() + '?select=user_id,username,avatar_url,revoked,badge,created_at&order=created_at.desc',
                 { method: 'GET', headers: headers }
             );
             if (!response.ok) {
@@ -761,6 +782,7 @@
                     user_id: row.user_id,
                     username: row.username || row.author || 'Member',
                     avatar_url: row.avatar_url || '',
+                    badge: window.parlorFormatBadge ? window.parlorFormatBadge(row.badge) : String(row.badge || ''),
                     revoked: Boolean(row.revoked)
                 });
             }
@@ -780,6 +802,29 @@
             } else if (!profileRows.length && merged.length) {
                 rosterError.textContent = 'Members are listed from the board. Run parlor_admin.sql once in Supabase to store the full roll and unlock removal.';
             }
+        }
+
+        async function setMemberBadge(userId, button) {
+            if (!isAdmin || !userId) return;
+            const row = button && button.closest('.roster-row');
+            const field = row && row.querySelector('.roster-badge-field');
+            const badge = (window.parlorFormatBadge ? window.parlorFormatBadge(field && field.value) : String(field && field.value || '').trim()).slice(0, 24);
+            const response = await fetch(
+                profilesEndpoint() + '?user_id=eq.' + encodeURIComponent(userId),
+                {
+                    method: 'PATCH',
+                    headers: await notesHeaders(),
+                    body: JSON.stringify({ badge: badge || null })
+                }
+            );
+            if (!response.ok) {
+                const detail = await response.text();
+                const missing = /PGRST204|badge/i.test(detail);
+                throw new Error(missing
+                    ? 'Run parlor_badges.sql in the Supabase SQL editor, then refresh.'
+                    : (detail || 'The badge would not take.'));
+            }
+            if (field) field.value = badge;
         }
 
         async function revokeMember(userId, button) {
@@ -825,7 +870,7 @@
                 panel.className = 'sanctuary-panel';
                 panel.innerHTML = '<p class="text-[10px] font-mono tracking-[0.22em] uppercase text-amber-500 mb-2">Hidden room</p>' +
                     '<h2 class="font-serif-custom text-2xl text-amber-100 mb-2">Admin Sanctuary</h2>' +
-                    '<p class="text-sm text-zinc-400 mb-4">Member roll. Removal strips posting rights and takes down their notes.</p>' +
+                    '<p class="text-sm text-zinc-400 mb-4">Member roll. Grant a name badge, or remove a member to strip posting rights and take down their notes.</p>' +
                     '<div id="roster-list"></div>' +
                     '<p id="roster-error" class="parlor-error mt-3"></p>';
                 const main = document.getElementById('parlor-main');
@@ -834,6 +879,19 @@
             panel.hidden = location.hash !== '#sanctuary';
 
             panel.addEventListener('click', async function (event) {
+                const badgeBtn = event.target.closest('.roster-badge-save');
+                if (badgeBtn && isAdmin) {
+                    badgeBtn.disabled = true;
+                    try {
+                        await setMemberBadge(badgeBtn.dataset.userId, badgeBtn);
+                        document.getElementById('roster-error').textContent = 'Badge granted.';
+                    } catch (err) {
+                        document.getElementById('roster-error').textContent = err.message || 'The badge would not take.';
+                    } finally {
+                        badgeBtn.disabled = false;
+                    }
+                    return;
+                }
                 const button = event.target.closest('.roster-revoke');
                 if (!button || !isAdmin) return;
                 button.disabled = true;

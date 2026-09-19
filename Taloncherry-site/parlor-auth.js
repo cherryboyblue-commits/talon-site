@@ -198,20 +198,41 @@
     return url;
   };
 
+  window.parlorFormatBadge = function (raw) {
+    return String(raw || "").replace(/\s+/g, " ").trim().slice(0, 24);
+  };
+
+  window.parlorBadgeForProfile = function (row) {
+    const custom = window.parlorFormatBadge(row && row.badge);
+    if (custom) return custom;
+    const handle = window.parlorNormalizeUsername(row && row.username).toLowerCase();
+    const adminHandle = String(window.PARLOR_ADMIN_HANDLE || "Talon86").toLowerCase();
+    if (handle && handle === adminHandle) return "steward";
+    return "";
+  };
   window.parlorLoadAvatarMap = async function () {
     const map = {};
     try {
-      const res = await fetch(
-        window.parlorProfilesUrl() + "?select=user_id,username,avatar_url",
-        { method: "GET", headers: await window.parlorRestHeaders() }
+      let rows = [];
+      const headers = await window.parlorRestHeaders();
+      let res = await fetch(
+        window.parlorProfilesUrl() + "?select=user_id,username,avatar_url,badge",
+        { method: "GET", headers: headers }
       );
+      if (!res.ok) {
+        res = await fetch(
+          window.parlorProfilesUrl() + "?select=user_id,username,avatar_url",
+          { method: "GET", headers: headers }
+        );
+      }
       if (!res.ok) return map;
-      const rows = await res.json();
+      rows = await res.json();
       (rows || []).forEach(function (row) {
         if (!row || !row.user_id) return;
         map[row.user_id] = {
           username: row.username || "",
-          avatar_url: window.parlorSafeMediaUrl(row.avatar_url)
+          avatar_url: window.parlorSafeMediaUrl(row.avatar_url),
+          badge: window.parlorBadgeForProfile(row)
         };
       });
     } catch (err) {

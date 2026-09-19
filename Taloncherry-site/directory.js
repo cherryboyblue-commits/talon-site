@@ -57,6 +57,7 @@
     const headers = await window.parlorRestHeaders();
     const base = window.parlorProfilesUrl();
     const attempts = [
+      "?select=user_id,username,avatar_url,bio,revoked,badge,created_at&order=username.asc",
       "?select=user_id,username,avatar_url,bio,revoked,created_at&order=username.asc",
       "?select=user_id,username,avatar_url,bio,revoked&order=username.asc",
       "?select=user_id,username,avatar_url,bio&order=username.asc",
@@ -104,6 +105,13 @@
     const handle = document.createElement("h2");
     handle.className = "directory-handle";
     handle.innerHTML = escapeHtml(username);
+    const badge = window.parlorBadgeForProfile ? window.parlorBadgeForProfile(row) : "";
+    if (badge) {
+      const mark = document.createElement("span");
+      mark.className = "parlor-badge directory-badge";
+      mark.textContent = badge;
+      card.append(mark);
+    }
     const bio = document.createElement("p");
     bio.className = "directory-bio";
     bio.innerHTML = escapeHtml(snippet(row.bio));

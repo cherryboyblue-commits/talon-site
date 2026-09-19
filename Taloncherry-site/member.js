@@ -101,6 +101,7 @@
     const headers = await window.parlorRestHeaders();
     const base = window.parlorProfilesUrl();
     const selects = [
+      "user_id,username,avatar_url,bio,background_url,badge",
       "user_id,username,avatar_url,bio,background_url",
       "user_id,username,avatar_url,bio",
       "user_id,username,avatar_url"
@@ -190,6 +191,17 @@
     const username = profile.username || "Member";
     document.title = username + " · Ledger | Talon T. Cherry";
     document.getElementById("ledger-name").textContent = username;
+    const badgeEl = document.getElementById("ledger-badge");
+    if (badgeEl) {
+      const mark = window.parlorBadgeForProfile ? window.parlorBadgeForProfile(profile) : "";
+      if (mark) {
+        badgeEl.hidden = false;
+        badgeEl.textContent = mark;
+      } else {
+        badgeEl.hidden = true;
+        badgeEl.textContent = "";
+      }
+    }
     document.getElementById("ledger-bio").textContent = profile.bio || "A member of the house.";
     paintBanner(document.getElementById("ledger-banner"), profile.background_url);
     const face = document.getElementById("ledger-face");

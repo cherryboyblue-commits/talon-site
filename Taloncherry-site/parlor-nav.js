@@ -6,18 +6,27 @@
   window.parlorSessionHandle = async function (user) {
     if (!user) return "Member";
     try {
-      const res = await fetch(
+      const headers = await window.parlorRestHeaders();
+      let res = await fetch(
         window.parlorProfilesUrl() +
-          "?select=username,avatar_url&user_id=eq." + encodeURIComponent(user.id) + "&limit=1",
-        { method: "GET", headers: await window.parlorRestHeaders() }
+          "?select=username,avatar_url,badge&user_id=eq." + encodeURIComponent(user.id) + "&limit=1",
+        { method: "GET", headers: headers }
       );
+      if (!res.ok) {
+        res = await fetch(
+          window.parlorProfilesUrl() +
+            "?select=username,avatar_url&user_id=eq." + encodeURIComponent(user.id) + "&limit=1",
+          { method: "GET", headers: headers }
+        );
+      }
       if (res.ok) {
         const rows = await res.json();
         const row = rows && rows[0];
         if (row && row.username) {
           return {
             username: String(row.username).trim(),
-            avatar_url: row.avatar_url || ""
+            avatar_url: row.avatar_url || "",
+            badge: window.parlorBadgeForProfile ? window.parlorBadgeForProfile(row) : ""
           };
         }
       }
@@ -26,7 +35,8 @@
     }
     return {
       username: window.parlorDisplayName ? window.parlorDisplayName(user) : "Member",
-      avatar_url: window.parlorAvatarFromUser ? window.parlorAvatarFromUser(user) : ""
+      avatar_url: window.parlorAvatarFromUser ? window.parlorAvatarFromUser(user) : "",
+      badge: window.parlorBadgeForProfile ? window.parlorBadgeForProfile({ username: window.parlorDisplayName(user) }) : ""
     };
   };
 
@@ -37,8 +47,29 @@
     if (ledger) ledger.href = window.parlorMemberHref(handle);
     const label = document.getElementById("member-label");
     if (label) {
-      const steward = window.parlorIsAdmin && window.parlorIsAdmin(user) ? " · steward" : "";
-      label.textContent = handle + steward;
+      let stack = label.closest(".parlor-member-stack");
+      if (!stack) {
+        stack = document.createElement("span");
+        stack.className = "parlor-member-stack";
+        label.replaceWith(stack);
+        stack.append(label);
+      }
+      label.textContent = handle;
+      let badgeEl = document.getElementById("member-badge");
+      if (!badgeEl) {
+        badgeEl = document.createElement("span");
+        badgeEl.id = "member-badge";
+        badgeEl.className = "parlor-badge";
+        stack.insertBefore(badgeEl, label);
+      }
+      const mark = session.badge || (window.parlorIsAdmin && window.parlorIsAdmin(user) ? "steward" : "");
+      if (mark) {
+        badgeEl.hidden = false;
+        badgeEl.textContent = mark;
+      } else {
+        badgeEl.hidden = true;
+        badgeEl.textContent = "";
+      }
     }
     const face = document.getElementById("member-avatar");
     if (face) {

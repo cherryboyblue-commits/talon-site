@@ -127,6 +127,9 @@
     text-transform: uppercase;
     color: #2c1a12;
 }
+.directory-badge {
+    margin: 0 0 0.4rem;
+}
 .directory-bio {
     margin: 0 0 0.85rem;
     min-height: 2.6rem;

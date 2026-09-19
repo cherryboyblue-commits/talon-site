@@ -56,6 +56,9 @@
     color: #2c1a12;
     font-weight: 400;
 }
+.ledger-badge {
+    margin: 0.35rem 0 0;
+}
 .ledger-bio {
     margin: 0.45rem 0 0;
     font-family: 'Instrument Serif', Georgia, serif;
