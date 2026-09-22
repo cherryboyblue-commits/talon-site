@@ -1,8 +1,10 @@
 (function () {
     var SKY_DIR = 'Images/';
     var HOME = { lat: 32.4487, lon: -99.7331 };
-    var CACHE_KEY = 'talon-site-weather';
+    var CACHE_KEY = 'talon-site-weather-v2';
     var CACHE_MS = 20 * 60 * 1000;
+    var lastObs = null;
+    var sunTimer = null;
 
     function easterSunday(year) {
         var a = year % 19;
@@ -28,9 +30,25 @@
             a.getDate() === b.getDate();
     }
 
-    function isDaytime(now) {
-        var hour = now.getHours();
+    function clockDaytime(now) {
+        var hour = (now || new Date()).getHours();
         return hour >= 6 && hour < 19;
+    }
+
+    function unixMs(value) {
+        var n = Number(value);
+        if (!n) return 0;
+        return n < 1e12 ? n * 1000 : n;
+    }
+
+    function isDaytime(now, sun) {
+        var t = (now || new Date()).getTime();
+        sun = sun || lastObs;
+        if (sun && sun.sunrise && sun.sunset) {
+            return t >= sun.sunrise && t < sun.sunset;
+        }
+        if (sun && typeof sun.isDay === 'boolean') return sun.isDay;
+        return clockDaytime(new Date(t));
     }
 
     function holidayFile(now) {
@@ -285,44 +303,68 @@
         try {
             var parsed = JSON.parse(sessionStorage.getItem(CACHE_KEY) || 'null');
             if (!parsed || typeof parsed.code !== 'number') return null;
-            if (Date.now() - parsed.at > CACHE_MS) return null;
+            var now = Date.now();
+            var weatherFresh = now - parsed.at <= CACHE_MS;
+            var sunFresh = parsed.sunrise && parsed.sunset &&
+                now < (parsed.nextSunrise || (parsed.sunset + 12 * 60 * 60 * 1000));
+            if (!weatherFresh && !sunFresh) return null;
             return parsed;
         } catch (err) {
             return null;
         }
     }
 
-    function writeCache(code) {
+    function writeCache(obs) {
         try {
-            sessionStorage.setItem(CACHE_KEY, JSON.stringify({ code: code, at: Date.now() }));
+            sessionStorage.setItem(CACHE_KEY, JSON.stringify(obs));
         } catch (err) {}
+    }
+
+    function parseObservation(data) {
+        var current = data && data.current;
+        var daily = data && data.daily;
+        var code = current && current.weather_code;
+        if (typeof code !== 'number') throw new Error('weather');
+        var sunrises = (daily && daily.sunrise) || [];
+        var sunsets = (daily && daily.sunset) || [];
+        var isDay = typeof current.is_day === 'number' ? current.is_day === 1 : null;
+        return {
+            code: code,
+            isDay: isDay,
+            sunrise: unixMs(sunrises[0]),
+            sunset: unixMs(sunsets[0]),
+            nextSunrise: unixMs(sunrises[1]),
+            at: Date.now()
+        };
     }
 
     function fetchWeather(lat, lon) {
         var url = 'https://api.open-meteo.com/v1/forecast?latitude=' +
             encodeURIComponent(lat) + '&longitude=' + encodeURIComponent(lon) +
-            '&current=weather_code';
+            '&current=weather_code,is_day&daily=sunrise,sunset&forecast_days=2' +
+            '&timeformat=unixtime&timezone=auto';
         return fetch(url).then(function (res) {
             if (!res.ok) throw new Error('weather');
             return res.json();
         }).then(function (data) {
-            var code = data && data.current && data.current.weather_code;
-            if (typeof code !== 'number') throw new Error('weather');
-            writeCache(code);
-            return code;
+            var obs = parseObservation(data);
+            writeCache(obs);
+            return obs;
         });
     }
 
     function locateThenWeather() {
         var cached = readCache();
-        if (cached) return Promise.resolve(cached.code);
+        if (cached && cached.sunrise && Date.now() - cached.at <= CACHE_MS) {
+            return Promise.resolve(cached);
+        }
 
         return new Promise(function (resolve) {
             var settled = false;
             function done(lat, lon) {
                 if (settled) return;
                 settled = true;
-                fetchWeather(lat, lon).then(resolve).catch(function () { resolve(null); });
+                fetchWeather(lat, lon).then(resolve).catch(function () { resolve(cached || null); });
             }
             if (!navigator.geolocation) {
                 done(HOME.lat, HOME.lon);
@@ -337,6 +379,49 @@
                 done(HOME.lat, HOME.lon);
             }, { timeout: 1600, maximumAge: 30 * 60 * 1000 });
         });
+    }
+
+    function nextSunFlip(sun) {
+        if (!sun || !sun.sunrise || !sun.sunset) return 0;
+        var now = Date.now();
+        if (now < sun.sunrise) return sun.sunrise;
+        if (now < sun.sunset) return sun.sunset;
+        return sun.nextSunrise || 0;
+    }
+
+    function scheduleSunFlip() {
+        if (sunTimer) {
+            clearTimeout(sunTimer);
+            sunTimer = null;
+        }
+        var at = nextSunFlip(lastObs);
+        if (!at) return;
+        var wait = at - Date.now() + 1200;
+        if (wait <= 0 || wait > 24 * 60 * 60 * 1000) return;
+        sunTimer = setTimeout(function () {
+            locateThenWeather().then(function (obs) {
+                paintLiveSky(obs || lastObs);
+            });
+        }, wait);
+    }
+
+    function paintLiveSky(obs) {
+        if (obs) lastObs = obs;
+        var now = new Date();
+        var holiday = holidayFile(now);
+        var day = isDaytime(now, lastObs);
+        if (holiday) {
+            applyScene(holiday, 'holiday');
+            if (lastObs && holidayKeyFromFile(holiday) !== 'christmas') {
+                setWindowGlass(weatherKind(lastObs.code));
+            }
+        } else if (lastObs && typeof lastObs.code === 'number') {
+            var kind = weatherKind(lastObs.code);
+            applyScene(weatherFile(kind, day), kind);
+        } else {
+            applyScene(weatherFile('clear', day), 'clear');
+        }
+        scheduleSunFlip();
     }
 
     var SKY_PRESETS = [
@@ -428,7 +513,6 @@
     }
 
     function boot() {
-        var now = new Date();
         var override = parseOverride(new URLSearchParams(location.search).get('sky'));
         if (override) {
             applyScene(override.file, override.weather);
@@ -436,22 +520,9 @@
             return;
         }
 
-        var holiday = holidayFile(now);
-        if (holiday) {
-            applyScene(holiday, 'holiday');
-        } else {
-            applyScene(weatherFile('clear', isDaytime(now)), 'clear');
-        }
-
-        locateThenWeather().then(function (code) {
-            if (code == null) return;
-            var kind = weatherKind(code);
-            if (holidayFile(new Date())) {
-                if (holidayKeyFromFile(holidayFile(new Date())) === 'christmas') return;
-                setWindowGlass(kind);
-                return;
-            }
-            applyScene(weatherFile(kind, isDaytime(new Date())), kind);
+        paintLiveSky(readCache());
+        locateThenWeather().then(function (obs) {
+            if (obs) paintLiveSky(obs);
         });
         mountPreviewDock();
     }
