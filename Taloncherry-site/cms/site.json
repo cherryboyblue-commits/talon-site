@@ -35,7 +35,7 @@
       "href": "social.html"
     },
     {
-      "label": "Member Parlor Join Here",
+      "label": "Member Parlor Join/Login",
       "href": "forum.html"
     }
   ],
@@ -57,7 +57,7 @@
       "href": "life.html"
     },
     {
-      "label": "Member Parlor Join Here",
+      "label": "Member Parlor Join/Login",
       "href": "forum.html"
     }
   ],
@@ -140,7 +140,7 @@
   },
   "parlor": {
     "kicker": "Members' bulletin",
-    "title": "Member Parlor Join Here",
+    "title": "Member Parlor Join/Login",
     "blurb": "The house corkboard. Fellow members pin a word here.",
     "signin_title": "Present your credentials",
     "signin_blurb": "Members only beyond this door. Sign in with your email.",
