@@ -179,7 +179,7 @@
     document.dispatchEvent(new CustomEvent("sitecopy", { detail: data }));
   }
 
-  window.siteContentReady = fetch(PATH)
+  window.siteContentReady = fetch(PATH, { cache: "no-cache" })
     .then(function (res) {
       if (!res.ok) throw new Error("site copy missing");
       return res.json();

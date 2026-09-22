@@ -352,7 +352,7 @@
                     <div id="tw-index">
                         <span class="tw-paper-kicker" data-site="life.index_kicker">The Life</span>
                         <h2 data-site="life.index_heading">Chapters</h2>
-                        <p class="tw-paper-sub" data-site="life.index_sub">A paper roll. Pick a title.</p>
+                        <p class="tw-paper-sub" data-site="life.index_sub">Pick a chapter</p>
                         <ol class="tw-toc" id="tw-toc">
                             <li class="h-entry" id="old">
                                 <button type="button" data-chapter="old">
@@ -700,12 +700,6 @@
                 li.append(url, author, bridgy);
                 ol.appendChild(li);
             });
-            const sub = document.querySelector('#tw-index .tw-paper-sub');
-            if (sub) {
-                sub.textContent = chapterOrder.length === 1
-                    ? 'A paper roll. One title. Pick it.'
-                    : 'A paper roll. ' + chapterOrder.length + ' titles. Pick one.';
-            }
             requestAnimationFrame(seatIndex);
         }
 

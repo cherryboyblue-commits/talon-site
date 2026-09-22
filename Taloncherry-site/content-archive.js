@@ -218,13 +218,13 @@
             return data[key] && data[key].filename;
         }).filter(Boolean);
         const names = uniqueTxtNames(sortChapterNames(await listTxt(
-            "His Life",
+            "My Life",
             CHAPTER_FILES.map(function (row) { return row.file; }).concat(bundledNames)
         )));
         const order = [];
         const fetched = await Promise.all(names.map(function (filename) {
             const key = slugFromFilename(filename);
-            return fetchText("His Life", filename)
+            return fetchText("My Life", filename)
                 .then(function (raw) { return parseDocument(raw, filename); })
                 .catch(function () {
                     if (data[key] && data[key].text) {

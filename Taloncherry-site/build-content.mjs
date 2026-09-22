@@ -157,7 +157,7 @@ function lifeFallback(filename) {
   return { title: titleFromFilename(filename), subtitle: "" };
 }
 
-const lifeDir = path.join(root, "His Life");
+const lifeDir = path.join(root, "My Life");
 const lifeFiles = fs
   .readdirSync(lifeDir)
   .filter((f) => f.toLowerCase().endsWith(".txt"))

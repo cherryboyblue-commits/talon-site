@@ -179,7 +179,7 @@ collections:
   - name: chapters
     label: Chapters
     label_singular: Chapter
-    folder: Taloncherry-site/His Life
+    folder: "Taloncherry-site/My Life"
     format: txt-frontmatter
     identifier_field: title
     create: true
