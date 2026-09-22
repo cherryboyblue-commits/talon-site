@@ -6,27 +6,60 @@
     "tagline": "Time can only take the joy you never shared",
     "description": "Official site of Talon Cherry, an Oregon-born singer-songwriter, poet, and memoirist now writing and recording from West Texas. Not affiliated with any tobacco brand.",
     "portrait": "Images/Me1.jpg",
-    "copyright": "Copyright © 2026 Talon T. Cherry. All Rights Reserved.",
+    "copyright": "Copyright © 1986 Talon T. Cherry. All Rights Reserved.",
     "host_note": "Built local. Hosted free via GitHub Pages.",
-    "cookie_note": "We use Google Analytics just to see if anyone is reading this, or if I'm shouting into the void.",
+    "cookie_note": "I  use Google Analytics just to see if anyone is reading this.",
     "venmo_url": "https://venmo.com/Talon-Cherry",
     "venmo_label": "Tip Jar",
     "youtube_channel": "https://www.youtube.com/@TalonCherry"
   },
   "nav": [
-    { "label": "Radio", "href": "music.html" },
-    { "label": "Studio", "href": "studio.html" },
-    { "label": "Writing", "href": "writings.html" },
-    { "label": "Life", "href": "life.html" },
-    { "label": "Social", "href": "social.html" },
-    { "label": "Parlor", "href": "forum.html" }
+    {
+      "label": "Radio",
+      "href": "music.html"
+    },
+    {
+      "label": "Studio",
+      "href": "studio.html"
+    },
+    {
+      "label": "Writing",
+      "href": "writings.html"
+    },
+    {
+      "label": "My Life",
+      "href": "life.html"
+    },
+    {
+      "label": "Social",
+      "href": "social.html"
+    },
+    {
+      "label": "Member Parlor Join Here",
+      "href": "forum.html"
+    }
   ],
   "footer_nav": [
-    { "label": "Radio", "href": "music.html" },
-    { "label": "Studio", "href": "studio.html" },
-    { "label": "Writing", "href": "writings.html" },
-    { "label": "Life", "href": "life.html" },
-    { "label": "Parlor", "href": "forum.html" }
+    {
+      "label": "Radio",
+      "href": "music.html"
+    },
+    {
+      "label": "Studio",
+      "href": "studio.html"
+    },
+    {
+      "label": "Writing",
+      "href": "writings.html"
+    },
+    {
+      "label": "My Life",
+      "href": "life.html"
+    },
+    {
+      "label": "Member Parlor Join Here",
+      "href": "forum.html"
+    }
   ],
   "home": {
     "mail_cue": "The Mail Bag",
@@ -41,10 +74,22 @@
     "title": "Social",
     "tagline": "The songs live on YouTube. Come sit with them there.",
     "links": [
-      { "label": "YouTube", "url": "https://www.youtube.com/@TalonCherry" },
-      { "label": "Facebook", "url": "https://www.facebook.com/share/1F99uSGJkq/" },
-      { "label": "Instagram", "url": "https://www.instagram.com/mr_jones_86" },
-      { "label": "GitHub", "url": "https://github.com/cherryboyblue-commits" }
+      {
+        "label": "YouTube",
+        "url": "https://www.youtube.com/@TalonCherry"
+      },
+      {
+        "label": "Facebook",
+        "url": "https://www.facebook.com/share/1F99uSGJkq/"
+      },
+      {
+        "label": "Instagram",
+        "url": "https://www.instagram.com/mr_jones_86"
+      },
+      {
+        "label": "GitHub",
+        "url": "https://github.com/cherryboyblue-commits"
+      }
     ]
   },
   "music": {
@@ -87,21 +132,21 @@
   },
   "life": {
     "kicker": "Memoir • Oregon Pines to West Texas Soil",
-    "title": "The Life",
+    "title": "My Life",
     "blurb": "Choose a chapter",
-    "index_kicker": "The Life",
+    "index_kicker": "My Life",
     "index_heading": "Chapters",
-    "index_sub": "A paper roll. Pick a title."
+    "index_sub": "Choose a chapter"
   },
   "parlor": {
     "kicker": "Members' bulletin",
-    "title": "The Parlor",
+    "title": "Member Parlor Join Here",
     "blurb": "The house corkboard. Fellow members pin a word here.",
     "signin_title": "Present your credentials",
     "signin_blurb": "Members only beyond this door. Sign in with your email.",
     "signin_submit": "Enter the parlor",
     "signup_title": "Sign the guest book",
-    "signup_blurb": "Give a real email, a parlor username, and a word only you know. A likeness is optional. Then the parlor door opens.",
+    "signup_blurb": "Give a real email, a username, and a word only you know. A likeness is optional. Then the parlor door opens.",
     "signup_submit": "Create my membership"
   },
   "tip_jar": {
