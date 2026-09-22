@@ -1,8 +1,10 @@
 import fs from "fs";
 import path from "path";
+import { execFileSync } from "child_process";
 import { fileURLToPath } from "url";
 
 const root = path.dirname(fileURLToPath(import.meta.url));
+const SITE = "https://www.taloncherry.com";
 
 const TITLE_FIXES = {
   "Sins of our Fathersu": "Sins of our Fathers",
@@ -194,8 +196,195 @@ function writeJs(filename, varName, data) {
 writeJs("library_data.js", "libraryData", libraryData);
 writeJs("life_data.js", "lifeData", lifeData);
 
+const LIBRARY_DIRS = {
+  cultural: { dir: ["Writing", "Cultural"], type: "Article" },
+  poetry: { dir: ["Writing", "Poetry Archive"], type: "Poem" },
+  lyrics: { dir: ["Writing", "Lyrics"], type: "MusicComposition" },
+  stories: { dir: ["Writing", "Short Stories"], type: "ShortStory" },
+};
+
+function siteUrl(segments) {
+  return SITE + "/" + segments.map((part) => encodeURIComponent(part)).join("/");
+}
+
+function lastModified(relative) {
+  try {
+    const stamp = execFileSync("git", ["log", "-1", "--format=%cs", "--", relative], {
+      cwd: root,
+      encoding: "utf8",
+    }).trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(stamp)) return stamp;
+  } catch {
+    // not a checkout, or the file is untracked
+  }
+  const full = path.join(root, relative);
+  if (!fs.existsSync(full)) return null;
+  return fs.statSync(full).mtime.toISOString().slice(0, 10);
+}
+
+function sourceFiles(segments) {
+  const dir = path.join(root, ...segments);
+  if (!fs.existsSync(dir)) return [];
+  return fs
+    .readdirSync(dir)
+    .filter((f) => f.toLowerCase().endsWith(".txt"))
+    .sort((a, b) => a.localeCompare(b, "en", { sensitivity: "base" }))
+    .map((file) => ({
+      file,
+      segments: segments.concat(file),
+      relative: segments.concat(file).join("/"),
+    }));
+}
+
+function titleOf(entry) {
+  const raw = fs.readFileSync(path.join(root, entry.relative), "utf8");
+  const split = splitFrontmatter(raw);
+  return String(split.meta.title || titleFromFilename(entry.file)).trim() || titleFromFilename(entry.file);
+}
+
+function writeSitemap() {
+  const pages = [
+    ["", 1.0, "weekly"],
+    ["music.html", 0.9, "weekly"],
+    ["studio.html", 0.9, "weekly"],
+    ["the-studio/", 0.8, "monthly"],
+    ["writings.html", 0.9, "weekly"],
+    ["life.html", 0.9, "weekly"],
+    ["social.html", 0.7, "monthly"],
+  ];
+  const urls = pages.map(([page, priority, changefreq]) => ({
+    loc: SITE + "/" + page,
+    lastmod: lastModified(page === "" ? "index.html" : page.replace(/\/$/, "/index.html")),
+    changefreq,
+    priority: priority.toFixed(1),
+  }));
+
+  const sources = Object.values(LIBRARY_DIRS)
+    .flatMap(({ dir }) => sourceFiles(dir))
+    .concat(sourceFiles(["My Life"]));
+  for (const entry of sources) {
+    urls.push({
+      loc: siteUrl(entry.segments),
+      lastmod: lastModified(entry.relative),
+      changefreq: "yearly",
+      priority: "0.5",
+    });
+  }
+
+  const body = urls
+    .map((url) => {
+      const lines = ["  <url>", "    <loc>" + url.loc + "</loc>"];
+      if (url.lastmod) lines.push("    <lastmod>" + url.lastmod + "</lastmod>");
+      lines.push("    <changefreq>" + url.changefreq + "</changefreq>");
+      lines.push("    <priority>" + url.priority + "</priority>");
+      lines.push("  </url>");
+      return lines.join("\n");
+    })
+    .join("\n");
+
+  fs.writeFileSync(
+    path.join(root, "sitemap.xml"),
+    '<?xml version="1.0" encoding="UTF-8"?>\n' +
+      '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+      body +
+      "\n</urlset>\n",
+    "utf8"
+  );
+  return urls.length;
+}
+
+function injectJsonLd(page, id, payload) {
+  const file = path.join(root, page);
+  const html = fs.readFileSync(file, "utf8");
+  const open = '<script id="' + id + '" type="application/ld+json">';
+  const start = html.indexOf(open);
+  if (start === -1) throw new Error("no " + id + " block in " + page);
+  const end = html.indexOf("</script>", start);
+  const block = open + JSON.stringify(payload) + "\n    ";
+  fs.writeFileSync(file, html.slice(0, start) + block + html.slice(end), "utf8");
+}
+
+function writeWorksJsonLd() {
+  const lists = Object.entries(LIBRARY_DIRS).map(([key, { dir, type }]) => {
+    const entries = sourceFiles(dir);
+    return {
+      "@type": "ItemList",
+      "@id": SITE + "/writings.html#" + key,
+      name: libraryData[key].title + " by Talon Cherry",
+      description: libraryData[key].subtitle,
+      numberOfItems: entries.length,
+      itemListOrder: "https://schema.org/ItemListUnordered",
+      itemListElement: entries.map((entry, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        item: {
+          "@type": type,
+          name: titleOf(entry),
+          url: siteUrl(entry.segments),
+          author: { "@id": SITE + "/#person" },
+        },
+      })),
+    };
+  });
+  injectJsonLd("writings.html", "site-works-jsonld", {
+    "@context": "https://schema.org",
+    "@graph": lists,
+  });
+  return lists.reduce((sum, list) => sum + list.numberOfItems, 0);
+}
+
+// life.html only offers the chapters named in its chapterOrder, so the markup
+// must not advertise the loose .txt chapters that nothing on the page links to.
+function pageChapterKeys() {
+  const html = fs.readFileSync(path.join(root, "life.html"), "utf8");
+  const match = html.match(/chapterOrder\s*=\s*\[([^\]]*)\]/);
+  if (!match) throw new Error("no chapterOrder in life.html");
+  return match[1]
+    .split(",")
+    .map((part) => part.trim().replace(/^['"]|['"]$/g, ""))
+    .filter(Boolean);
+}
+
+function writeChaptersJsonLd() {
+  const keys = pageChapterKeys();
+  const chapters = lifeFiles
+    .filter((file) => keys.includes(lifeKeyFor(file)))
+    .sort((a, b) => keys.indexOf(lifeKeyFor(a)) - keys.indexOf(lifeKeyFor(b)))
+    .map((file, index) => {
+      const key = lifeKeyFor(file);
+      return {
+        "@type": "ListItem",
+        position: index + 1,
+        item: {
+          "@type": "Chapter",
+          name: lifeData[key].title,
+          url: siteUrl(["My Life", file]),
+          author: { "@id": SITE + "/#person" },
+          about: { "@id": SITE + "/#person" },
+        },
+      };
+    });
+  injectJsonLd("life.html", "site-chapters-jsonld", {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "ItemList",
+        "@id": SITE + "/life.html#chapters",
+        name: "Chapters from the life of Talon Cherry",
+        numberOfItems: chapters.length,
+        itemListOrder: "https://schema.org/ItemListOrderAscending",
+        itemListElement: chapters,
+      },
+    ],
+  });
+  return chapters.length;
+}
+
 const counts = Object.fromEntries(
   Object.entries(libraryData).map(([k, v]) => [k, v.entries.length])
 );
 console.log("library", counts);
 console.log("life chapters", Object.keys(lifeData));
+console.log("sitemap urls", writeSitemap());
+console.log("works in jsonld", writeWorksJsonLd());
+console.log("chapters in jsonld", writeChaptersJsonLd());

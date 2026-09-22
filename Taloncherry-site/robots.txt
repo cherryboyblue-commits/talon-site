@@ -6,5 +6,7 @@ Disallow: /admin
 Disallow: /sky-preview.html
 Disallow: /login.html
 Disallow: /signup.html
+Disallow: /*.sql$
+Disallow: /*.mjs$
 
 Sitemap: https://www.taloncherry.com/sitemap.xml

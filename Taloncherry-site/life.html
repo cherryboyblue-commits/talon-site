@@ -32,7 +32,8 @@
           "name": "The Life of Talon Cherry",
           "about": { "@id": "https://www.taloncherry.com/#person" },
           "mainEntity": { "@id": "https://www.taloncherry.com/#person" },
-          "isPartOf": { "@id": "https://www.taloncherry.com/#website" }
+          "isPartOf": { "@id": "https://www.taloncherry.com/#website" },
+          "hasPart": { "@id": "https://www.taloncherry.com/life.html#chapters" }
         },
         {
           "@type": "Person",
@@ -50,6 +51,8 @@
         }
       ]
     }
+    </script>
+    <script id="site-chapters-jsonld" type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"ItemList","@id":"https://www.taloncherry.com/life.html#chapters","name":"Chapters from the life of Talon Cherry","numberOfItems":4,"itemListOrder":"https://schema.org/ItemListOrderAscending","itemListElement":[{"@type":"ListItem","position":1,"item":{"@type":"Chapter","name":"The Old Life","url":"https://www.taloncherry.com/My%20Life/The%20old%20life.txt","author":{"@id":"https://www.taloncherry.com/#person"},"about":{"@id":"https://www.taloncherry.com/#person"}}},{"@type":"ListItem","position":2,"item":{"@type":"Chapter","name":"The New Life","url":"https://www.taloncherry.com/My%20Life/The%20New%20Life.txt","author":{"@id":"https://www.taloncherry.com/#person"},"about":{"@id":"https://www.taloncherry.com/#person"}}},{"@type":"ListItem","position":3,"item":{"@type":"Chapter","name":"Faith","url":"https://www.taloncherry.com/My%20Life/Faith.txt","author":{"@id":"https://www.taloncherry.com/#person"},"about":{"@id":"https://www.taloncherry.com/#person"}}},{"@type":"ListItem","position":4,"item":{"@type":"Chapter","name":"Family and Friends","url":"https://www.taloncherry.com/My%20Life/Family%20and%20Friends.txt","author":{"@id":"https://www.taloncherry.com/#person"},"about":{"@id":"https://www.taloncherry.com/#person"}}}]}]}
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="site-widgets.css?v=crest-corner">
@@ -341,8 +344,8 @@
             <p class="text-zinc-400 text-sm max-w-md mx-auto font-light e-content" data-site="life.blurb">
                 Choose a chapter
             </p>
-            <a class="u-url indie-sr" href="https://taloncherry.com/life.html" tabindex="-1">https://taloncherry.com/life.html</a>
-            <a class="p-author h-card indie-sr" href="https://taloncherry.com/" tabindex="-1">Talon T. Cherry</a>
+            <a class="u-url indie-sr" href="https://www.taloncherry.com/life.html" tabindex="-1">https://www.taloncherry.com/life.html</a>
+            <a class="p-author h-card indie-sr" href="https://www.taloncherry.com/" tabindex="-1">Talon T. Cherry</a>
             <a class="indie-sr" href="https://fed.brid.gy/" tabindex="-1">https://fed.brid.gy/</a>
         </div>
 
@@ -360,8 +363,8 @@
                                     <span class="tw-toc-title p-name">The Old Life</span>
                                     <span class="tw-toc-blurb e-content">Oregon childhood, Colorado, fatherhood, and the years that made the man.</span>
                                 </button>
-                                <a class="u-url indie-sr" href="https://taloncherry.com/life.html#old" tabindex="-1">#old</a>
-                                <a class="p-author h-card indie-sr" href="https://taloncherry.com/" tabindex="-1">Talon T. Cherry</a>
+                                <a class="u-url indie-sr" href="https://www.taloncherry.com/life.html#old" tabindex="-1">#old</a>
+                                <a class="p-author h-card indie-sr" href="https://www.taloncherry.com/" tabindex="-1">Talon T. Cherry</a>
                                 <a class="indie-sr" href="https://fed.brid.gy/" tabindex="-1">https://fed.brid.gy/</a>
                             </li>
                             <li class="h-entry" id="new">
@@ -370,8 +373,8 @@
                                     <span class="tw-toc-title p-name">The New Life</span>
                                     <span class="tw-toc-blurb e-content">How we became Texans, farm lessons, and the turn toward Christ.</span>
                                 </button>
-                                <a class="u-url indie-sr" href="https://taloncherry.com/life.html#new" tabindex="-1">#new</a>
-                                <a class="p-author h-card indie-sr" href="https://taloncherry.com/" tabindex="-1">Talon T. Cherry</a>
+                                <a class="u-url indie-sr" href="https://www.taloncherry.com/life.html#new" tabindex="-1">#new</a>
+                                <a class="p-author h-card indie-sr" href="https://www.taloncherry.com/" tabindex="-1">Talon T. Cherry</a>
                                 <a class="indie-sr" href="https://fed.brid.gy/" tabindex="-1">https://fed.brid.gy/</a>
                             </li>
                             <li class="h-entry" id="faith">
@@ -380,8 +383,8 @@
                                     <span class="tw-toc-title p-name">Faith</span>
                                     <span class="tw-toc-blurb e-content">The fall, the climb, and baptism at Hamby Church of Christ.</span>
                                 </button>
-                                <a class="u-url indie-sr" href="https://taloncherry.com/life.html#faith" tabindex="-1">#faith</a>
-                                <a class="p-author h-card indie-sr" href="https://taloncherry.com/" tabindex="-1">Talon T. Cherry</a>
+                                <a class="u-url indie-sr" href="https://www.taloncherry.com/life.html#faith" tabindex="-1">#faith</a>
+                                <a class="p-author h-card indie-sr" href="https://www.taloncherry.com/" tabindex="-1">Talon T. Cherry</a>
                                 <a class="indie-sr" href="https://fed.brid.gy/" tabindex="-1">https://fed.brid.gy/</a>
                             </li>
                             <li class="h-entry" id="family">
@@ -390,15 +393,15 @@
                                     <span class="tw-toc-title p-name">Family &amp; Friends</span>
                                     <span class="tw-toc-blurb e-content">Kent and Judi, Logan and Brandy, Tim, Sean, Jason, and the rest.</span>
                                 </button>
-                                <a class="u-url indie-sr" href="https://taloncherry.com/life.html#family" tabindex="-1">#family</a>
-                                <a class="p-author h-card indie-sr" href="https://taloncherry.com/" tabindex="-1">Talon T. Cherry</a>
+                                <a class="u-url indie-sr" href="https://www.taloncherry.com/life.html#family" tabindex="-1">#family</a>
+                                <a class="p-author h-card indie-sr" href="https://www.taloncherry.com/" tabindex="-1">Talon T. Cherry</a>
                                 <a class="indie-sr" href="https://fed.brid.gy/" tabindex="-1">https://fed.brid.gy/</a>
                             </li>
                         </ol>
                     </div>
                     <div id="tw-read" class="h-entry" hidden>
-                        <a class="u-url indie-sr" href="https://taloncherry.com/life.html" tabindex="-1">https://taloncherry.com/life.html</a>
-                        <a class="p-author h-card indie-sr" href="https://taloncherry.com/" tabindex="-1">Talon T. Cherry</a>
+                        <a class="u-url indie-sr" href="https://www.taloncherry.com/life.html" tabindex="-1">https://www.taloncherry.com/life.html</a>
+                        <a class="p-author h-card indie-sr" href="https://www.taloncherry.com/" tabindex="-1">Talon T. Cherry</a>
                         <span class="tw-paper-kicker" data-site="life.index_kicker">The Life</span>
                         <h2 id="tw-title" class="p-name"></h2>
                         <p class="tw-paper-sub" id="tw-subtitle"></p>
@@ -684,12 +687,12 @@
                 li.appendChild(btn);
                 const url = document.createElement('a');
                 url.className = 'u-url indie-sr';
-                url.href = 'https://taloncherry.com/life.html#' + key;
+                url.href = 'https://www.taloncherry.com/life.html#' + key;
                 url.tabIndex = -1;
                 url.textContent = '#' + key;
                 const author = document.createElement('a');
                 author.className = 'p-author h-card indie-sr';
-                author.href = 'https://taloncherry.com/';
+                author.href = 'https://www.taloncherry.com/';
                 author.tabIndex = -1;
                 author.textContent = 'Talon T. Cherry';
                 const bridgy = document.createElement('a');
