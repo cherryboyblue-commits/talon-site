@@ -259,18 +259,6 @@ function writeSitemap() {
     priority: priority.toFixed(1),
   }));
 
-  const sources = Object.values(LIBRARY_DIRS)
-    .flatMap(({ dir }) => sourceFiles(dir))
-    .concat(sourceFiles(["My Life"]));
-  for (const entry of sources) {
-    urls.push({
-      loc: siteUrl(entry.segments),
-      lastmod: lastModified(entry.relative),
-      changefreq: "yearly",
-      priority: "0.5",
-    });
-  }
-
   const body = urls
     .map((url) => {
       const lines = ["  <url>", "    <loc>" + url.loc + "</loc>"];
