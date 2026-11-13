@@ -11,12 +11,17 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../site-widgets.css?v=crest-corner">
     <link rel="stylesheet" href="../site-atmosphere.css">
     <link rel="stylesheet" href="gate.css">
     <style>
         html, body { min-height: 100%; margin: 0; background: #09090b; }
-        .site-crest-seal { display: none !important; }
+        /* Public-page corner seal must never sit over Sveltia controls. */
+        body.study-admin .site-crest-seal,
+        .site-crest-seal {
+            display: none !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
+        }
         .study-wait {
             position: relative;
             z-index: 10;
@@ -30,7 +35,7 @@
         }
     </style>
 </head>
-<body>
+<body class="study-admin">
     <div class="fixed-sky lake-background"></div>
     <div id="rain-container" class="fixed-sky rain-layer"></div>
     <script src="../site-atmosphere.js"></script>
@@ -38,7 +43,13 @@
     <script src="txt-frontmatter.js"></script>
     <script src="gate.js"></script>
     <script>
+        function stripCrestSeal() {
+            document.querySelectorAll('.site-crest-seal').forEach(function (el) {
+                el.remove();
+            });
+        }
         function bootCms() {
+            stripCrestSeal();
             var wait = document.getElementById('study-wait');
             if (wait) wait.remove();
             var sky = document.querySelector('.lake-background');
@@ -51,11 +62,13 @@
             var cms = document.createElement('script');
             cms.src = 'https://unpkg.com/@sveltia/cms/dist/sveltia-cms.js';
             cms.onload = function () {
+                stripCrestSeal();
                 CMS.registerCustomFormat('txt-frontmatter', 'txt', window.TalonTxtFrontmatter);
                 CMS.init();
             };
             document.body.appendChild(cms);
         }
+        stripCrestSeal();
         window.TalonStudy.afterUnlock = bootCms;
         if (window.TalonStudy.isOpen()) {
             bootCms();
